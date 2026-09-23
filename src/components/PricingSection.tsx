@@ -83,30 +83,30 @@ export default function PricingSection() {
           </p>
 
           {/* Toggle */}
-          <div className="mt-8 inline-flex items-center gap-3 rounded-full bg-slate-100 p-1.5 border border-slate-200">
+          <div className="mt-6 sm:mt-8 inline-flex items-center rounded-full bg-slate-100 p-1 sm:p-1.5 border border-slate-200 gap-1">
             <button
               type="button"
               onClick={() => setAnnualBilling(false)}
-              className={`rounded-full px-4 py-1.5 text-xs font-semibold transition-all ${
+              className={`rounded-full px-3 sm:px-4 py-1 sm:py-1.5 text-[11px] sm:text-xs font-semibold transition-all whitespace-nowrap ${
                 !annualBilling
                   ? "bg-white text-slate-900 shadow-sm"
                   : "text-slate-600 hover:text-slate-900"
               }`}
             >
-              Monthly Billing
+              Monthly
             </button>
             <button
               type="button"
               onClick={() => setAnnualBilling(true)}
-              className={`flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-semibold transition-all ${
+              className={`flex items-center gap-1 rounded-full px-3 sm:px-4 py-1 sm:py-1.5 text-[11px] sm:text-xs font-semibold transition-all whitespace-nowrap ${
                 annualBilling
                   ? "bg-violet-600 text-white shadow-sm"
                   : "text-slate-600 hover:text-slate-900"
               }`}
             >
-              <span>Annual Billing</span>
-              <span className="rounded-full bg-violet-200/40 px-2 py-0.5 text-[10px] text-white font-bold">
-                Save 20%
+              <span>Annual</span>
+              <span className="rounded-full bg-violet-200/40 px-1.5 py-0.5 text-[9px] sm:text-[10px] text-white font-bold">
+                -20%
               </span>
             </button>
           </div>
