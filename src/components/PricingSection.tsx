@@ -67,7 +67,7 @@ export default function PricingSection() {
   ];
 
   return (
-    <section id="pricing" className="py-24 bg-white border-b border-slate-200/80">
+    <section id="pricing" className="py-16 sm:py-24 bg-white border-b border-slate-200/80">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         
         {/* Title & Billing Toggle */}
@@ -113,13 +113,13 @@ export default function PricingSection() {
         </div>
 
         {/* Pricing Cards */}
-        <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+        <div className="mt-10 sm:mt-16 grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-8 items-stretch">
           {tiers.map((tier, idx) => (
             <div
               key={idx}
-              className={`relative flex flex-col justify-between rounded-3xl p-8 transition-all ${
+              className={`relative flex flex-col justify-between rounded-2xl sm:rounded-3xl p-5 sm:p-8 transition-all ${
                 tier.popular
-                  ? "border-2 border-violet-500 bg-gradient-to-b from-violet-50/40 via-white to-white shadow-2xl shadow-violet-500/15 ring-4 ring-violet-500/10 md:-translate-y-2"
+                  ? "border-2 border-violet-500 bg-gradient-to-b from-violet-50/40 via-white to-white shadow-2xl shadow-violet-500/20 ring-4 ring-violet-500/15"
                   : "border border-slate-200 bg-white shadow-sm hover:shadow-lg"
               }`}
             >
@@ -139,8 +139,8 @@ export default function PricingSection() {
                   )}
                 </div>
 
-                <div className="mt-6 flex items-baseline gap-1">
-                  <span className="text-4xl font-extrabold text-slate-900">{tier.price}</span>
+                <div className="mt-5 sm:mt-6 flex items-baseline gap-1">
+                  <span className="text-3xl sm:text-4xl font-extrabold text-slate-900">{tier.price}</span>
                   <span className="text-xs text-slate-500 font-medium">/{tier.period}</span>
                 </div>
                 <p className="mt-3 text-xs text-slate-600 leading-relaxed min-h-[36px]">

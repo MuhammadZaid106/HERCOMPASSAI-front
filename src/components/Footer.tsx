@@ -8,7 +8,7 @@ export default function Footer() {
     <footer className="bg-slate-950 text-slate-400 py-16 border-t border-slate-900">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 pb-12 border-b border-slate-800/80">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 pb-12 border-b border-slate-800/80">
           
           {/* Brand Info */}
           <div className="md:col-span-4 space-y-4">
@@ -34,26 +34,29 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div className="md:col-span-2 space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-white">Platform</h4>
-            <ul className="space-y-2 text-xs">
-              <li><a href="#features" className="hover:text-white transition-colors">Features</a></li>
-              <li><a href="#how-it-works" className="hover:text-white transition-colors">How It Works</a></li>
-              <li><a href="#evidence" className="hover:text-white transition-colors">Evidence Base</a></li>
-              <li><a href="#pricing" className="hover:text-white transition-colors">Pricing Plans</a></li>
-            </ul>
-          </div>
+          {/* Quick Links — side-by-side on mobile via nested grid */}
+          <div className="grid grid-cols-2 gap-8 md:contents">
+            {/* Platform */}
+            <div className="md:col-span-2 space-y-3">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-white">Platform</h4>
+              <ul className="space-y-2 text-xs">
+                <li><a href="#features" className="hover:text-white transition-colors">Features</a></li>
+                <li><a href="#how-it-works" className="hover:text-white transition-colors">How It Works</a></li>
+                <li><a href="#evidence" className="hover:text-white transition-colors">Evidence Base</a></li>
+                <li><a href="#pricing" className="hover:text-white transition-colors">Pricing Plans</a></li>
+              </ul>
+            </div>
 
-          {/* Relationship Support */}
-          <div className="md:col-span-2 space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-white">Couples</h4>
-            <ul className="space-y-2 text-xs">
-              <li><Link href="/partner" className="hover:text-white transition-colors">Partner Digest</Link></li>
-              <li><Link href="/partner/academy" className="hover:text-white transition-colors">Men&apos;s Academy</Link></li>
-              <li><Link href="/privacy" className="hover:text-white transition-colors">Consent Model</Link></li>
-              <li><Link href="/onboarding" className="hover:text-white transition-colors">5-Min Snapshot</Link></li>
-            </ul>
+            {/* Relationship Support */}
+            <div className="md:col-span-2 space-y-3">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-white">Couples</h4>
+              <ul className="space-y-2 text-xs">
+                <li><Link href="/partner" className="hover:text-white transition-colors">Partner Digest</Link></li>
+                <li><Link href="/partner/academy" className="hover:text-white transition-colors">Men&apos;s Academy</Link></li>
+                <li><Link href="/privacy" className="hover:text-white transition-colors">Consent Model</Link></li>
+                <li><Link href="/onboarding" className="hover:text-white transition-colors">5-Min Snapshot</Link></li>
+              </ul>
+            </div>
           </div>
 
           {/* Clinical Disclaimer Notice */}
@@ -67,6 +70,7 @@ export default function Footer() {
           </div>
 
         </div>
+
 
         {/* Bottom Bar */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">

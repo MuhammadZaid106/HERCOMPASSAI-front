@@ -37,12 +37,12 @@ export default function FeatureShowcase() {
         </div>
 
         {/* Tab Selector Buttons */}
-        <div className="mt-12 flex flex-wrap justify-center gap-2.5">
+        <div className="mt-10 sm:mt-12 grid grid-cols-2 sm:flex sm:flex-wrap sm:justify-center gap-2 sm:gap-2.5">
           {[
-            { id: "snapshot", label: "Personal Menopause Snapshot™", icon: FileText },
-            { id: "nutrition", label: "Adaptive Nutrition Radar", icon: UtensilsCrossed },
-            { id: "movement", label: "Cooling Breath & Movement", icon: Activity },
-            { id: "partner", label: "Partner Support & Men's Academy", icon: HeartHandshake },
+            { id: "snapshot", label: "Personal Menopause Snapshot™", shortLabel: "Snapshot™", icon: FileText },
+            { id: "nutrition", label: "Adaptive Nutrition Radar", shortLabel: "Nutrition Radar", icon: UtensilsCrossed },
+            { id: "movement", label: "Cooling Breath & Movement", shortLabel: "Movement", icon: Activity },
+            { id: "partner", label: "Partner Support & Men's Academy", shortLabel: "Partner Support", icon: HeartHandshake },
           ].map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -51,21 +51,22 @@ export default function FeatureShowcase() {
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id as TabId)}
-                className={`flex items-center gap-2 rounded-2xl px-5 py-3 text-xs sm:text-sm font-semibold transition-all ${
+                className={`flex items-center justify-center gap-1.5 sm:gap-2 rounded-2xl px-3 sm:px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold transition-all ${
                   isActive
                     ? "bg-violet-600 text-white shadow-lg shadow-violet-500/25"
                     : "bg-slate-100 text-slate-600 hover:bg-slate-200/70 hover:text-slate-900"
                 }`}
               >
-                <Icon className="h-4 w-4" />
-                <span>{tab.label}</span>
+                <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0" />
+                <span className="sm:hidden">{tab.shortLabel}</span>
+                <span className="hidden sm:inline">{tab.label}</span>
               </button>
             );
           })}
         </div>
 
         {/* Interactive Feature Display */}
-        <div className="mt-12 rounded-3xl border border-slate-200 bg-[#FAF9F6] p-6 sm:p-10 lg:p-12 shadow-sm">
+        <div className="mt-6 sm:mt-12 rounded-3xl border border-slate-200 bg-[#FAF9F6] p-5 sm:p-10 lg:p-12 shadow-sm">
           
           {/* TAB 1: Personal Menopause Snapshot */}
           {activeTab === "snapshot" && (
@@ -106,28 +107,29 @@ export default function FeatureShowcase() {
               </div>
 
               <div className="lg:col-span-6">
-                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-md">
-                  <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 shadow-md">
+                  {/* Card header - stacks on mobile */}
+                  <div className="flex flex-col gap-1.5 pb-3 border-b border-slate-100 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-2">
-                      <Sparkles className="h-4 w-4 text-violet-600" />
+                      <Sparkles className="h-4 w-4 text-violet-600 flex-shrink-0" />
                       <span className="text-xs font-bold text-slate-900">Snapshot Contract v1.2</span>
                     </div>
-                    <span className="text-[11px] font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
-                      SCI Guardrails: Pass
+                    <span className="self-start text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
+                      ✓ SCI Guardrails: Pass
                     </span>
                   </div>
-                  <div className="mt-4 space-y-3 text-xs">
-                    <div className="p-3 bg-violet-50/60 rounded-xl border border-violet-100">
+                  <div className="mt-3 space-y-2.5 text-xs">
+                    <div className="p-2.5 sm:p-3 bg-violet-50/60 rounded-xl border border-violet-100">
                       <span className="font-bold text-violet-900 block mb-0.5">Symptom Observation</span>
-                      <p className="text-slate-600">&quot;Night sweats and sleep latency reported as moderate impact.&quot;</p>
+                      <p className="text-slate-600 leading-relaxed">&quot;Night sweats and sleep latency reported as moderate impact.&quot;</p>
                     </div>
-                    <div className="p-3 bg-emerald-50/60 rounded-xl border border-emerald-100">
+                    <div className="p-2.5 sm:p-3 bg-emerald-50/60 rounded-xl border border-emerald-100">
                       <span className="font-bold text-emerald-900 block mb-0.5">Personalized Recommendation</span>
-                      <p className="text-slate-600">&quot;Increase evening magnesium intake; discontinue caffeine at 2:00 PM.&quot;</p>
+                      <p className="text-slate-600 leading-relaxed">&quot;Increase evening magnesium intake; discontinue caffeine at 2:00 PM.&quot;</p>
                     </div>
-                    <div className="p-3 bg-amber-50/60 rounded-xl border border-amber-100">
+                    <div className="p-2.5 sm:p-3 bg-amber-50/60 rounded-xl border border-amber-100">
                       <span className="font-bold text-amber-900 block mb-0.5">Today&apos;s Next Action</span>
-                      <p className="text-slate-600">&quot;10-minute cooling breath meditation 30 minutes before sleep.&quot;</p>
+                      <p className="text-slate-600 leading-relaxed">&quot;10-minute cooling breath meditation 30 minutes before sleep.&quot;</p>
                     </div>
                   </div>
                 </div>
@@ -166,27 +168,27 @@ export default function FeatureShowcase() {
               </div>
 
               <div className="lg:col-span-6">
-                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-md space-y-4">
-                  <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 shadow-md space-y-3">
+                  <div className="flex flex-col gap-1 pb-3 border-b border-slate-100 sm:flex-row sm:items-center sm:justify-between">
                     <span className="text-xs font-bold text-slate-900">Today&apos;s Recommended Meal Plan</span>
-                    <span className="text-[11px] font-semibold text-slate-500">WHO &amp; NIH Aligned</span>
+                    <span className="self-start text-[10px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">WHO &amp; NIH Aligned</span>
                   </div>
-                  <div className="flex items-center gap-4 p-3 rounded-xl border border-slate-100 bg-slate-50">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 font-bold text-xs flex-shrink-0">
+                  <div className="flex items-center gap-3 p-3 rounded-xl border border-slate-100 bg-slate-50">
+                    <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 font-bold text-[10px] sm:text-xs flex-shrink-0">
                       Dinner
                     </div>
                     <div>
-                      <h4 className="text-sm font-bold text-slate-900">Spinach &amp; Lentil Magnesium Bowl</h4>
-                      <p className="text-xs text-slate-500 mt-0.5">380mg Magnesium • High fiber • Supports uninterrupted sleep</p>
+                      <h4 className="text-xs sm:text-sm font-bold text-slate-900">Spinach &amp; Lentil Magnesium Bowl</h4>
+                      <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5">380mg Magnesium • High fiber • Better sleep</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4 p-3 rounded-xl border border-slate-100 bg-slate-50">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-100 text-violet-700 font-bold text-xs flex-shrink-0">
+                  <div className="flex items-center gap-3 p-3 rounded-xl border border-slate-100 bg-slate-50">
+                    <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-violet-100 text-violet-700 font-bold text-[10px] sm:text-xs flex-shrink-0">
                       Night
                     </div>
                     <div>
-                      <h4 className="text-sm font-bold text-slate-900">Lavender &amp; Chamomile Cooling Infusion</h4>
-                      <p className="text-xs text-slate-500 mt-0.5">Nervous system relaxation • Zero sugar or stimulants</p>
+                      <h4 className="text-xs sm:text-sm font-bold text-slate-900">Lavender &amp; Chamomile Cooling Infusion</h4>
+                      <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5">Nervous system relaxation • Zero stimulants</p>
                     </div>
                   </div>
                 </div>
@@ -223,18 +225,18 @@ export default function FeatureShowcase() {
               </div>
 
               <div className="lg:col-span-6">
-                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-md space-y-4">
-                  <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 shadow-md space-y-3">
+                  <div className="flex flex-col gap-1 pb-3 border-b border-slate-100 sm:flex-row sm:items-center sm:justify-between">
                     <span className="text-xs font-bold text-slate-900">Today&apos;s Active Routine</span>
-                    <span className="text-[11px] font-semibold text-sky-600">ACOG Guideline Grounded</span>
+                    <span className="self-start text-[10px] font-semibold text-sky-600 bg-sky-50 px-2 py-0.5 rounded-full border border-sky-100">ACOG Guideline Grounded</span>
                   </div>
-                  <div className="p-4 rounded-xl border border-sky-100 bg-sky-50/50">
-                    <span className="text-[11px] font-bold text-sky-700 uppercase tracking-wider">Guided Audio Routine</span>
-                    <h4 className="text-sm font-bold text-slate-900 mt-1">5-Min Cooling Exhale Meditation</h4>
-                    <p className="text-xs text-slate-600 mt-1">
-                      Designed to reduce sympathetic nervous system tone and lower nighttime flush probability.
+                  <div className="p-3 rounded-xl border border-sky-100 bg-sky-50/50">
+                    <span className="text-[10px] font-bold text-sky-700 uppercase tracking-wider">Guided Audio Routine</span>
+                    <h4 className="text-xs sm:text-sm font-bold text-slate-900 mt-1">5-Min Cooling Exhale Meditation</h4>
+                    <p className="text-[10px] sm:text-xs text-slate-600 mt-1 leading-relaxed">
+                      Reduces sympathetic nervous system tone and lowers nighttime flush probability.
                     </p>
-                    <div className="mt-3 flex items-center justify-between text-xs text-slate-500">
+                    <div className="mt-2.5 flex items-center justify-between text-[10px] text-slate-500">
                       <span>Duration: 5 min</span>
                       <span className="font-semibold text-sky-700 cursor-pointer">Preview Routine →</span>
                     </div>
@@ -273,26 +275,26 @@ export default function FeatureShowcase() {
               </div>
 
               <div className="lg:col-span-6">
-                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-md space-y-3">
-                  <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 shadow-md space-y-3">
+                  <div className="flex flex-col gap-1.5 pb-3 border-b border-slate-100 sm:flex-row sm:items-center sm:justify-between">
                     <span className="text-xs font-bold text-slate-900">Member Privacy Control Panel</span>
-                    <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <span className="self-start text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100 flex items-center gap-1">
                       <Lock className="h-3 w-3" /> Consented Scope
                     </span>
                   </div>
                   
                   <div className="space-y-2 text-xs">
-                    <div className="flex items-center justify-between p-3 rounded-xl border border-slate-100 bg-slate-50">
+                    <div className="flex items-center justify-between p-2.5 sm:p-3 rounded-xl border border-slate-100 bg-slate-50">
                       <span className="font-semibold text-slate-700">Share Weekly Digest Summary</span>
                       <span className="font-bold text-emerald-600">Enabled</span>
                     </div>
-                    <div className="flex items-center justify-between p-3 rounded-xl border border-slate-100 bg-slate-50">
+                    <div className="flex items-center justify-between p-2.5 sm:p-3 rounded-xl border border-slate-100 bg-slate-50">
                       <span className="font-semibold text-slate-700">Share Suggested Joint Meals</span>
                       <span className="font-bold text-emerald-600">Enabled</span>
                     </div>
-                    <div className="flex items-center justify-between p-3 rounded-xl border border-slate-100 bg-slate-50">
+                    <div className="flex items-center justify-between p-2.5 sm:p-3 rounded-xl border border-slate-100 bg-slate-50">
                       <span className="font-semibold text-slate-700">Share Raw Daily Notes</span>
-                      <span className="font-bold text-slate-400">Locked / Never Shared</span>
+                      <span className="font-bold text-slate-400">Locked / Never</span>
                     </div>
                   </div>
                 </div>

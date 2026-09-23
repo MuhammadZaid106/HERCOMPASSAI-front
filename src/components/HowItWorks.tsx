@@ -110,12 +110,12 @@ export default function HowItWorks() {
         </div>
 
         {/* Bottom Callout */}
-        <div className="mt-16 text-center">
+        <div className="mt-12 sm:mt-16 text-center">
           <Link
             href="/onboarding"
-            className="inline-flex items-center gap-2 rounded-2xl bg-slate-900 px-7 py-4 text-sm font-semibold text-white shadow-md hover:bg-slate-800 transition-all hover:shadow-lg"
+            className="inline-flex items-center gap-2 rounded-xl sm:rounded-2xl bg-slate-900 px-5 sm:px-7 py-3 sm:py-4 text-sm font-semibold text-white shadow-md hover:bg-slate-800 transition-all hover:shadow-lg"
           >
-            <span>Experience Step 1 Now (Takes 5 Minutes)</span>
+            <span>Experience Step 1 Now</span>
             <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
