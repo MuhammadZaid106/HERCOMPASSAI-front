@@ -44,6 +44,8 @@ export default function Footer() {
                 <li><a href="#how-it-works" className="hover:text-white transition-colors">How It Works</a></li>
                 <li><a href="#evidence" className="hover:text-white transition-colors">Evidence Base</a></li>
                 <li><a href="#pricing" className="hover:text-white transition-colors">Pricing Plans</a></li>
+                <li><Link href="/login" className="hover:text-white transition-colors">Sign In</Link></li>
+                <li><Link href="/register" className="hover:text-white transition-colors text-violet-400 font-semibold">Start Free Trial</Link></li>
               </ul>
             </div>
 
