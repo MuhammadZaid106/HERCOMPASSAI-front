@@ -27,11 +27,13 @@ export default function AuthLayout({
   children,
 }: AuthLayoutProps) {
   return (
-    <div className="relative min-h-screen bg-[#FBFBF9] flex flex-col justify-between overflow-x-hidden text-slate-800">
-      {/* Serene Ambient Glows */}
-      <div className="absolute -top-32 -left-32 w-72 sm:w-96 h-72 sm:h-96 bg-purple-200/30 rounded-full blur-[100px] sm:blur-[120px] pointer-events-none" />
-      <div className="absolute top-1/4 -right-32 w-72 sm:w-96 h-72 sm:h-96 bg-indigo-200/25 rounded-full blur-[110px] sm:blur-[140px] pointer-events-none" />
-      <div className="absolute -bottom-24 left-1/4 w-80 sm:w-[500px] h-60 sm:h-72 bg-rose-100/20 rounded-full blur-[100px] sm:blur-[130px] pointer-events-none" />
+    <div className="relative min-h-screen bg-[#FBFBF9] flex flex-col justify-between text-slate-800">
+      {/* Serene Ambient Glows — isolated inside overflow-hidden container */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-32 -left-32 w-72 sm:w-96 h-72 sm:h-96 bg-purple-200/30 rounded-full blur-[100px] sm:blur-[120px]" />
+        <div className="absolute top-1/4 -right-32 w-72 sm:w-96 h-72 sm:h-96 bg-indigo-200/25 rounded-full blur-[110px] sm:blur-[140px]" />
+        <div className="absolute -bottom-24 left-1/4 w-80 sm:w-[500px] h-60 sm:h-72 bg-rose-100/20 rounded-full blur-[100px] sm:blur-[130px]" />
+      </div>
 
       {/* Top Header - Compact and responsive on mobile */}
       <header className="relative z-20 w-full border-b border-slate-200/50 bg-white/75 backdrop-blur-md">
