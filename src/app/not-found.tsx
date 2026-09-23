@@ -60,7 +60,7 @@ export default function NotFound() {
         <div className="mt-8 w-16 h-px bg-gradient-to-r from-transparent via-violet-300 to-transparent" />
 
         {/* CTA Buttons */}
-        <div className="mt-8 flex flex-col sm:flex-row items-center gap-4 w-full">
+        <div className="mt-8 flex flex-col sm:flex-row items-center gap-4 w-full sm:justify-center">
           <Link
             href="/"
             className="inline-flex w-full sm:w-auto items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 px-7 py-4 text-sm font-semibold text-white shadow-xl shadow-violet-500/25 transition-all hover:shadow-2xl hover:shadow-violet-500/35 hover:-translate-y-0.5 active:translate-y-0"
