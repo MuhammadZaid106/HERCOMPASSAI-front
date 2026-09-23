@@ -1,0 +1,29 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="favRing" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7C5CFC" />
+      <stop offset="60%" stop-color="#6366F1" />
+      <stop offset="100%" stop-color="#10B981" />
+    </linearGradient>
+    <linearGradient id="favCross" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7C5CFC" />
+      <stop offset="100%" stop-color="#4F46E5" />
+    </linearGradient>
+  </defs>
+
+  <!-- Outer Protective Health Ring -->
+  <circle cx="16" cy="16" r="14" stroke="url(#favRing)" stroke-width="2.5" />
+
+  <!-- Medical Cross Horizontal Beam -->
+  <rect x="7" y="13.5" width="18" height="5" rx="2.5" fill="url(#favCross)" />
+
+  <!-- Medical Cross Vertical Beam -->
+  <rect x="13.5" y="7" width="5" height="18" rx="2.5" fill="url(#favCross)" />
+
+  <!-- North Guiding Compass Pointer -->
+  <path d="M16 3.5 L18.5 13.5 L13.5 13.5 Z" fill="#9333EA" />
+
+  <!-- Pulse Center -->
+  <circle cx="16" cy="16" r="3.2" fill="#FFFFFF" />
+  <circle cx="16" cy="16" r="2" fill="#10B981" />
+</svg>
