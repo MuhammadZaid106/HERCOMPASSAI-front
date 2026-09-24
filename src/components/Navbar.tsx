@@ -3,10 +3,14 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { Menu, X, ArrowRight } from "lucide-react";
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
+  const isFeaturesActive = pathname === "/features";
+  const isHowItWorksActive = pathname === "/how-it-works";
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-slate-200/60 bg-white/90 backdrop-blur-md transition-all">
@@ -33,36 +37,50 @@ export default function Navbar() {
 
         {/* Desktop Navigation Links — Only shown on lg (1024px+) to prevent tablet link wrapping */}
         <nav className="hidden lg:flex items-center gap-5 xl:gap-8">
-          <a
-            href="#features"
-            className="text-sm font-medium text-slate-600 hover:text-violet-600 transition-colors whitespace-nowrap"
+          <Link
+            href="/features"
+            className={`text-sm font-medium transition-colors whitespace-nowrap relative ${
+              isFeaturesActive
+                ? "text-violet-600 font-semibold"
+                : "text-slate-600 hover:text-violet-600"
+            }`}
           >
             Features
-          </a>
-          <a
-            href="#how-it-works"
-            className="text-sm font-medium text-slate-600 hover:text-violet-600 transition-colors whitespace-nowrap"
+            {isFeaturesActive && (
+              <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-violet-600 rounded-full" />
+            )}
+          </Link>
+          <Link
+            href="/how-it-works"
+            className={`text-sm font-medium transition-colors whitespace-nowrap relative ${
+              isHowItWorksActive
+                ? "text-violet-600 font-semibold"
+                : "text-slate-600 hover:text-violet-600"
+            }`}
           >
             How It Works
-          </a>
-          <a
-            href="#evidence"
+            {isHowItWorksActive && (
+              <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-violet-600 rounded-full" />
+            )}
+          </Link>
+          <Link
+            href={isFeaturesActive ? "/features#evidence" : isHowItWorksActive ? "/how-it-works#architecture" : "/#evidence"}
             className="text-sm font-medium text-slate-600 hover:text-violet-600 transition-colors whitespace-nowrap"
           >
             Evidence Base
-          </a>
-          <a
-            href="#partner-support"
+          </Link>
+          <Link
+            href={isFeaturesActive ? "/features#partner" : isHowItWorksActive ? "/how-it-works#step-3" : "/#partner-support"}
             className="text-sm font-medium text-slate-600 hover:text-violet-600 transition-colors whitespace-nowrap"
           >
             Partner Support
-          </a>
-          <a
-            href="#pricing"
+          </Link>
+          <Link
+            href="/#pricing"
             className="text-sm font-medium text-slate-600 hover:text-violet-600 transition-colors whitespace-nowrap"
           >
             Pricing
-          </a>
+          </Link>
         </nav>
 
         {/* Desktop Action Buttons (1024px+) */}
@@ -115,41 +133,49 @@ export default function Navbar() {
       {mobileMenuOpen && (
         <div className="lg:hidden border-b border-slate-200 bg-white px-5 pt-3 pb-6 shadow-xl animate-in slide-in-from-top-4 duration-200">
           <nav className="flex flex-col gap-2.5 py-2">
-            <a
-              href="#features"
+            <Link
+              href="/features"
               onClick={() => setMobileMenuOpen(false)}
-              className="rounded-lg px-3 py-2 text-sm sm:text-base font-medium text-slate-700 hover:bg-violet-50 hover:text-violet-600"
+              className={`rounded-lg px-3 py-2 text-sm sm:text-base font-medium transition-colors ${
+                isFeaturesActive
+                  ? "bg-violet-50 text-violet-700 font-semibold"
+                  : "text-slate-700 hover:bg-violet-50 hover:text-violet-600"
+              }`}
             >
               Features
-            </a>
-            <a
-              href="#how-it-works"
+            </Link>
+            <Link
+              href="/how-it-works"
               onClick={() => setMobileMenuOpen(false)}
-              className="rounded-lg px-3 py-2 text-sm sm:text-base font-medium text-slate-700 hover:bg-violet-50 hover:text-violet-600"
+              className={`rounded-lg px-3 py-2 text-sm sm:text-base font-medium transition-colors ${
+                isHowItWorksActive
+                  ? "bg-violet-50 text-violet-700 font-semibold"
+                  : "text-slate-700 hover:bg-violet-50 hover:text-violet-600"
+              }`}
             >
               How It Works
-            </a>
-            <a
-              href="#evidence"
+            </Link>
+            <Link
+              href={isFeaturesActive ? "/features#evidence" : isHowItWorksActive ? "/how-it-works#architecture" : "/#evidence"}
               onClick={() => setMobileMenuOpen(false)}
               className="rounded-lg px-3 py-2 text-sm sm:text-base font-medium text-slate-700 hover:bg-violet-50 hover:text-violet-600"
             >
               Evidence Base
-            </a>
-            <a
-              href="#partner-support"
+            </Link>
+            <Link
+              href={isFeaturesActive ? "/features#partner" : isHowItWorksActive ? "/how-it-works#step-3" : "/#partner-support"}
               onClick={() => setMobileMenuOpen(false)}
               className="rounded-lg px-3 py-2 text-sm sm:text-base font-medium text-slate-700 hover:bg-violet-50 hover:text-violet-600"
             >
               Partner Support (CPS)
-            </a>
-            <a
-              href="#pricing"
+            </Link>
+            <Link
+              href="/#pricing"
               onClick={() => setMobileMenuOpen(false)}
               className="rounded-lg px-3 py-2 text-sm sm:text-base font-medium text-slate-700 hover:bg-violet-50 hover:text-violet-600"
             >
               Pricing
-            </a>
+            </Link>
           </nav>
           <div className="mt-4 flex flex-col gap-2.5 pt-4 border-t border-slate-100">
             <div className="grid grid-cols-2 gap-2">

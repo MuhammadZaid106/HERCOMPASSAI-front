@@ -40,10 +40,10 @@ export default function Footer() {
             <div className="md:col-span-2 space-y-3">
               <h4 className="text-xs font-bold uppercase tracking-wider text-white">Platform</h4>
               <ul className="space-y-2 text-xs">
-                <li><a href="#features" className="hover:text-white transition-colors">Features</a></li>
-                <li><a href="#how-it-works" className="hover:text-white transition-colors">How It Works</a></li>
-                <li><a href="#evidence" className="hover:text-white transition-colors">Evidence Base</a></li>
-                <li><a href="#pricing" className="hover:text-white transition-colors">Pricing Plans</a></li>
+                <li><Link href="/features" className="hover:text-white transition-colors">Features</Link></li>
+                <li><Link href="/how-it-works" className="hover:text-white transition-colors">How It Works</Link></li>
+                <li><Link href="/features#evidence" className="hover:text-white transition-colors">Evidence Base</Link></li>
+                <li><Link href="/#pricing" className="hover:text-white transition-colors">Pricing Plans</Link></li>
                 <li><Link href="/login" className="hover:text-white transition-colors">Sign In</Link></li>
                 <li><Link href="/register" className="hover:text-white transition-colors text-violet-400 font-semibold">Start Free Trial</Link></li>
               </ul>

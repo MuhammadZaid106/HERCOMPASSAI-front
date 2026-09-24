@@ -110,13 +110,20 @@ export default function HowItWorks() {
         </div>
 
         {/* Bottom Callout */}
-        <div className="mt-10 sm:mt-14 lg:mt-16 text-center">
+        <div className="mt-10 sm:mt-14 lg:mt-16 flex flex-row flex-wrap items-center justify-center gap-3 sm:gap-4">
           <Link
             href="/onboarding"
             className="inline-flex items-center gap-2 rounded-xl sm:rounded-2xl bg-slate-900 px-5 sm:px-7 py-3 sm:py-3.5 text-xs sm:text-sm font-semibold text-white shadow-md hover:bg-slate-800 transition-all hover:shadow-lg hover:-translate-y-0.5"
           >
             <span>Experience Step 1 Now</span>
             <ArrowRight className="h-4 w-4" />
+          </Link>
+          <Link
+            href="/how-it-works"
+            className="inline-flex items-center gap-2 rounded-xl sm:rounded-2xl bg-white border border-slate-200 px-5 sm:px-7 py-3 sm:py-3.5 text-xs sm:text-sm font-semibold text-slate-700 shadow-xs hover:bg-slate-50 transition-all hover:border-violet-300 hover:text-violet-700"
+          >
+            <span>Explore Full 3-Step Guide</span>
+            <ArrowRight className="h-4 w-4 text-violet-600" />
           </Link>
         </div>
 
