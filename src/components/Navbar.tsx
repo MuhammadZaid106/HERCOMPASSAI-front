@@ -11,6 +11,7 @@ export default function Navbar() {
   const pathname = usePathname();
   const isFeaturesActive = pathname === "/features";
   const isHowItWorksActive = pathname === "/how-it-works";
+  const isPartnerActive = pathname === "/partner";
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-slate-200/60 bg-white/90 backdrop-blur-md transition-all">
@@ -64,16 +65,23 @@ export default function Navbar() {
             )}
           </Link>
           <Link
-            href={isFeaturesActive ? "/features#evidence" : isHowItWorksActive ? "/how-it-works#architecture" : "/#evidence"}
+            href={isFeaturesActive ? "/features#evidence" : isHowItWorksActive ? "/how-it-works#architecture" : isPartnerActive ? "/partner#privacy" : "/#evidence"}
             className="text-sm font-medium text-slate-600 hover:text-violet-600 transition-colors whitespace-nowrap"
           >
             Evidence Base
           </Link>
           <Link
-            href={isFeaturesActive ? "/features#partner" : isHowItWorksActive ? "/how-it-works#step-3" : "/#partner-support"}
-            className="text-sm font-medium text-slate-600 hover:text-violet-600 transition-colors whitespace-nowrap"
+            href="/partner"
+            className={`text-sm font-medium transition-colors whitespace-nowrap relative ${
+              isPartnerActive
+                ? "text-violet-600 font-semibold"
+                : "text-slate-600 hover:text-violet-600"
+            }`}
           >
             Partner Support
+            {isPartnerActive && (
+              <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-violet-600 rounded-full" />
+            )}
           </Link>
           <Link
             href="/#pricing"
@@ -156,16 +164,20 @@ export default function Navbar() {
               How It Works
             </Link>
             <Link
-              href={isFeaturesActive ? "/features#evidence" : isHowItWorksActive ? "/how-it-works#architecture" : "/#evidence"}
+              href={isFeaturesActive ? "/features#evidence" : isHowItWorksActive ? "/how-it-works#architecture" : isPartnerActive ? "/partner#privacy" : "/#evidence"}
               onClick={() => setMobileMenuOpen(false)}
               className="rounded-lg px-3 py-2 text-sm sm:text-base font-medium text-slate-700 hover:bg-violet-50 hover:text-violet-600"
             >
               Evidence Base
             </Link>
             <Link
-              href={isFeaturesActive ? "/features#partner" : isHowItWorksActive ? "/how-it-works#step-3" : "/#partner-support"}
+              href="/partner"
               onClick={() => setMobileMenuOpen(false)}
-              className="rounded-lg px-3 py-2 text-sm sm:text-base font-medium text-slate-700 hover:bg-violet-50 hover:text-violet-600"
+              className={`rounded-lg px-3 py-2 text-sm sm:text-base font-medium transition-colors ${
+                isPartnerActive
+                  ? "bg-violet-50 text-violet-700 font-semibold"
+                  : "text-slate-700 hover:bg-violet-50 hover:text-violet-600"
+              }`}
             >
               Partner Support (CPS)
             </Link>

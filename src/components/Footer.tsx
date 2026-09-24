@@ -54,8 +54,8 @@ export default function Footer() {
               <h4 className="text-xs font-bold uppercase tracking-wider text-white">Couples</h4>
               <ul className="space-y-2 text-xs">
                 <li><Link href="/partner" className="hover:text-white transition-colors">Partner Digest</Link></li>
-                <li><Link href="/partner/academy" className="hover:text-white transition-colors">Men&apos;s Academy</Link></li>
-                <li><Link href="/privacy" className="hover:text-white transition-colors">Consent Model</Link></li>
+                <li><Link href="/partner#academy" className="hover:text-white transition-colors">Men&apos;s Academy</Link></li>
+                <li><Link href="/partner#privacy" className="hover:text-white transition-colors">Consent Model</Link></li>
                 <li><Link href="/onboarding" className="hover:text-white transition-colors">5-Min Snapshot</Link></li>
               </ul>
             </div>
