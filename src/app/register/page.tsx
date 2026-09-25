@@ -3,6 +3,7 @@
 import React, { Suspense, useState, useMemo } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { signIn } from "next-auth/react";
 import { useFormik } from "formik";
 import {
   Eye,
@@ -25,9 +26,11 @@ import {
   RegisterFormValues,
   calculatePasswordStrength,
 } from "@/lib/validation/authSchemas";
+import { useAuth } from "@/lib/auth/AuthContext";
 
 function RegisterContent() {
   const router = useRouter();
+  const { register } = useAuth();
   const searchParams = useSearchParams();
   const planQuery = searchParams.get("plan");
 
@@ -35,6 +38,7 @@ function RegisterContent() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmittingForm, setIsSubmittingForm] = useState(false);
   const [authSuccess, setAuthSuccess] = useState<string | null>(null);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   const formik = useFormik<RegisterFormValues>({
     initialValues: registerInitialValues,
@@ -42,17 +46,42 @@ function RegisterContent() {
     onSubmit: async (values) => {
       setIsSubmittingForm(true);
       setAuthSuccess(null);
+      setAuthError(null);
 
-      // Simulate account registration
-      setTimeout(() => {
-        setIsSubmittingForm(false);
-        setAuthSuccess(
-          `Account created for ${values.fullName}! Setting up your profile...`
-        );
+      const planValue: "free" | "plus" | "premium" =
+        planQuery === "plus" || planQuery === "premium" ? planQuery : "free";
+
+      try {
+        const res = await register({
+          name: values.fullName.trim(),
+          email: values.email.trim().toLowerCase(),
+          password: values.password,
+          role: values.role,
+          plan: planValue,
+        });
+
+        if (!res.success) {
+          let errMsg = res.message || "Registration failed";
+          if (res.errors) {
+            const firstErr = Object.values(res.errors)[0];
+            if (firstErr && firstErr.length > 0) {
+              errMsg = firstErr[0];
+            }
+          }
+          setAuthError(errMsg);
+          setIsSubmittingForm(false);
+          return;
+        }
+
+        const userName = res.data?.user.name || values.fullName;
+        setAuthSuccess(`Welcome to HerCompass, ${userName}! Opening your wellness space...`);
         setTimeout(() => {
-          router.push("/onboarding");
-        }, 1200);
-      }, 900);
+          router.push("/welcome");
+        }, 900);
+      } catch (err: unknown) {
+        setAuthError("Failed to connect to registration server. Please try again.");
+        setIsSubmittingForm(false);
+      }
     },
   });
 
@@ -82,6 +111,13 @@ function RegisterContent() {
       badgeColor: "bg-violet-50 border-violet-200 text-violet-700",
     };
   }, [planQuery]);
+
+  const handleGoogleSignIn = () => {
+    const selectedRole = formik.values.role || "member";
+    document.cookie = `hercompass_selected_role=${selectedRole}; path=/; max-age=900; SameSite=Lax`;
+    localStorage.setItem("hercompass_selected_role", selectedRole);
+    signIn("google", { callbackUrl: `/welcome?role=${selectedRole}` });
+  };
 
   return (
     <AuthLayout
@@ -172,23 +208,14 @@ function RegisterContent() {
         </div>
       </div>
 
-      {/* Social Register - Tight mobile spacing */}
-      <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-4 sm:mb-6">
+      {/* Social Register - Google OAuth via NextAuth */}
+      <div className="mb-4 sm:mb-6">
         <button
           type="button"
-          onClick={() => {
-            formik.setValues({
-              ...formik.values,
-              fullName: "Maria Santos",
-              email: "maria.santos@example.com",
-              password: "SecurePassword123!",
-              confirmPassword: "SecurePassword123!",
-              agreeToTerms: true,
-            });
-          }}
-          className="flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 px-2 sm:px-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-xs font-medium text-slate-700 transition-all shadow-xs"
+          onClick={handleGoogleSignIn}
+          className="w-full flex items-center justify-center gap-2.5 py-2.5 px-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs sm:text-sm font-semibold text-slate-700 transition-all shadow-xs hover:border-slate-300 hover:shadow-sm group cursor-pointer"
         >
-          <svg className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0" viewBox="0 0 24 24">
+          <svg className="h-4 w-4 flex-shrink-0" viewBox="0 0 24 24">
             <path
               fill="#4285F4"
               d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -206,27 +233,7 @@ function RegisterContent() {
               d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
             />
           </svg>
-          <span className="truncate">Google</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => {
-            formik.setValues({
-              ...formik.values,
-              fullName: "Sarah Jenkins",
-              email: "sarah.j@example.com",
-              password: "SecurePassword123!",
-              confirmPassword: "SecurePassword123!",
-              agreeToTerms: true,
-            });
-          }}
-          className="flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 px-2 sm:px-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-xs font-medium text-slate-700 transition-all shadow-xs"
-        >
-          <svg className="h-3.5 w-3.5 sm:h-4 sm:w-4 fill-slate-900 flex-shrink-0" viewBox="0 0 24 24">
-            <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.62-.75 1.04-1.8 0.92-2.85-.9.04-2 .6-2.65 1.35-.58.66-1.09 1.73-.95 2.76 1.01.08 2.06-.51 2.68-1.26z" />
-          </svg>
-          <span className="truncate">Apple</span>
+          <span>Continue with Google</span>
         </button>
       </div>
 
@@ -244,6 +251,14 @@ function RegisterContent() {
           <div className="p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2">
             <CheckCircle2 className="h-4 w-4 flex-shrink-0 text-emerald-600" />
             <span>{authSuccess}</span>
+          </div>
+        )}
+
+        {/* Error Alert */}
+        {authError && (
+          <div className="p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
+            <AlertCircle className="h-4 w-4 flex-shrink-0 text-rose-600" />
+            <span>{authError}</span>
           </div>
         )}
 

@@ -4,11 +4,13 @@ import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Menu, X, ArrowRight } from "lucide-react";
+import { Menu, X, ArrowRight, User } from "lucide-react";
+import { useAuth } from "@/lib/auth/AuthContext";
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+  const { user } = useAuth();
   const isFeaturesActive = pathname === "/features";
   const isHowItWorksActive = pathname === "/how-it-works";
   const isPartnerActive = pathname === "/partner";
@@ -93,12 +95,22 @@ export default function Navbar() {
 
         {/* Desktop Action Buttons (1024px+) */}
         <div className="hidden lg:flex items-center gap-2.5 xl:gap-3 flex-shrink-0">
-          <Link
-            href="/login"
-            className="rounded-xl px-3.5 xl:px-4 py-2 xl:py-2.5 text-xs xl:text-sm font-medium text-slate-700 hover:text-violet-700 hover:bg-violet-50/70 transition-all whitespace-nowrap"
-          >
-            Sign In
-          </Link>
+          {user ? (
+            <Link
+              href="/welcome"
+              className="rounded-xl px-3.5 xl:px-4 py-2 xl:py-2.5 text-xs xl:text-sm font-semibold text-violet-700 bg-violet-50/90 hover:bg-violet-100 border border-violet-200/80 transition-all flex items-center gap-1.5 whitespace-nowrap shadow-xs"
+            >
+              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Hi, {user.name.split(" ")[0]}</span>
+            </Link>
+          ) : (
+            <Link
+              href="/login"
+              className="rounded-xl px-3.5 xl:px-4 py-2 xl:py-2.5 text-xs xl:text-sm font-medium text-slate-700 hover:text-violet-700 hover:bg-violet-50/70 transition-all whitespace-nowrap"
+            >
+              Sign In
+            </Link>
+          )}
           <Link
             href="/onboarding"
             className="group relative inline-flex items-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-4 xl:px-5 py-2 xl:py-2.5 text-xs xl:text-sm font-semibold text-white shadow-md shadow-violet-500/25 transition-all hover:shadow-lg hover:shadow-violet-500/35 hover:-translate-y-0.5 active:translate-y-0 whitespace-nowrap"
@@ -190,22 +202,33 @@ export default function Navbar() {
             </Link>
           </nav>
           <div className="mt-4 flex flex-col gap-2.5 pt-4 border-t border-slate-100">
-            <div className="grid grid-cols-2 gap-2">
+            {user ? (
               <Link
-                href="/login"
+                href="/welcome"
                 onClick={() => setMobileMenuOpen(false)}
-                className="w-full text-center py-2.5 text-sm font-semibold text-slate-700 border border-slate-200 rounded-xl hover:bg-slate-50"
+                className="w-full text-center py-2.5 text-sm font-semibold text-violet-700 bg-violet-50 border border-violet-200 rounded-xl hover:bg-violet-100 flex items-center justify-center gap-2"
               >
-                Sign In
+                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span>My Compass Space ({user.name.split(" ")[0]})</span>
               </Link>
-              <Link
-                href="/register"
-                onClick={() => setMobileMenuOpen(false)}
-                className="w-full text-center py-2.5 text-sm font-semibold text-violet-700 bg-violet-50 border border-violet-200 rounded-xl hover:bg-violet-100/70"
-              >
-                Free Trial
-              </Link>
-            </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-2">
+                <Link
+                  href="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full text-center py-2.5 text-sm font-semibold text-slate-700 border border-slate-200 rounded-xl hover:bg-slate-50"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/register"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full text-center py-2.5 text-sm font-semibold text-violet-700 bg-violet-50 border border-violet-200 rounded-xl hover:bg-violet-100/70"
+                >
+                  Free Trial
+                </Link>
+              </div>
+            )}
             <Link
               href="/onboarding"
               onClick={() => setMobileMenuOpen(false)}

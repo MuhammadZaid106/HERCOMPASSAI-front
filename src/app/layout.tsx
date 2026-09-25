@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import Providers from "@/components/Providers";
 
 export const metadata: Metadata = {
   title: "HerCompassAI — Navigate Menopause Together | Relationship & Wellness Intelligence",
@@ -23,7 +24,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth" data-scroll-behavior="smooth">
       <body className="min-h-screen flex flex-col bg-[#FBFBF9] text-[#0F172A] antialiased">
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

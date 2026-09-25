@@ -6,16 +6,10 @@ import {
   BookOpen,
   FileCheck2,
   ExternalLink,
-  Briefcase,
-  Brain,
   CheckCircle2,
   Sparkles,
   Search,
   Scale,
-  Building2,
-  Clock,
-  ChevronRight,
-  ArrowRight,
 } from "lucide-react";
 
 interface CitationItem {
@@ -263,59 +257,6 @@ export default function FeaturesPillarClinicalEvidence() {
           </div>
         </div>
 
-        {/* Pillar 06: Workforce Intelligence & Cognitive Fog Support */}
-        <div className="mt-12 sm:mt-16 lg:mt-20">
-          <div className="p-5 sm:p-7 lg:p-10 rounded-3xl bg-linear-to-br from-slate-900 via-slate-800 to-indigo-950 text-white shadow-xl">
-            <div className="max-w-3xl">
-              <div className="inline-flex items-center gap-2 rounded-full border border-indigo-400/40 bg-indigo-500/20 px-3 py-1 text-xs font-semibold text-indigo-300 mb-3">
-                <Briefcase className="h-3.5 w-3.5" />
-                <span>Workforce &amp; Executive Intelligence</span>
-              </div>
-              <h3 className="text-lg sm:text-2xl lg:text-3xl font-bold tracking-tight text-white">
-                Protecting High-Performing Careers During Midlife Transitions
-              </h3>
-              <p className="mt-3 text-xs sm:text-sm text-slate-300 leading-relaxed">
-                Over 1 million women in the workforce leave senior roles prematurely due to unmanaged menopause symptoms.
-                HerCompassAI delivers concrete, non-clinical executive pacing protocols that keep careers thriving.
-              </p>
-            </div>
-
-            <div className="mt-6 sm:mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
-              {/* Feature 1 */}
-              <div className="p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xs space-y-3">
-                <div className="h-10 w-10 rounded-xl bg-indigo-500/20 text-indigo-300 flex items-center justify-center font-bold">
-                  <Brain className="h-5 w-5" />
-                </div>
-                <h4 className="text-sm font-bold text-white">Boardroom Fog Pacing</h4>
-                <p className="text-xs text-slate-300 leading-relaxed">
-                  Pre-meeting 3-minute mental indexing and structured retrieval prompts to navigate sudden word-finding hesitations smoothly.
-                </p>
-              </div>
-
-              {/* Feature 2 */}
-              <div className="p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xs space-y-3">
-                <div className="h-10 w-10 rounded-xl bg-teal-500/20 text-teal-300 flex items-center justify-center font-bold">
-                  <Clock className="h-5 w-5" />
-                </div>
-                <h4 className="text-sm font-bold text-white">Ultradian Energy Alignment</h4>
-                <p className="text-xs text-slate-300 leading-relaxed">
-                  Identifies personal peak cognitive windows based on sleep metrics to schedule high-stakes decisions when focus is sharpest.
-                </p>
-              </div>
-
-              {/* Feature 3 */}
-              <div className="p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xs space-y-3">
-                <div className="h-10 w-10 rounded-xl bg-violet-500/20 text-violet-300 flex items-center justify-center font-bold">
-                  <Building2 className="h-5 w-5" />
-                </div>
-                <h4 className="text-sm font-bold text-white">Workplace Adjustment Scripts</h4>
-                <p className="text-xs text-slate-300 leading-relaxed">
-                  Consented, professional communication templates to advocate for temperature control or flexible scheduling with HR or leadership.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
 
       </div>
     </section>
