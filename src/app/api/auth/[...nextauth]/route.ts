@@ -2,6 +2,14 @@ import NextAuth, { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { cookies } from "next/headers";
 
+// Automatically guarantee the production URL on Vercel so Google OAuth callback never redirects to localhost
+if (
+  process.env.VERCEL &&
+  (!process.env.NEXTAUTH_URL || process.env.NEXTAUTH_URL.includes("localhost"))
+) {
+  process.env.NEXTAUTH_URL = "https://hercompassai.vercel.app";
+}
+
 export const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
