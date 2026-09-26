@@ -113,12 +113,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = async () => {
-    // Clear local access immediately so protected UI cannot remain stuck on a loading state.
-    authClient.clearSession();
+    // Capture and clear local auth synchronously, then revoke remotely without blocking navigation.
+    void authClient.logout();
     setUser(null);
 
-    // Remote revocation is best effort and must not block navigation away from the page.
-    void authClient.logout();
     if (nextAuthSession) {
       void nextAuthSignOut({ redirect: false }).catch(() => {
         // Local session cleanup above is sufficient if NextAuth is unavailable.
