@@ -161,6 +161,7 @@ export const authClient = {
    */
   setSession(user: AuthUser, tokens: AuthTokens): void {
     if (typeof window === "undefined") return;
+    document.cookie = "hercompass_logout=; path=/; max-age=0; SameSite=Lax";
     localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
     localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, tokens.accessToken);
     localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, tokens.refreshToken);

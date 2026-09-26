@@ -36,18 +36,16 @@ export function middleware(request: NextRequest) {
 
   const isAuthenticated = Boolean(nextAuthToken || customToken);
 
-  // Let an explicit logout reach the login screen even if NextAuth has not
-  // finished clearing its session cookie yet.
-  if (pathname === "/login" && logoutRequested) {
-    const response = NextResponse.next();
-    response.cookies.delete("hercompass_logout");
-    return response;
-  }
-
   // ── 2. Guard protected routes ──
   const isProtected = PROTECTED_ROUTES.some(
     (route) => pathname === route || pathname.startsWith(`${route}/`)
   );
+
+  // A logout marker takes precedence over stale NextAuth cookies. Keep the
+  // marker while the user is on login; a successful new session removes it.
+  if (logoutRequested && isProtected) {
+    return NextResponse.redirect(new URL("/login?reason=signed_out", request.url));
+  }
 
   if (isProtected && !isAuthenticated) {
     const loginUrl = new URL("/login", request.url);
