@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { useFormik } from "formik";
 import {
@@ -29,6 +29,12 @@ import { useAuth } from "@/lib/auth/AuthContext";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  // Redirect destination after login: respects ?from= param from middleware, but admins always go to /admin
+  const fromParam = searchParams.get("from");
+  // Only allow safe internal paths (must start with /) to prevent open redirect
+  const safeFrom = fromParam && fromParam.startsWith("/") && !fromParam.startsWith("//") ? fromParam : null;
+
   const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmittingForm, setIsSubmittingForm] = useState(false);
@@ -57,10 +63,14 @@ export default function LoginPage() {
 
         const userName = res.data?.user.name || "Member";
         const userRole = res.data?.user.role;
-        const destination = userRole === "admin" ? "/admin" : "/welcome";
+        // Admins always go to /admin. Members go to ?from= param (e.g. /onboarding) or /welcome
+        const destination =
+          userRole === "admin" ? "/admin" : (safeFrom || "/welcome");
         setAuthSuccess(
           userRole === "admin"
             ? `Welcome back, ${userName}! Entering admin panel...`
+            : safeFrom
+            ? `Welcome back, ${userName}! Continuing where you left off...`
             : `Welcome back, ${userName}! Opening your wellness space...`
         );
         setTimeout(() => {

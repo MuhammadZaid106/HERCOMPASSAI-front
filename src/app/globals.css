@@ -1,5 +1,24 @@
 @import "tailwindcss";
 
+/* ─── Tailwind v4 Custom Theme Tokens ─── */
+@theme {
+  --animate-fade-in: fadeIn 0.4s ease-out both;
+  --animate-spin-slow: spin 3s linear infinite;
+  --animate-bounce-slow: bounce 2s infinite;
+}
+
+/* ─── Custom Keyframes ─── */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 :root {
   --background: #fbfbf9;
   --foreground: #0f172a;
