@@ -114,6 +114,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     // Capture and clear local auth synchronously, then revoke remotely without blocking navigation.
+    document.cookie = "hercompass_logout=1; path=/; max-age=10; SameSite=Lax";
     void authClient.logout();
     setUser(null);
 

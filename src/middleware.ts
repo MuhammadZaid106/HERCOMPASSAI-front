@@ -35,8 +35,17 @@ export function middleware(request: NextRequest) {
     request.cookies.get("__Secure-next-auth.session-token")?.value; // production HTTPS variant
 
   const customToken = request.cookies.get("hercompass_access_token")?.value;
+  const logoutRequested = request.cookies.get("hercompass_logout")?.value === "1";
 
   const isAuthenticated = Boolean(nextAuthToken || customToken);
+
+  // Let an explicit logout reach the login screen even if NextAuth has not
+  // finished clearing its session cookie yet.
+  if (pathname === "/login" && logoutRequested) {
+    const response = NextResponse.next();
+    response.cookies.delete("hercompass_logout");
+    return response;
+  }
 
   // ── 2. Guard protected routes ──
   const isProtected = PROTECTED_ROUTES.some(
