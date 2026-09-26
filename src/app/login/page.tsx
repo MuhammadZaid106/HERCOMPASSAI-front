@@ -26,6 +26,7 @@ import {
   UserPersona,
 } from "@/lib/validation/authSchemas";
 import { useAuth } from "@/lib/auth/AuthContext";
+import { authClient } from "@/lib/auth/authClient";
 
 function LoginContent() {
   const router = useRouter();
@@ -109,6 +110,8 @@ function LoginContent() {
 
   const handleGoogleSignIn = () => {
     const selectedPersona = formik.values.persona || "member";
+    // OAuth owns the next session; remove any stale email/JWT session first.
+    authClient.clearSession();
     document.cookie = `hercompass_selected_role=${selectedPersona}; path=/; max-age=900; SameSite=Lax`;
     localStorage.setItem("hercompass_selected_role", selectedPersona);
     signIn("google", { callbackUrl: `/welcome?role=${selectedPersona}` });

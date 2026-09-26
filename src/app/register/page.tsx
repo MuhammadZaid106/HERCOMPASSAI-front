@@ -27,6 +27,7 @@ import {
   calculatePasswordStrength,
 } from "@/lib/validation/authSchemas";
 import { useAuth } from "@/lib/auth/AuthContext";
+import { authClient } from "@/lib/auth/authClient";
 
 function RegisterContent() {
   const router = useRouter();
@@ -120,6 +121,8 @@ function RegisterContent() {
 
   const handleGoogleSignIn = () => {
     const selectedRole = formik.values.role || "member";
+    // OAuth owns the next session; remove any stale email/JWT session first.
+    authClient.clearSession();
     document.cookie = `hercompass_selected_role=${selectedRole}; path=/; max-age=900; SameSite=Lax`;
     localStorage.setItem("hercompass_selected_role", selectedRole);
     signIn("google", { callbackUrl: `/welcome?role=${selectedRole}` });
