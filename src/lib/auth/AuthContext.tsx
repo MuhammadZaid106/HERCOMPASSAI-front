@@ -118,9 +118,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
 
     if (nextAuthSession) {
-      void nextAuthSignOut({ redirect: false }).catch(() => {
-        // Local session cleanup above is sufficient if NextAuth is unavailable.
-      });
+      const nextAuthLogout = nextAuthSignOut({ redirect: false }).catch(() => undefined);
+      await Promise.race([
+        nextAuthLogout,
+        new Promise<void>((resolve) => {
+          window.setTimeout(resolve, 2000);
+        }),
+      ]);
     }
   };
 
