@@ -33,6 +33,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
+    // Email/password sessions use the backend JWT as the source of truth. This
+    // prevents a stale NextAuth session from overwriting a newly logged-in admin.
+    const storedUser = authClient.getStoredUser();
+    const storedTokens = authClient.getStoredTokens();
+    if (storedUser && storedTokens) {
+      setUser(storedUser);
+      authClient
+        .getMe()
+        .then((res) => {
+          if (res.success && res.data?.user) {
+            setUser(res.data.user);
+          }
+        })
+        .catch(() => {
+          // Keep the locally verified session when the backend is temporarily unavailable.
+        })
+        .finally(() => setLoading(false));
+      return;
+    }
+
     if (nextAuthStatus === "authenticated" && nextAuthSession?.user) {
       const u = nextAuthSession.user as {
         id?: string;
@@ -78,7 +98,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     // Check custom JWT stored session if not signed in through NextAuth
-    const storedUser = authClient.getStoredUser();
     if (storedUser) {
       setUser(storedUser);
       // Validate session with backend
@@ -88,6 +107,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (res.success && res.data?.user) {
             setUser(res.data.user);
           }
+        })
+        .catch(() => {
+          // The page-level guard handles expired sessions without an unhandled rejection.
         })
         .finally(() => setLoading(false));
     } else {
