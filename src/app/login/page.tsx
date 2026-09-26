@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
@@ -27,7 +27,7 @@ import {
 } from "@/lib/validation/authSchemas";
 import { useAuth } from "@/lib/auth/AuthContext";
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   // Redirect destination after login: respects ?from= param from middleware, but admins always go to /admin
@@ -343,3 +343,18 @@ export default function LoginPage() {
     </AuthLayout>
   );
 }
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-[#FBFBF9]">
+          <Loader2 className="h-8 w-8 animate-spin text-violet-600" />
+        </div>
+      }
+    >
+      <LoginContent />
+    </Suspense>
+  );
+}
+
