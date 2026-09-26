@@ -23,9 +23,6 @@ import type { NextRequest } from "next/server";
 // Routes that require an authenticated session
 const PROTECTED_ROUTES = ["/onboarding", "/snapshot", "/welcome", "/admin"];
 
-// Routes that should redirect authenticated users away (e.g. login when already logged in)
-const AUTH_ONLY_ROUTES = ["/login", "/forgot-password"];
-
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -71,16 +68,6 @@ export function middleware(request: NextRequest) {
     if (userRole === "admin") {
       return NextResponse.redirect(new URL("/admin", request.url));
     }
-  }
-
-  // ── 4. Redirect already-authenticated users away from auth screens ──
-  const isAuthOnlyRoute = AUTH_ONLY_ROUTES.some(
-    (route) => pathname === route || pathname.startsWith(`${route}/`)
-  );
-
-  if (isAuthOnlyRoute && isAuthenticated) {
-    // Don't redirect admin users back to welcome (let page-level guard handle it)
-    return NextResponse.redirect(new URL("/welcome", request.url));
   }
 
   return NextResponse.next();
