@@ -33,6 +33,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
+    const signedOut =
+      typeof document !== "undefined" &&
+      document.cookie.split(";").some((cookie) => cookie.trim() === "hercompass_logout=1");
+
+    if (signedOut) {
+      authClient.clearSession();
+      setUser(null);
+      setLoading(false);
+      return;
+    }
+
     // Email/password sessions use the backend JWT as the source of truth. This
     // prevents a stale NextAuth session from overwriting a newly logged-in admin.
     const storedUser = authClient.getStoredUser();
@@ -44,10 +55,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .then((res) => {
           if (res.success && res.data?.user) {
             setUser(res.data.user);
+          } else {
+            authClient.clearSession();
+            setUser(null);
           }
         })
         .catch(() => {
-          // Keep the locally verified session when the backend is temporarily unavailable.
+          authClient.clearSession();
+          setUser(null);
         })
         .finally(() => setLoading(false));
       return;
@@ -106,10 +121,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .then((res) => {
           if (res.success && res.data?.user) {
             setUser(res.data.user);
+          } else {
+            authClient.clearSession();
+            setUser(null);
           }
         })
         .catch(() => {
-          // The page-level guard handles expired sessions without an unhandled rejection.
+          authClient.clearSession();
+          setUser(null);
         })
         .finally(() => setLoading(false));
     } else {
