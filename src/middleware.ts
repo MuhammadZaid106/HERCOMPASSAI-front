@@ -55,12 +55,13 @@ export function middleware(request: NextRequest) {
     request.cookies.get("hercompass_user_role")?.value ||
     request.cookies.get("hercompass_selected_role")?.value;
 
-  if (
-    isAuthenticated &&
-    userRole === "partner" &&
-    (pathname.startsWith("/onboarding") || pathname.startsWith("/snapshot"))
-  ) {
-    return NextResponse.redirect(new URL("/welcome", request.url));
+  if (isAuthenticated && (pathname.startsWith("/onboarding") || pathname.startsWith("/snapshot"))) {
+    if (userRole === "partner") {
+      return NextResponse.redirect(new URL("/welcome", request.url));
+    }
+    if (userRole === "admin") {
+      return NextResponse.redirect(new URL("/admin", request.url));
+    }
   }
 
   // ── 4. Redirect already-authenticated users away from auth screens ──

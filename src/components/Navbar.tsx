@@ -14,6 +14,20 @@ export default function Navbar() {
   const isFeaturesActive = pathname === "/features";
   const isHowItWorksActive = pathname === "/how-it-works";
   const isPartnerActive = pathname === "/partner";
+  const primaryHref = !user
+    ? "/onboarding"
+    : user.role === "member"
+    ? "/onboarding"
+    : user.role === "admin"
+    ? "/admin"
+    : "/partner";
+  const primaryLabel = !user
+    ? "Start Free Assessment"
+    : user.role === "member"
+    ? "Start Free Assessment"
+    : user.role === "admin"
+    ? "Admin Panel"
+    : "Partner Support";
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-slate-200/60 bg-white/90 backdrop-blur-md transition-all">
@@ -112,10 +126,10 @@ export default function Navbar() {
             </Link>
           )}
           <Link
-            href="/onboarding"
+            href={primaryHref}
             className="group relative inline-flex items-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-4 xl:px-5 py-2 xl:py-2.5 text-xs xl:text-sm font-semibold text-white shadow-md shadow-violet-500/25 transition-all hover:shadow-lg hover:shadow-violet-500/35 hover:-translate-y-0.5 active:translate-y-0 whitespace-nowrap"
           >
-            <span>Start Free Assessment</span>
+            <span>{primaryLabel}</span>
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </Link>
         </div>
@@ -123,17 +137,19 @@ export default function Navbar() {
         {/* Tablet & Mobile Right Bar (<1024px) */}
         <div className="flex lg:hidden items-center gap-2 sm:gap-3">
           {/* Quick Tablet CTA (hidden on mobile, visible on sm/md tablet) */}
+          {!user && (
+            <Link
+              href="/login"
+              className="hidden sm:inline-flex rounded-xl px-3 py-1.5 text-xs font-semibold text-slate-700 border border-slate-200 hover:bg-slate-50 transition-colors"
+            >
+              Sign In
+            </Link>
+          )}
           <Link
-            href="/login"
-            className="hidden sm:inline-flex rounded-xl px-3 py-1.5 text-xs font-semibold text-slate-700 border border-slate-200 hover:bg-slate-50 transition-colors"
-          >
-            Sign In
-          </Link>
-          <Link
-            href="/onboarding"
+            href={primaryHref}
             className="hidden sm:inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-xs"
           >
-            <span>Take Snapshot</span>
+            <span>{user ? primaryLabel : "Take Snapshot"}</span>
             <ArrowRight className="h-3 w-3" />
           </Link>
 
@@ -230,11 +246,11 @@ export default function Navbar() {
               </div>
             )}
             <Link
-              href="/onboarding"
+              href={primaryHref}
               onClick={() => setMobileMenuOpen(false)}
               className="w-full text-center py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-violet-600 to-indigo-600 rounded-xl shadow-md"
             >
-              Take 5-Min Free Assessment
+              {user ? primaryLabel : "Take 5-Min Free Assessment"}
             </Link>
           </div>
         </div>

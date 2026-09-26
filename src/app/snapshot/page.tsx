@@ -27,6 +27,10 @@ export default function SnapshotPage() {
   const [data, setData] = useState<PersonalSnapshotData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  useEffect(() => {
+    void loadSnapshot();
+  }, []);
+
   if (user && user.role === "partner") {
     return (
       <div className="min-h-screen bg-[#FBFBF9] flex items-center justify-center px-4">
@@ -57,8 +61,7 @@ export default function SnapshotPage() {
     );
   }
 
-  useEffect(() => {
-    async function loadSnapshot() {
+  const loadSnapshot = async () => {
       const res = await onboardingClient.getSnapshot();
       if (res.snapshot) {
         setData(res.snapshot);
@@ -162,11 +165,8 @@ export default function SnapshotPage() {
             "HerCompassAI provides empathetic, non-diagnostic observational insights and lifestyle education. It is not a medical diagnosis or treatment plan.",
         });
       }
-      setIsLoading(false);
-    }
-
-    loadSnapshot();
-  }, []);
+    setIsLoading(false);
+  };
 
   if (isLoading) {
     return (
