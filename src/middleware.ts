@@ -24,7 +24,7 @@ import type { NextRequest } from "next/server";
 const PROTECTED_ROUTES = ["/onboarding", "/snapshot", "/welcome", "/admin"];
 
 // Routes that should redirect authenticated users away (e.g. login when already logged in)
-const AUTH_ONLY_ROUTES = ["/login", "/register", "/forgot-password"];
+const AUTH_ONLY_ROUTES = ["/login", "/forgot-password"];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
