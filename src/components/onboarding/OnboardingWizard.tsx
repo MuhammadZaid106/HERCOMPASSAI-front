@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Compass, Lock, ArrowRight } from "lucide-react";
+import { Compass, Lock, ArrowRight, HeartHandshake } from "lucide-react";
 import Link from "next/link";
 import { OnboardingProgressHeader } from "./OnboardingProgressHeader";
 import { Step1Welcome } from "./Step1Welcome";
@@ -32,12 +32,14 @@ export function OnboardingWizard() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // ── Auth guard: redirect unauthenticated visitors ──
+  // ── Auth & Role guard: redirect unauthenticated visitors and partners ──
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
       router.replace("/login?from=/onboarding&reason=auth_required");
+    } else if (!authLoading && user && user.role === "partner") {
+      router.replace("/welcome");
     }
-  }, [authLoading, isAuthenticated, router]);
+  }, [authLoading, isAuthenticated, user, router]);
 
   // ── Loading state while auth resolves ──
   if (authLoading) {
@@ -90,6 +92,37 @@ export function OnboardingWizard() {
           <p className="text-[11px] text-slate-400">
             Free forever. No credit card required. Your data stays private.
           </p>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Partner account guard: partners do not take menopause onboarding ──
+  if (user && user.role === "partner") {
+    return (
+      <div className="min-h-screen bg-[#FBFBF9] flex items-center justify-center px-4">
+        <div className="max-w-md w-full rounded-3xl border border-indigo-200/90 bg-white p-8 shadow-xl space-y-6 text-center animate-fadeIn">
+          <div className="flex justify-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-50 border border-indigo-200 text-indigo-600">
+              <HeartHandshake className="h-7 w-7" />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <h1 className="text-xl font-extrabold text-slate-900">Partner Account Detected</h1>
+            <p className="text-sm text-slate-600 leading-relaxed">
+              The 5-Minute Baseline Snapshot™ is tailored for women members tracking hormonal rhythms and symptoms. Partners do not take this assessment.
+            </p>
+            <p className="text-xs text-slate-500">
+              Your partner companion portal delivers insights via the Consented Partner Digest and Men&apos;s Academy.
+            </p>
+          </div>
+          <Link
+            href="/welcome"
+            className="inline-flex items-center justify-center gap-2 w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold text-sm hover:from-indigo-700 hover:to-violet-700 shadow-md transition-all cursor-pointer"
+          >
+            <span>Return to Partner Welcome Portal</span>
+            <ArrowRight className="h-4 w-4" />
+          </Link>
         </div>
       </div>
     );

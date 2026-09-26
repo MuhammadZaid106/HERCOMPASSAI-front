@@ -19,6 +19,7 @@ import {
   ClipboardList,
   RotateCcw,
   ChevronRight,
+  Headphones,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { onboardingClient } from "@/lib/onboarding/onboardingClient";
@@ -172,7 +173,7 @@ export default function WelcomePage() {
         </div>
 
         {/* Member Onboarding Status & Priority CTA */}
-        {isMember && (
+        {isMember ? (
           <div className="mb-8">
             {checkingOnboarding ? (
               <div className="rounded-2xl border border-violet-100 bg-white p-6 shadow-xs flex items-center gap-4 animate-pulse">
@@ -279,6 +280,61 @@ export default function WelcomePage() {
               </div>
             )}
           </div>
+        ) : (
+          /* Partner Space Card — Zero Menopause Assessment Steps */
+          <div className="mb-8 rounded-3xl border border-indigo-200/80 bg-gradient-to-br from-indigo-50/70 via-white to-purple-50/60 p-6 sm:p-8 shadow-md shadow-indigo-500/5">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-800 border border-indigo-200">
+                <HeartHandshake className="h-3.5 w-3.5 text-indigo-600" />
+                Couple &amp; Partner Support Active
+              </div>
+              <span className="text-xs font-semibold text-slate-500">
+                Non-Clinical Empathy &amp; Communication Portal
+              </span>
+            </div>
+
+            <div className="max-w-2xl mb-6">
+              <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+                Your Partner Wellness Companion Space
+              </h2>
+              <p className="mt-2 text-sm text-slate-600 leading-relaxed">
+                As a partner, you play an essential role in relationship co-regulation without ever needing to fill out clinical symptom logs. HerCompass provides you with weekly consented briefings, actionable empathy tips, and Men&apos;s Academy audio micro-lessons.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mb-6 text-xs text-slate-700">
+              <div className="flex items-center gap-2 bg-white/90 border border-indigo-100 px-3 py-2 rounded-xl shadow-2xs">
+                <Headphones className="h-4 w-4 text-indigo-600 shrink-0" />
+                <span>Men&apos;s Academy™ (3-min lessons)</span>
+              </div>
+              <div className="flex items-center gap-2 bg-white/90 border border-indigo-100 px-3 py-2 rounded-xl shadow-2xs">
+                <Sparkles className="h-4 w-4 text-amber-500 shrink-0" />
+                <span>Weekly Consented Digest</span>
+              </div>
+              <div className="flex items-center gap-2 bg-white/90 border border-indigo-100 px-3 py-2 rounded-xl shadow-2xs">
+                <Lock className="h-4 w-4 text-violet-600 shrink-0" />
+                <span>100% Consented &amp; Private</span>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+              <Link
+                href="/partner"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-bold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 shadow-md shadow-indigo-500/25 transition-all text-sm group cursor-pointer"
+              >
+                <Headphones className="h-4 w-4" />
+                <span>Explore Men&apos;s Academy™</span>
+                <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+
+              <Link
+                href="/partner"
+                className="inline-flex items-center justify-center gap-1.5 px-4 py-3.5 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-all"
+              >
+                <span>Preview Digest Simulator</span>
+              </Link>
+            </div>
+          </div>
         )}
 
         {/* User Account Overview Card */}
@@ -331,79 +387,151 @@ export default function WelcomePage() {
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Action 1: Dynamic Snapshot / Onboarding */}
-            <div className="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-xs hover:border-violet-300 hover:shadow-md transition-all flex flex-col justify-between">
-              <div>
-                <div className="h-9 w-9 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center mb-3">
-                  <Activity className="h-5 w-5" />
+            {isMember ? (
+              <>
+                {/* Member Action 1: Dynamic Snapshot / Onboarding */}
+                <div className="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-xs hover:border-violet-300 hover:shadow-md transition-all flex flex-col justify-between">
+                  <div>
+                    <div className="h-9 w-9 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center mb-3">
+                      <Activity className="h-5 w-5" />
+                    </div>
+                    <h4 className="text-sm font-bold text-slate-900 mb-1">
+                      {onboardingStatus?.isCompleted
+                        ? "8-Part Snapshot™ Report"
+                        : "5-Min Baseline Snapshot™"}
+                    </h4>
+                    <p className="text-xs text-slate-600 leading-relaxed">
+                      {onboardingStatus?.isCompleted
+                        ? "Review your deterministic symptom impact, hormonal rhythm trends, and sleep scores."
+                        : "Log your current cycle phase, sleep metrics, and hot flash patterns for deterministic trend modeling."}
+                    </p>
+                  </div>
+                  <Link
+                    href={onboardingStatus?.isCompleted ? "/snapshot" : "/onboarding"}
+                    className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-violet-600 hover:text-violet-800"
+                  >
+                    <span>
+                      {onboardingStatus?.isCompleted
+                        ? "View Full Report"
+                        : "Start Assessment"}
+                    </span>
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
                 </div>
-                <h4 className="text-sm font-bold text-slate-900 mb-1">
-                  {onboardingStatus?.isCompleted
-                    ? "8-Part Snapshot™ Report"
-                    : "5-Min Baseline Snapshot™"}
-                </h4>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  {onboardingStatus?.isCompleted
-                    ? "Review your deterministic symptom impact, hormonal rhythm trends, and sleep scores."
-                    : "Log your current cycle phase, sleep metrics, and hot flash patterns for deterministic trend modeling."}
-                </p>
-              </div>
-              <Link
-                href={onboardingStatus?.isCompleted ? "/snapshot" : "/onboarding"}
-                className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-violet-600 hover:text-violet-800"
-              >
-                <span>
-                  {onboardingStatus?.isCompleted
-                    ? "View Full Report"
-                    : "Start Assessment"}
-                </span>
-                <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
-            </div>
 
-            {/* Action 2 */}
-            <div className="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-xs hover:border-indigo-300 hover:shadow-md transition-all flex flex-col justify-between">
-              <div>
-                <div className="h-9 w-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-3">
-                  <Lock className="h-5 w-5" />
+                {/* Member Action 2: Partner Privacy Scope */}
+                <div className="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-xs hover:border-indigo-300 hover:shadow-md transition-all flex flex-col justify-between">
+                  <div>
+                    <div className="h-9 w-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-3">
+                      <Lock className="h-5 w-5" />
+                    </div>
+                    <h4 className="text-sm font-bold text-slate-900 mb-1">
+                      Partner Privacy Scope
+                    </h4>
+                    <p className="text-xs text-slate-600 leading-relaxed">
+                      Configure consented partner sharing. Raw notes remain strictly confidential with 1-tap instant revocation.
+                    </p>
+                  </div>
+                  <Link
+                    href="/partner"
+                    className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-600 hover:text-indigo-800"
+                  >
+                    <span>Manage Consent Scopes</span>
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
                 </div>
-                <h4 className="text-sm font-bold text-slate-900 mb-1">
-                  Partner Privacy Scope
-                </h4>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  Configure consented partner sharing. Raw notes remain strictly confidential with 1-tap instant revocation.
-                </p>
-              </div>
-              <Link
-                href="/partner"
-                className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-600 hover:text-indigo-800"
-              >
-                <span>Manage Consent Scopes</span>
-                <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
-            </div>
 
-            {/* Action 3 */}
-            <div className="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-xs hover:border-emerald-300 hover:shadow-md transition-all flex flex-col justify-between">
-              <div>
-                <div className="h-9 w-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3">
-                  <Calendar className="h-5 w-5" />
+                {/* Member Action 3: How It Works */}
+                <div className="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-xs hover:border-emerald-300 hover:shadow-md transition-all flex flex-col justify-between">
+                  <div>
+                    <div className="h-9 w-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3">
+                      <Calendar className="h-5 w-5" />
+                    </div>
+                    <h4 className="text-sm font-bold text-slate-900 mb-1">
+                      How The 3 Steps Work
+                    </h4>
+                    <p className="text-xs text-slate-600 leading-relaxed">
+                      Discover how HerCompass separates deterministic calculations from non-diagnostic empathetic AI guidance.
+                    </p>
+                  </div>
+                  <Link
+                    href="/how-it-works"
+                    className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600 hover:text-emerald-800"
+                  >
+                    <span>Explore Methodology</span>
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
                 </div>
-                <h4 className="text-sm font-bold text-slate-900 mb-1">
-                  How The 3 Steps Work
-                </h4>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  Discover how HerCompass separates deterministic calculations from non-diagnostic empathetic AI guidance.
-                </p>
-              </div>
-              <Link
-                href="/how-it-works"
-                className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600 hover:text-emerald-800"
-              >
-                <span>Explore Methodology</span>
-                <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
-            </div>
+              </>
+            ) : (
+              <>
+                {/* Partner Action 1: Men's Academy Audio Hub */}
+                <div className="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-xs hover:border-indigo-300 hover:shadow-md transition-all flex flex-col justify-between">
+                  <div>
+                    <div className="h-9 w-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-3">
+                      <Headphones className="h-5 w-5" />
+                    </div>
+                    <h4 className="text-sm font-bold text-slate-900 mb-1">
+                      Men&apos;s Academy™ Audio Hub
+                    </h4>
+                    <p className="text-xs text-slate-600 leading-relaxed">
+                      Listen to 3-minute evidence-grounded audio micro-lessons on physiological shifts, active listening, and co-regulation.
+                    </p>
+                  </div>
+                  <Link
+                    href="/partner"
+                    className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-600 hover:text-indigo-800"
+                  >
+                    <span>Listen to Micro-Lessons</span>
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                </div>
+
+                {/* Partner Action 2: Consented Weekly Digest */}
+                <div className="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-xs hover:border-violet-300 hover:shadow-md transition-all flex flex-col justify-between">
+                  <div>
+                    <div className="h-9 w-9 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center mb-3">
+                      <HeartHandshake className="h-5 w-5" />
+                    </div>
+                    <h4 className="text-sm font-bold text-slate-900 mb-1">
+                      Consented Partner Digest
+                    </h4>
+                    <p className="text-xs text-slate-600 leading-relaxed">
+                      Preview your Sunday morning briefing with concrete avoid-lists, rest levels, and helpful support prompts.
+                    </p>
+                  </div>
+                  <Link
+                    href="/partner"
+                    className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-violet-600 hover:text-violet-800"
+                  >
+                    <span>Preview Digest Simulator</span>
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                </div>
+
+                {/* Partner Action 3: Couple Co-Regulation Protocols */}
+                <div className="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-xs hover:border-emerald-300 hover:shadow-md transition-all flex flex-col justify-between">
+                  <div>
+                    <div className="h-9 w-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3">
+                      <ShieldCheck className="h-5 w-5" />
+                    </div>
+                    <h4 className="text-sm font-bold text-slate-900 mb-1">
+                      Co-Regulation Protocols
+                    </h4>
+                    <p className="text-xs text-slate-600 leading-relaxed">
+                      Explore cooling bedroom protocols, non-verbal reassurance cues, and evening de-escalation strategies.
+                    </p>
+                  </div>
+                  <Link
+                    href="/how-it-works"
+                    className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600 hover:text-emerald-800"
+                  >
+                    <span>Explore Methodology</span>
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                </div>
+              </>
+            )}
           </div>
         </div>
 

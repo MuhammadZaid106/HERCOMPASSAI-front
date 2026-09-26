@@ -63,19 +63,38 @@ function LoginContent() {
 
         const userName = res.data?.user.name || "Member";
         const userRole = res.data?.user.role;
-        // Admins always go to /admin. Members go to ?from= param (e.g. /onboarding) or /welcome
+
+        // Synchronously ensure cookies are stored for Next.js edge middleware
+        if (res.data?.accessToken) {
+          document.cookie = `hercompass_access_token=${res.data.accessToken}; path=/; max-age=604800; SameSite=Lax`;
+        }
+        if (userRole) {
+          document.cookie = `hercompass_user_role=${userRole}; path=/; max-age=604800; SameSite=Lax`;
+        }
+
+        // Admins go to /admin.
+        // Partners NEVER go to /onboarding (onboarding is for members only).
+        // Members go to safeFrom (e.g. /onboarding) or /welcome.
         const destination =
-          userRole === "admin" ? "/admin" : (safeFrom || "/welcome");
+          userRole === "admin"
+            ? "/admin"
+            : userRole === "partner"
+            ? "/welcome"
+            : (safeFrom || "/welcome");
+
         setAuthSuccess(
           userRole === "admin"
             ? `Welcome back, ${userName}! Entering admin panel...`
-            : safeFrom
+            : userRole === "partner"
+            ? `Welcome back, ${userName}! Entering Partner Support Portal...`
+            : safeFrom && safeFrom !== "/welcome"
             ? `Welcome back, ${userName}! Continuing where you left off...`
             : `Welcome back, ${userName}! Opening your wellness space...`
         );
+
         setTimeout(() => {
-          router.push(destination);
-        }, 800);
+          window.location.href = destination;
+        }, 500);
       } catch (err: unknown) {
         setAuthError("Failed to connect to authentication server. Please try again.");
         setIsSubmittingForm(false);

@@ -74,10 +74,16 @@ function RegisterContent() {
         }
 
         const userName = res.data?.user.name || values.fullName;
+        if (res.data?.accessToken) {
+          document.cookie = `hercompass_access_token=${res.data.accessToken}; path=/; max-age=604800; SameSite=Lax`;
+        }
+        if (values.role) {
+          document.cookie = `hercompass_user_role=${values.role}; path=/; max-age=604800; SameSite=Lax`;
+        }
         setAuthSuccess(`Welcome to HerCompass, ${userName}! Opening your wellness space...`);
         setTimeout(() => {
-          router.push("/welcome");
-        }, 900);
+          window.location.href = "/welcome";
+        }, 500);
       } catch (err: unknown) {
         setAuthError("Failed to connect to registration server. Please try again.");
         setIsSubmittingForm(false);

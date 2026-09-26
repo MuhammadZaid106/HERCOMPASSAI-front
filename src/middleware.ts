@@ -50,7 +50,20 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // ── 3. Redirect already-authenticated users away from auth screens ──
+  // ── 3. Role-based route guard: partners do not take member onboarding or snapshots ──
+  const userRole =
+    request.cookies.get("hercompass_user_role")?.value ||
+    request.cookies.get("hercompass_selected_role")?.value;
+
+  if (
+    isAuthenticated &&
+    userRole === "partner" &&
+    (pathname.startsWith("/onboarding") || pathname.startsWith("/snapshot"))
+  ) {
+    return NextResponse.redirect(new URL("/welcome", request.url));
+  }
+
+  // ── 4. Redirect already-authenticated users away from auth screens ──
   const isAuthOnlyRoute = AUTH_ONLY_ROUTES.some(
     (route) => pathname === route || pathname.startsWith(`${route}/`)
   );

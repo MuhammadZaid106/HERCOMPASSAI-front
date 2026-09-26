@@ -16,13 +16,46 @@ import {
   CheckCircle2,
   Calendar,
   Lock,
+  HeartHandshake,
 } from "lucide-react";
 import { onboardingClient } from "@/lib/onboarding/onboardingClient";
 import type { PersonalSnapshotData } from "@/lib/onboarding/onboardingTypes";
+import { useAuth } from "@/lib/auth/AuthContext";
 
 export default function SnapshotPage() {
+  const { user } = useAuth();
   const [data, setData] = useState<PersonalSnapshotData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  if (user && user.role === "partner") {
+    return (
+      <div className="min-h-screen bg-[#FBFBF9] flex items-center justify-center px-4">
+        <div className="max-w-md w-full rounded-3xl border border-indigo-200/90 bg-white p-8 shadow-xl space-y-6 text-center animate-fadeIn">
+          <div className="flex justify-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-50 border border-indigo-200 text-indigo-600">
+              <HeartHandshake className="h-7 w-7" />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <h1 className="text-xl font-extrabold text-slate-900">Partner Access Notice</h1>
+            <p className="text-sm text-slate-600 leading-relaxed">
+              The 8-Part Personal Menopause Snapshot™ contains private, raw clinical baseline metrics for member accounts.
+            </p>
+            <p className="text-xs text-slate-500">
+              Your partner companion insights are delivered through the weekly Consented Partner Digest and Men&apos;s Academy.
+            </p>
+          </div>
+          <Link
+            href="/welcome"
+            className="inline-flex items-center justify-center gap-2 w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold text-sm hover:from-indigo-700 hover:to-violet-700 shadow-md transition-all cursor-pointer"
+          >
+            <span>Return to Partner Portal</span>
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   useEffect(() => {
     async function loadSnapshot() {

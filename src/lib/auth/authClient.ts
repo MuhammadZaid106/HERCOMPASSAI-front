@@ -158,6 +158,9 @@ export const authClient = {
     localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
     localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, tokens.accessToken);
     localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, tokens.refreshToken);
+    // CRITICAL: Synchronously set cookies so Next.js edge middleware can authenticate the user
+    document.cookie = `hercompass_access_token=${tokens.accessToken}; path=/; max-age=604800; SameSite=Lax`;
+    document.cookie = `hercompass_user_role=${user.role}; path=/; max-age=604800; SameSite=Lax`;
   },
 
   clearSession(): void {
@@ -165,6 +168,8 @@ export const authClient = {
     localStorage.removeItem(STORAGE_KEYS.USER);
     localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
     localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
+    document.cookie = "hercompass_access_token=; path=/; max-age=0; SameSite=Lax";
+    document.cookie = "hercompass_user_role=; path=/; max-age=0; SameSite=Lax";
   },
 
   getStoredUser(): AuthUser | null {
@@ -181,6 +186,7 @@ export const authClient = {
   setStoredUser(user: AuthUser): void {
     if (typeof window === "undefined") return;
     localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
+    document.cookie = `hercompass_user_role=${user.role}; path=/; max-age=604800; SameSite=Lax`;
   },
 
   getStoredTokens(): AuthTokens | null {
