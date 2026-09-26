@@ -109,18 +109,24 @@ export const authClient = {
    */
   async logout(): Promise<void> {
     const tokens = authClient.getStoredTokens();
+    authClient.clearSession();
+
     if (tokens?.refreshToken) {
+      const controller = new AbortController();
+      const timeoutId = window.setTimeout(() => controller.abort(), 4000);
       try {
         await fetch(`${API_BASE}/api/auth/logout`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ refreshToken: tokens.refreshToken }),
+          signal: controller.signal,
         });
       } catch {
         // Fallback silently if server unreachable during logout
+      } finally {
+        window.clearTimeout(timeoutId);
       }
     }
-    authClient.clearSession();
   },
 
   /**
