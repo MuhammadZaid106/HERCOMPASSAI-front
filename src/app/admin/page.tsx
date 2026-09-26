@@ -67,9 +67,9 @@ export default function AdminDashboard() {
     );
   }
 
-  const handleLogout = async () => {
-    await logout();
-    router.push("/login");
+  const handleLogout = () => {
+    void logout();
+    window.location.replace("/login");
   };
 
   return (

@@ -94,9 +94,9 @@ export default function WelcomePage() {
       ? "Plus Plan"
       : "Free Baseline Plan";
 
-  const handleLogout = async () => {
-    await logout();
-    router.push("/login");
+  const handleLogout = () => {
+    void logout();
+    window.location.replace("/login");
   };
 
   return (
