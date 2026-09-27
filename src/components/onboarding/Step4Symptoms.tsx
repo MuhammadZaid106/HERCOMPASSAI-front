@@ -8,6 +8,7 @@ interface Step4SymptomsProps {
   values: OnboardingFormValues;
   onChange: (fields: Partial<OnboardingFormValues>) => void;
   onNext: () => void;
+  showNext?: boolean;
 }
 
 const SYMPTOM_OPTIONS = [
@@ -33,7 +34,7 @@ const IMPACT_LEVELS = [
   { id: "extremely", label: "Extremely", desc: "Severe day-to-day disruption" },
 ] as const;
 
-export function Step4Symptoms({ values, onChange, onNext }: Step4SymptomsProps) {
+export function Step4Symptoms({ values, onChange, onNext, showNext = true }: Step4SymptomsProps) {
   const toggleSymptom = (sym: string) => {
     const exists = values.primaryHealthConcerns.includes(sym);
     const updated = exists
@@ -136,21 +137,22 @@ export function Step4Symptoms({ values, onChange, onNext }: Step4SymptomsProps) 
         </p>
       </div>
 
-      {/* Next */}
-      <div className="flex justify-end pt-2">
-        <button
-          type="button"
-          disabled={!isFormValid}
-          onClick={onNext}
-          className={`inline-flex items-center justify-center rounded-xl px-7 py-3 text-sm font-bold shadow-lg transition active:scale-95 ${
-            isFormValid
-              ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-violet-500/25 hover:opacity-95"
-              : "bg-slate-200 text-slate-400 cursor-not-allowed shadow-none"
-          }`}
-        >
-          Continue to Sleep & Energy
-        </button>
-      </div>
+      {showNext && (
+        <div className="flex justify-end pt-2">
+          <button
+            type="button"
+            disabled={!isFormValid}
+            onClick={onNext}
+            className={`inline-flex items-center justify-center rounded-xl px-7 py-3 text-sm font-bold shadow-lg transition active:scale-95 ${
+              isFormValid
+                ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-violet-500/25 hover:opacity-95"
+                : "bg-slate-200 text-slate-400 cursor-not-allowed shadow-none"
+            }`}
+          >
+            Continue to Sleep & Energy
+          </button>
+        </div>
+      )}
     </div>
   );
 }

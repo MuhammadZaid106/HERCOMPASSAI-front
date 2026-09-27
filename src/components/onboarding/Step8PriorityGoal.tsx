@@ -8,6 +8,7 @@ interface Step8PriorityGoalProps {
   values: OnboardingFormValues;
   onChange: (fields: Partial<OnboardingFormValues>) => void;
   onNext: () => void;
+  showNext?: boolean;
 }
 
 const PRIORITY_GOALS = [
@@ -53,7 +54,7 @@ const PRIORITY_GOALS = [
   },
 ] as const;
 
-export function Step8PriorityGoal({ values, onChange, onNext }: Step8PriorityGoalProps) {
+export function Step8PriorityGoal({ values, onChange, onNext, showNext = true }: Step8PriorityGoalProps) {
   const isFormValid = values.primaryGoal !== "";
 
   return (
@@ -105,21 +106,22 @@ export function Step8PriorityGoal({ values, onChange, onNext }: Step8PriorityGoa
         })}
       </div>
 
-      {/* Next */}
-      <div className="flex justify-end pt-2">
-        <button
-          type="button"
-          disabled={!isFormValid}
-          onClick={onNext}
-          className={`inline-flex items-center justify-center rounded-xl px-7 py-3 text-sm font-bold shadow-lg transition active:scale-95 ${
-            isFormValid
-              ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-violet-500/25 hover:opacity-95"
-              : "bg-slate-200 text-slate-400 cursor-not-allowed shadow-none"
-          }`}
-        >
-          Continue to AI Guidance & Partner Setup
-        </button>
-      </div>
+      {showNext && (
+        <div className="flex justify-end pt-2">
+          <button
+            type="button"
+            disabled={!isFormValid}
+            onClick={onNext}
+            className={`inline-flex items-center justify-center rounded-xl px-7 py-3 text-sm font-bold shadow-lg transition active:scale-95 ${
+              isFormValid
+                ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-violet-500/25 hover:opacity-95"
+                : "bg-slate-200 text-slate-400 cursor-not-allowed shadow-none"
+            }`}
+          >
+            Continue to AI Guidance & Partner Setup
+          </button>
+        </div>
+      )}
     </div>
   );
 }

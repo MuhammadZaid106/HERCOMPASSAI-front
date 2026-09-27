@@ -8,6 +8,7 @@ interface Step3GoalsProps {
   values: OnboardingFormValues;
   onChange: (fields: Partial<OnboardingFormValues>) => void;
   onNext: () => void;
+  showNext?: boolean;
 }
 
 const GOAL_OPTIONS = [
@@ -61,7 +62,7 @@ const GOAL_OPTIONS = [
   },
 ] as const;
 
-export function Step3Goals({ values, onChange, onNext }: Step3GoalsProps) {
+export function Step3Goals({ values, onChange, onNext, showNext = true }: Step3GoalsProps) {
   const toggleGoal = (id: string) => {
     const exists = values.primaryGoals.includes(id);
     const updated = exists
@@ -126,24 +127,25 @@ export function Step3Goals({ values, onChange, onNext }: Step3GoalsProps) {
         })}
       </div>
 
-      {/* Footer / Next */}
-      <div className="flex items-center justify-between pt-2">
-        <span className="text-xs text-slate-500">
-          {values.primaryGoals.length} goal{values.primaryGoals.length === 1 ? "" : "s"} selected
-        </span>
-        <button
-          type="button"
-          disabled={!hasSelected}
-          onClick={onNext}
-          className={`inline-flex items-center justify-center rounded-xl px-7 py-3 text-sm font-bold shadow-lg transition active:scale-95 ${
-            hasSelected
-              ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-violet-500/25 hover:opacity-95"
-              : "bg-slate-200 text-slate-400 cursor-not-allowed shadow-none"
-          }`}
-        >
-          Continue to Symptoms
-        </button>
-      </div>
+      {showNext && (
+        <div className="flex items-center justify-between pt-2">
+          <span className="text-xs text-slate-500">
+            {values.primaryGoals.length} goal{values.primaryGoals.length === 1 ? "" : "s"} selected
+          </span>
+          <button
+            type="button"
+            disabled={!hasSelected}
+            onClick={onNext}
+            className={`inline-flex items-center justify-center rounded-xl px-7 py-3 text-sm font-bold shadow-lg transition active:scale-95 ${
+              hasSelected
+                ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-violet-500/25 hover:opacity-95"
+                : "bg-slate-200 text-slate-400 cursor-not-allowed shadow-none"
+            }`}
+          >
+            Continue to Symptoms
+          </button>
+        </div>
+      )}
     </div>
   );
 }

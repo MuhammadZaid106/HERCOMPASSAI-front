@@ -7,13 +7,11 @@ import Link from "next/link";
 import { OnboardingProgressHeader } from "./OnboardingProgressHeader";
 import { Step1Welcome } from "./Step1Welcome";
 import { Step2Stage } from "./Step2Stage";
-import { Step3Goals } from "./Step3Goals";
-import { Step4Symptoms } from "./Step4Symptoms";
+import { Step3GoalsAndSymptoms } from "./Step3GoalsAndSymptoms";
 import { Step5SleepEnergy } from "./Step5SleepEnergy";
 import { Step6Lifestyle } from "./Step6Lifestyle";
 import { Step7Mood } from "./Step7Mood";
-import { Step8PriorityGoal } from "./Step8PriorityGoal";
-import { Step9PartnerAndAi } from "./Step9PartnerAndAi";
+import { Step8PriorityAndPartner } from "./Step8PriorityAndPartner";
 import { Step10Generating } from "./Step10Generating";
 import {
   onboardingClient,
@@ -22,7 +20,7 @@ import {
 import type { OnboardingFormValues } from "@/lib/onboarding/onboardingTypes";
 import { useAuth } from "@/lib/auth/AuthContext";
 
-const TOTAL_STEPS = 9;
+const TOTAL_STEPS = 7;
 
 export function OnboardingWizard() {
   const router = useRouter();
@@ -193,7 +191,7 @@ export function OnboardingWizard() {
   const handleNext = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
     setErrorMessage(null);
-    setCurrentStep((prev) => Math.min(prev + 1, 10));
+    setCurrentStep((prev) => Math.min(prev + 1, 8));
   };
 
   const handleBack = () => {
@@ -209,7 +207,7 @@ export function OnboardingWizard() {
     try {
       const result = await onboardingClient.submitAssessment(values);
       if (!result.success && result.message.includes("Authentication required")) {
-        setCurrentStep(10);
+        setCurrentStep(8);
         return;
       }
 
@@ -219,7 +217,7 @@ export function OnboardingWizard() {
         return;
       }
 
-      setCurrentStep(10);
+      setCurrentStep(8);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "An unexpected error occurred.";
       setErrorMessage(message);
@@ -255,32 +253,26 @@ export function OnboardingWizard() {
               <Step2Stage values={values} onChange={updateValues} onNext={handleNext} />
             )}
             {currentStep === 3 && (
-              <Step3Goals values={values} onChange={updateValues} onNext={handleNext} />
+              <Step3GoalsAndSymptoms values={values} onChange={updateValues} onNext={handleNext} />
             )}
             {currentStep === 4 && (
-              <Step4Symptoms values={values} onChange={updateValues} onNext={handleNext} />
-            )}
-            {currentStep === 5 && (
               <Step5SleepEnergy values={values} onChange={updateValues} onNext={handleNext} />
             )}
-            {currentStep === 6 && (
+            {currentStep === 5 && (
               <Step6Lifestyle values={values} onChange={updateValues} onNext={handleNext} />
             )}
-            {currentStep === 7 && (
+            {currentStep === 6 && (
               <Step7Mood values={values} onChange={updateValues} onNext={handleNext} />
             )}
-            {currentStep === 8 && (
-              <Step8PriorityGoal values={values} onChange={updateValues} onNext={handleNext} />
-            )}
-            {currentStep === 9 && (
-              <Step9PartnerAndAi
+            {currentStep === 7 && (
+              <Step8PriorityAndPartner
                 values={values}
                 onChange={updateValues}
                 onSubmit={handleSubmit}
                 isSubmitting={isSubmitting}
               />
             )}
-            {currentStep === 10 && (
+            {currentStep === 8 && (
               <Step10Generating
                 onComplete={() => {
                   router.push("/snapshot");

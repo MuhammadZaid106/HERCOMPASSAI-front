@@ -9,6 +9,7 @@ interface Step9PartnerAndAiProps {
   onChange: (fields: Partial<OnboardingFormValues>) => void;
   onSubmit: () => void;
   isSubmitting: boolean;
+  showSubmit?: boolean;
 }
 
 const PARTNER_INTERESTS = [
@@ -31,6 +32,7 @@ export function Step9PartnerAndAi({
   onChange,
   onSubmit,
   isSubmitting,
+  showSubmit = true,
 }: Step9PartnerAndAiProps) {
   const toggleRec = (rec: string) => {
     const exists = values.preferredRecommendations.includes(rec);
@@ -186,24 +188,25 @@ export function Step9PartnerAndAi({
         )}
       </div>
 
-      {/* Submit Button */}
-      <div className="flex justify-end pt-3">
-        <button
-          type="button"
-          disabled={isSubmitting}
-          onClick={onSubmit}
-          className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 px-9 py-4 text-base font-bold text-white shadow-xl shadow-violet-500/30 transition-all hover:opacity-95 active:scale-95 disabled:opacity-50"
-        >
-          {isSubmitting ? (
-            <span>Synthesizing Your Snapshot...</span>
-          ) : (
-            <>
-              <span>Generate My Personal Snapshot</span>
-              <ArrowRight className="h-4 w-4" />
-            </>
-          )}
-        </button>
-      </div>
+      {showSubmit && (
+        <div className="flex justify-end pt-3">
+          <button
+            type="button"
+            disabled={isSubmitting}
+            onClick={onSubmit}
+            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 px-9 py-4 text-base font-bold text-white shadow-xl shadow-violet-500/30 transition-all hover:opacity-95 active:scale-95 disabled:opacity-50"
+          >
+            {isSubmitting ? (
+              <span>Synthesizing Your Snapshot...</span>
+            ) : (
+              <>
+                <span>Generate My Personal Snapshot</span>
+                <ArrowRight className="h-4 w-4" />
+              </>
+            )}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
