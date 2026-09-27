@@ -122,6 +122,7 @@ function RegisterContent() {
     const selectedRole = formik.values.role || "member";
     // OAuth owns the next session; remove any stale email/JWT session first.
     authClient.clearSession();
+    authClient.clearLogoutMarker();
     document.cookie = `hercompass_selected_role=${selectedRole}; path=/; max-age=900; SameSite=Lax`;
     localStorage.setItem("hercompass_selected_role", selectedRole);
     signIn("google", { callbackUrl: selectedRole === "partner" ? "/welcome?role=partner" : "/app" });

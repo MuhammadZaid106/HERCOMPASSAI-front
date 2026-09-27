@@ -31,6 +31,9 @@ export const authOptions: NextAuthOptions = {
           let selectedRole = "member";
           try {
             const cookieStore = await cookies();
+            // A completed Google OAuth flow is a confirmed new session; clear the
+            // post-logout marker so edge middleware can reach /app (not signed_out).
+            cookieStore.delete("hercompass_logout");
             const cookieRole = cookieStore.get("hercompass_selected_role")?.value;
             if (cookieRole === "partner" || cookieRole === "member") {
               selectedRole = cookieRole;

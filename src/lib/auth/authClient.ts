@@ -179,6 +179,11 @@ export const authClient = {
     document.cookie = "hercompass_user_role=; path=/; max-age=0; SameSite=Lax";
   },
 
+  clearLogoutMarker(): void {
+    if (typeof window === "undefined") return;
+    document.cookie = "hercompass_logout=; path=/; max-age=0; SameSite=Lax";
+  },
+
   getStoredUser(): AuthUser | null {
     if (typeof window === "undefined") return null;
     const str = localStorage.getItem(STORAGE_KEYS.USER);
