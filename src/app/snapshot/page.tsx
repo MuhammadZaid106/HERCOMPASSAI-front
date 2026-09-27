@@ -25,6 +25,7 @@ import { useAuth } from "@/lib/auth/AuthContext";
 export default function SnapshotPage() {
   const { user } = useAuth();
   const [data, setData] = useState<PersonalSnapshotData | null>(null);
+  const [hasSnapshot, setHasSnapshot] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -65,6 +66,7 @@ export default function SnapshotPage() {
       const res = await onboardingClient.getSnapshot();
       if (res.snapshot) {
         setData(res.snapshot);
+        setHasSnapshot(true);
       } else {
         // Fallback default sample data if viewing in demo or offline mode
         setData({
@@ -174,6 +176,25 @@ export default function SnapshotPage() {
         <div className="flex flex-col items-center gap-3">
           <div className="h-10 w-10 rounded-full border-2 border-violet-600 border-t-transparent animate-spin" />
           <p className="text-xs font-semibold text-slate-500">Loading your Snapshot...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!hasSnapshot) {
+    return (
+      <div className="min-h-screen bg-[#FBFBF9] px-4 py-12 sm:px-6">
+        <div className="mx-auto flex min-h-[70vh] max-w-2xl items-center justify-center">
+          <div className="w-full rounded-3xl border border-violet-200/80 bg-white p-7 text-center shadow-xl shadow-violet-500/5 sm:p-10">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-violet-50 text-violet-700">
+              <Sparkles className="h-7 w-7" />
+            </div>
+            <p className="mt-5 text-xs font-bold uppercase tracking-wider text-violet-700">Your Personal Snapshot</p>
+            <h1 className="mt-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">Your Snapshot is not ready yet</h1>
+            <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-slate-600">Complete the short onboarding assessment so HerCompassAI can create a personal, non-diagnostic view of your current patterns and next steps.</p>
+            <Link href="/onboarding" className="mt-6 inline-flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-violet-500/20 hover:bg-violet-700">Start onboarding <ArrowRight className="h-4 w-4" /></Link>
+            <Link href="/app" className="mx-auto mt-4 block text-xs font-semibold text-slate-500 hover:text-violet-700">Return to Home</Link>
+          </div>
         </div>
       </div>
     );

@@ -2,7 +2,7 @@
 
 import React, { Suspense, useState, useMemo } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { useFormik } from "formik";
 import {
@@ -30,7 +30,6 @@ import { useAuth } from "@/lib/auth/AuthContext";
 import { authClient } from "@/lib/auth/authClient";
 
 function RegisterContent() {
-  const router = useRouter();
   const { register } = useAuth();
   const searchParams = useSearchParams();
   const planQuery = searchParams.get("plan");
@@ -83,7 +82,7 @@ function RegisterContent() {
         }
         setAuthSuccess(`Welcome to HerCompass, ${userName}! Opening your wellness space...`);
         setTimeout(() => {
-          window.location.href = "/welcome";
+          window.location.href = values.role === "partner" ? "/welcome" : "/app";
         }, 500);
       } catch (err: unknown) {
         setAuthError("Failed to connect to registration server. Please try again.");
@@ -125,7 +124,7 @@ function RegisterContent() {
     authClient.clearSession();
     document.cookie = `hercompass_selected_role=${selectedRole}; path=/; max-age=900; SameSite=Lax`;
     localStorage.setItem("hercompass_selected_role", selectedRole);
-    signIn("google", { callbackUrl: `/welcome?role=${selectedRole}` });
+    signIn("google", { callbackUrl: selectedRole === "partner" ? "/welcome?role=partner" : "/app" });
   };
 
   return (

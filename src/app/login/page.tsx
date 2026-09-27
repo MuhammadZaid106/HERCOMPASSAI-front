@@ -2,7 +2,6 @@
 
 import React, { useState, Suspense } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { useFormik } from "formik";
 import {
@@ -29,13 +28,6 @@ import { useAuth } from "@/lib/auth/AuthContext";
 import { authClient } from "@/lib/auth/authClient";
 
 function LoginContent() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  // Redirect destination after login: respects ?from= param from middleware, but admins always go to /admin
-  const fromParam = searchParams.get("from");
-  // Only allow safe internal paths (must start with /) to prevent open redirect
-  const safeFrom = fromParam && fromParam.startsWith("/") && !fromParam.startsWith("//") ? fromParam : null;
-
   const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmittingForm, setIsSubmittingForm] = useState(false);
@@ -75,21 +67,19 @@ function LoginContent() {
 
         // Admins go to /admin.
         // Partners NEVER go to /onboarding (onboarding is for members only).
-        // Members go to safeFrom (e.g. /onboarding) or /welcome.
+        // Members enter the app directly after authentication.
         const destination =
           userRole === "admin"
             ? "/admin"
             : userRole === "partner"
             ? "/welcome"
-            : (safeFrom || "/welcome");
+            : "/app";
 
         setAuthSuccess(
           userRole === "admin"
             ? `Welcome back, ${userName}! Entering admin panel...`
             : userRole === "partner"
             ? `Welcome back, ${userName}! Entering Partner Support Portal...`
-            : safeFrom && safeFrom !== "/welcome"
-            ? `Welcome back, ${userName}! Continuing where you left off...`
             : `Welcome back, ${userName}! Opening your wellness space...`
         );
 
@@ -114,7 +104,7 @@ function LoginContent() {
     authClient.clearSession();
     document.cookie = `hercompass_selected_role=${selectedPersona}; path=/; max-age=900; SameSite=Lax`;
     localStorage.setItem("hercompass_selected_role", selectedPersona);
-    signIn("google", { callbackUrl: `/welcome?role=${selectedPersona}` });
+    signIn("google", { callbackUrl: selectedPersona === "partner" ? "/welcome?role=partner" : "/app" });
   };
 
   return (
