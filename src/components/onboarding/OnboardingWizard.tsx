@@ -275,7 +275,7 @@ export function OnboardingWizard() {
             {currentStep === 8 && (
               <Step10Generating
                 onComplete={() => {
-                  router.push("/snapshot");
+                  router.push("/app/snapshot");
                 }}
               />
             )}

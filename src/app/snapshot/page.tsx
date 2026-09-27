@@ -50,7 +50,7 @@ export default function SnapshotPage() {
             </p>
           </div>
           <Link
-            href="/welcome"
+            href="/app"
             className="inline-flex items-center justify-center gap-2 w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold text-sm hover:from-indigo-700 hover:to-violet-700 shadow-md transition-all cursor-pointer"
           >
             <span>Return to Partner Portal</span>

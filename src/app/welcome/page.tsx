@@ -205,7 +205,7 @@ export default function WelcomePage() {
                       Take Your 5-Minute Personal Menopause Snapshot™
                     </h2>
                     <p className="mt-2 text-sm text-slate-600 leading-relaxed">
-                      You haven’t completed your baseline assessment yet. Complete our guided 9-step intake to unlock personalized symptom insights, sleep pattern scoring, dietary ideas, and non-diagnostic observational trends.
+                      You haven’t completed your baseline assessment yet. Complete our guided 7-step intake to unlock personalized symptom insights, sleep pattern scoring, dietary ideas, and non-diagnostic observational trends.
                     </p>
                   </div>
 
@@ -260,7 +260,7 @@ export default function WelcomePage() {
 
                   <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 shrink-0">
                     <Link
-                      href="/snapshot"
+                      href="/app/snapshot"
                       className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-bold text-white bg-violet-600 hover:bg-violet-700 shadow-xs hover:shadow-md transition-all text-xs group"
                     >
                       <Activity className="h-4 w-4" />

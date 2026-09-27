@@ -5,6 +5,7 @@
  * - /onboarding  — must be an authenticated member (not a guest)
  * - /snapshot    — must have completed onboarding
  * - /welcome     — must be authenticated
+ * - /app         — must be authenticated
  * - /admin       — must be authenticated (role check done in page-level guard)
  *
  * Strategy:
@@ -21,7 +22,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 // Routes that require an authenticated session
-const PROTECTED_ROUTES = ["/onboarding", "/snapshot", "/welcome", "/admin"];
+const PROTECTED_ROUTES = ["/onboarding", "/snapshot", "/welcome", "/app", "/admin"];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
