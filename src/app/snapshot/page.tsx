@@ -52,7 +52,7 @@ export default function SnapshotPage() {
           </div>
           <Link
             href="/app"
-            className="inline-flex items-center justify-center gap-2 w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold text-sm hover:from-indigo-700 hover:to-violet-700 shadow-md transition-all cursor-pointer"
+            className="inline-flex items-center justify-center gap-2 w-full py-3.5 px-6 rounded-xl bg-linear-to-r from-indigo-600 to-violet-600 text-white font-bold text-sm hover:from-indigo-700 hover:to-violet-700 shadow-md transition-all cursor-pointer"
           >
             <span>Return to Partner Portal</span>
             <ArrowRight className="h-4 w-4" />
@@ -67,105 +67,6 @@ export default function SnapshotPage() {
       if (res.snapshot) {
         setData(res.snapshot);
         setHasSnapshot(true);
-      } else {
-        // Fallback default sample data if viewing in demo or offline mode
-        setData({
-          member: { name: "Member", plan: "free" },
-          completedAt: new Date().toISOString(),
-          version: "1.0",
-          deterministicMetrics: {
-            symptomBurdenScore: 48,
-            sleepDisturbanceScore: 55,
-            vitalityIndex: 62,
-            emotionalBalanceScore: 68,
-            dominantFocusArea: "Restorative Sleep & Evening Wind-Down",
-          },
-          observations: [
-            {
-              id: 1,
-              pillar: "Symptom Pattern",
-              title: "Primary Observed Concerns",
-              summary:
-                "Your logs suggest focal patterns around vasomotor temperature changes (hot flashes, night sweats) and light sleep disruption.",
-              impact: "moderately",
-              evidenceNote: "Grounded in NAMS & ACOG observational symptom prevalence guidelines.",
-            },
-            {
-              id: 2,
-              pillar: "Mood & Emotional Baseline",
-              title: "Emotional Equilibrium Rhythm",
-              summary:
-                "Your baseline shows emotional resilience with occasional spikes in irritability during high-fatigue windows. Mindful morning breathing supports autonomic recovery.",
-              score: 68,
-            },
-            {
-              id: 3,
-              pillar: "Sleep Architecture",
-              title: "Restorative Sleep Pattern",
-              summary:
-                "Nighttime temperature surges appear correlated with 3 AM awakenings. An evening cooling protocol and bedroom temperature adjustment (65-68°F) can support deeper REM cycles.",
-              score: 55,
-            },
-            {
-              id: 4,
-              pillar: "Energy & Metabolic Rhythm",
-              title: "Ultradian Energy Distribution",
-              summary:
-                "Energy is characterized by moderate morning momentum followed by afternoon dips. Anchoring meals with 25g+ protein reduces glycemic volatility.",
-              vitalityIndex: 62,
-            },
-            {
-              id: 5,
-              pillar: "Lifestyle & Nutrition Context",
-              title: "Nutrition & Movement Baseline",
-              summary:
-                "Current activity emphasizes brisk walking and mobility. Adding 2 sessions of joint-friendly resistance training helps preserve bone density and metabolic health.",
-            },
-            {
-              id: 6,
-              pillar: "Personalized Recommendations",
-              title: "Your First 3 High-Yield Steps",
-              summary:
-                "Based on your baseline pattern, these 3 evidence-informed micro-interventions provide maximum relief with minimal friction.",
-              recommendations: [
-                {
-                  action: "Evening Cooling & Screen Curfew",
-                  why: "Assists thermal regulation and supports natural melatonin release 60m before bed.",
-                  category: "Sleep & Vasomotor",
-                },
-                {
-                  action: "Mid-Day Protein & Fiber Anchor",
-                  why: "Stabilizes glucose curves that often trigger post-lunch brain fog.",
-                  category: "Nutrition Radar",
-                },
-                {
-                  action: "3-Minute Box Breathing Reset",
-                  why: "Stimulates vagal parasympathetic tone to dampen sudden acute stress spikes.",
-                  category: "Cooling & Breathwork",
-                },
-              ],
-            },
-            {
-              id: 7,
-              pillar: "Suggested Next Steps",
-              title: "Your 7-Day Gentle Habit",
-              summary:
-                "Consistency is key during midlife transitions. Focus on establishing one primary anchor habit this week.",
-              action:
-                "Commit to logging a 60-second Daily Check-in each morning. This trains your personalized Trend Engine to detect your unique triggers.",
-            },
-            {
-              id: 8,
-              pillar: "Partner Support Opportunity",
-              title: "Couple & Partner Intelligence",
-              status: "Private / Configurable",
-              summary:
-                "Partner sharing is currently private. If you invite a partner, they will receive only a high-level Sunday briefing with empathy prompts—never raw symptom logs.",
-            },
-          ],
-          safetyNotice:
-            "HerCompassAI provides empathetic, non-diagnostic observational insights and lifestyle education. It is not a medical diagnosis or treatment plan.",
-        });
       }
     setIsLoading(false);
   };
@@ -221,7 +122,7 @@ export default function SnapshotPage() {
 
         {/* Hero Header */}
         <div className="rounded-3xl border border-slate-200/90 bg-white/95 p-6 sm:p-10 shadow-xl shadow-slate-200/50 space-y-4 relative overflow-hidden">
-          <div className="absolute top-0 right-0 h-40 w-40 bg-gradient-to-bl from-violet-200/40 via-rose-100/30 to-transparent rounded-bl-full pointer-events-none" />
+          <div className="absolute top-0 right-0 h-40 w-40 bg-linear-to-bl from-violet-200/40 via-rose-100/30 to-transparent rounded-bl-full pointer-events-none" />
 
           <div className="inline-flex items-center gap-2 rounded-full border border-violet-200 bg-violet-50/80 px-3.5 py-1 text-xs font-bold text-violet-700">
             <Compass className="h-3.5 w-3.5 text-violet-600" />
@@ -238,7 +139,7 @@ export default function SnapshotPage() {
           {/* Dominant Focus Area Banner */}
           {metrics?.dominantFocusArea && (
             <div className="pt-2">
-              <span className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-2 text-xs font-bold text-white shadow-md shadow-violet-500/20">
+              <span className="inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-violet-600 to-indigo-600 px-4 py-2 text-xs font-bold text-white shadow-md shadow-violet-500/20">
                 <Sparkles className="h-3.5 w-3.5 text-amber-300" />
                 <span>Primary Clinical Anchor: {metrics.dominantFocusArea}</span>
               </span>

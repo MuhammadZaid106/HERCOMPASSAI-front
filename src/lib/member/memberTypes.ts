@@ -36,3 +36,23 @@ export interface ApiResult<T> {
   message: string;
   data?: T;
 }
+
+export interface MemberNotification {
+  id: string;
+  category: string;
+  title: string;
+  body: string;
+  readAt: string | null;
+  createdAt: string;
+}
+
+export interface MemberNotificationsData {
+  notifications: MemberNotification[];
+  unreadCount: number;
+}
+
+export interface MemberSubscriptionData {
+  plan: "free" | "plus" | "premium";
+  label: string;
+  description: string;
+}

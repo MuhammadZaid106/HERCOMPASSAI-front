@@ -192,6 +192,7 @@ export const authClient = {
 
   setStoredUser(user: AuthUser): void {
     if (typeof window === "undefined") return;
+    document.cookie = "hercompass_logout=; path=/; max-age=0; SameSite=Lax";
     localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
     document.cookie = `hercompass_user_role=${user.role}; path=/; max-age=604800; SameSite=Lax`;
   },

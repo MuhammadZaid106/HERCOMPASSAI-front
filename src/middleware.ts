@@ -11,7 +11,9 @@
  * Strategy:
  *  1. Primary (edge-safe): checks for a NextAuth session cookie (next-auth.session-token)
  *     OR our custom JWT stored in the browser cookie `hercompass_access_token`.
- *  2. If neither is present → redirect to /login?from=<path> so the user
+ *  2. A persistent signed-out marker overrides stale NextAuth cookies until a
+ *     fresh login clears it.
+ *  3. If neither is present → redirect to /login?from=<path> so the user
  *     returns to the right page after signing in.
  *
  * NOTE: This runs on the Vercel Edge runtime — keep it lightweight.

@@ -1,9 +1,21 @@
 import { authClient } from "@/lib/auth/authClient";
-import type { ApiResult, MemberDashboardData, MemberProgressData, TrackingRange } from "./memberTypes";
+import type {
+  ApiResult,
+  MemberDashboardData,
+  MemberNotificationsData,
+  MemberProgressData,
+  MemberSubscriptionData,
+  TrackingRange,
+} from "./memberTypes";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "http://localhost:5000";
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ||
+  "http://localhost:5000";
 
-async function request<T>(path: string, init?: RequestInit): Promise<ApiResult<T>> {
+async function request<T>(
+  path: string,
+  init?: RequestInit,
+): Promise<ApiResult<T>> {
   const token = authClient.getStoredTokens()?.accessToken;
   const response = await fetch(`${API_BASE}${path}`, {
     ...init,
@@ -13,7 +25,12 @@ async function request<T>(path: string, init?: RequestInit): Promise<ApiResult<T
       ...init?.headers,
     },
   });
-  return (await response.json().catch(() => ({ success: false, message: "Network error" }))) as ApiResult<T>;
+  return (await response
+    .json()
+    .catch(() => ({
+      success: false,
+      message: "Network error",
+    }))) as ApiResult<T>;
 }
 
 export const memberClient = {
@@ -22,5 +39,11 @@ export const memberClient = {
   },
   getProgress(range: TrackingRange): Promise<ApiResult<MemberProgressData>> {
     return request<MemberProgressData>(`/api/member/progress?range=${range}`);
+  },
+  getNotifications(): Promise<ApiResult<MemberNotificationsData>> {
+    return request<MemberNotificationsData>("/api/member/notifications");
+  },
+  getSubscription(): Promise<ApiResult<MemberSubscriptionData>> {
+    return request<MemberSubscriptionData>("/api/member/subscription");
   },
 };
