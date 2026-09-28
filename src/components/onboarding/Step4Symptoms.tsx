@@ -14,16 +14,22 @@ interface Step4SymptomsProps {
 const SYMPTOM_OPTIONS = [
   "Hot flashes",
   "Night sweats",
-  "Sleep disruption",
-  "Daytime fatigue",
-  "Brain fog & focus changes",
-  "Anxiety & inner tension",
-  "Irritability / Mood shifts",
-  "Joint stiffness & muscle aches",
-  "Headaches or migraines",
-  "Metabolic & weight shifts",
-  "Palpitations / Fluttering",
-  "Skin, hair & tissue dryness",
+  "Sleep difficulties",
+  "Fatigue or low energy",
+  "Mood changes",
+  "Irritability",
+  "Feeling anxious or overwhelmed",
+  "Difficulty concentrating",
+  "Memory/focus concerns",
+  "Headaches",
+  "Changes in appetite",
+  "Changes in weight/body composition",
+  "Joint or muscle discomfort",
+  "Changes in sexual wellbeing",
+  "Vaginal/urogenital changes",
+  "None of these",
+  "Other",
+  "Prefer not to answer",
 ];
 
 const IMPACT_LEVELS = [
@@ -32,14 +38,18 @@ const IMPACT_LEVELS = [
   { id: "moderately", label: "Moderately", desc: "Interrupts daily tasks occasionally" },
   { id: "a_lot", label: "A lot", desc: "Frequently disrupts work or family" },
   { id: "extremely", label: "Extremely", desc: "Severe day-to-day disruption" },
+  { id: "prefer_not_to_say", label: "Prefer not to answer", desc: "Skip this question" },
 ] as const;
 
 export function Step4Symptoms({ values, onChange, onNext, showNext = true }: Step4SymptomsProps) {
   const toggleSymptom = (sym: string) => {
     const exists = values.primaryHealthConcerns.includes(sym);
+    const isExclusive = sym === "None of these" || sym === "Prefer not to answer";
     const updated = exists
-      ? values.primaryHealthConcerns.filter((s) => s !== sym)
-      : [...values.primaryHealthConcerns, sym];
+      ? values.primaryHealthConcerns.filter((symptom) => symptom !== sym)
+      : isExclusive
+        ? [sym]
+        : [...values.primaryHealthConcerns.filter((symptom) => !["None of these", "Prefer not to answer"].includes(symptom)), sym];
     onChange({ primaryHealthConcerns: updated });
   };
 
@@ -84,7 +94,7 @@ export function Step4Symptoms({ values, onChange, onNext, showNext = true }: Ste
                       : "border-slate-300 bg-slate-50"
                   }`}
                 >
-                  {isSelected && <Check className="h-2.5 w-2.5 stroke-[3]" />}
+                  {isSelected && <Check className="h-2.5 w-2.5 stroke-3" />}
                 </div>
               </button>
             );
@@ -145,7 +155,7 @@ export function Step4Symptoms({ values, onChange, onNext, showNext = true }: Ste
             onClick={onNext}
             className={`inline-flex items-center justify-center rounded-xl px-7 py-3 text-sm font-bold shadow-lg transition active:scale-95 ${
               isFormValid
-                ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-violet-500/25 hover:opacity-95"
+                ? "bg-linear-to-r from-violet-600 to-indigo-600 text-white shadow-violet-500/25 hover:opacity-95"
                 : "bg-slate-200 text-slate-400 cursor-not-allowed shadow-none"
             }`}
           >

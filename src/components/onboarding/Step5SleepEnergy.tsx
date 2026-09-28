@@ -16,15 +16,18 @@ const SLEEP_QUALITIES = [
   { id: "mixed", label: "Mixed", desc: "Good nights alternating with poor nights" },
   { id: "difficult", label: "Difficult", desc: "Frequent restless nights or waking early" },
   { id: "very_difficult", label: "Very difficult", desc: "Consistently broken or sparse rest" },
+  { id: "prefer_not_to_say", label: "Prefer not to answer", desc: "Skip this question" },
 ] as const;
 
 const SLEEP_CHALLENGES = [
-  "Trouble falling asleep",
-  "Waking around 2–4 AM",
-  "Night sweats / temperature surges",
-  "Waking up unrefreshed",
-  "Racing thoughts / bedtime anxiety",
-  "Early morning wakeups",
+  "Falling asleep",
+  "Staying asleep",
+  "Waking too early",
+  "Night sweats / hot flashes",
+  "Waking unrefreshed",
+  "Inconsistent sleep schedule",
+  "Other",
+  "Prefer not to answer",
 ];
 
 const ENERGY_LEVELS = [
@@ -33,6 +36,7 @@ const ENERGY_LEVELS = [
   { id: "up_and_down", label: "Up & down", emoji: "〰️" },
   { id: "often_low", label: "Often low", emoji: "🔋" },
   { id: "very_low", label: "Very low", emoji: "🪫" },
+  { id: "prefer_not_to_say", label: "Prefer not to answer", emoji: "—" },
 ] as const;
 
 const ENERGY_WINDOWS = [
@@ -41,14 +45,17 @@ const ENERGY_WINDOWS = [
   { id: "evening", label: "Evening" },
   { id: "throughout_the_day", label: "All day" },
   { id: "varies", label: "Varies" },
+  { id: "prefer_not_to_say", label: "Prefer not to answer" },
 ] as const;
 
 export function Step5SleepEnergy({ values, onChange, onNext }: Step5SleepEnergyProps) {
   const toggleChallenge = (item: string) => {
     const exists = values.sleepChallenges.includes(item);
     const updated = exists
-      ? values.sleepChallenges.filter((c) => c !== item)
-      : [...values.sleepChallenges, item];
+      ? values.sleepChallenges.filter((challenge) => challenge !== item)
+      : item === "Prefer not to answer"
+        ? [item]
+        : [...values.sleepChallenges.filter((challenge) => challenge !== "Prefer not to answer"), item];
     onChange({ sleepChallenges: updated });
   };
 
@@ -121,7 +128,7 @@ export function Step5SleepEnergy({ values, onChange, onNext }: Step5SleepEnergyP
                       : "border-slate-300 bg-slate-50"
                   }`}
                 >
-                  {isSelected && <Check className="h-2.5 w-2.5 stroke-[3]" />}
+                  {isSelected && <Check className="h-2.5 w-2.5 stroke-3" />}
                 </div>
               </button>
             );
@@ -191,7 +198,7 @@ export function Step5SleepEnergy({ values, onChange, onNext }: Step5SleepEnergyP
           onClick={onNext}
           className={`inline-flex items-center justify-center rounded-xl px-7 py-3 text-sm font-bold shadow-lg transition active:scale-95 ${
             isFormValid
-              ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-violet-500/25 hover:opacity-95"
+              ? "bg-linear-to-r from-violet-600 to-indigo-600 text-white shadow-violet-500/25 hover:opacity-95"
               : "bg-slate-200 text-slate-400 cursor-not-allowed shadow-none"
           }`}
         >

@@ -52,6 +52,21 @@ const PRIORITY_GOALS = [
     title: "Become confident managing this stage of life",
     desc: "Move through midlife with knowledge, community, and pride.",
   },
+  {
+    id: "relationship_support",
+    title: "Improve my relationship",
+    desc: "Find practical ways to support communication and connection.",
+  },
+  {
+    id: "something_else",
+    title: "Something else",
+    desc: "I have another priority in mind.",
+  },
+  {
+    id: "prefer_not_to_answer",
+    title: "Prefer not to answer",
+    desc: "Skip choosing a priority for now.",
+  },
 ] as const;
 
 export function Step8PriorityGoal({ values, onChange, onNext, showNext = true }: Step8PriorityGoalProps) {
@@ -99,7 +114,7 @@ export function Step8PriorityGoal({ values, onChange, onNext, showNext = true }:
                     : "border-slate-300 bg-white"
                 }`}
               >
-                {isSelected && <Check className="h-3 w-3 stroke-[3]" />}
+                {isSelected && <Check className="h-3 w-3 stroke-3" />}
               </div>
             </button>
           );
@@ -114,7 +129,7 @@ export function Step8PriorityGoal({ values, onChange, onNext, showNext = true }:
             onClick={onNext}
             className={`inline-flex items-center justify-center rounded-xl px-7 py-3 text-sm font-bold shadow-lg transition active:scale-95 ${
               isFormValid
-                ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-violet-500/25 hover:opacity-95"
+                ? "bg-linear-to-r from-violet-600 to-indigo-600 text-white shadow-violet-500/25 hover:opacity-95"
                 : "bg-slate-200 text-slate-400 cursor-not-allowed shadow-none"
             }`}
           >

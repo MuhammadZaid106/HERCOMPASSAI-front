@@ -12,7 +12,7 @@ export function Step1Welcome({ onStart }: Step1WelcomeProps) {
     <div className="space-y-8 animate-fadeIn">
       {/* Top Hero Badge */}
       <div className="text-center space-y-4">
-        <div className="inline-flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-tr from-violet-600 to-indigo-600 text-white shadow-xl shadow-violet-500/25 ring-8 ring-violet-50">
+        <div className="inline-flex h-16 w-16 items-center justify-center rounded-3xl bg-linear-to-tr from-violet-600 to-indigo-600 text-white shadow-xl shadow-violet-500/25 ring-8 ring-violet-50">
           <Compass className="h-8 w-8 animate-spin-slow" />
         </div>
 
@@ -23,7 +23,7 @@ export function Step1Welcome({ onStart }: Step1WelcomeProps) {
           </div>
           <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
             Welcome to Your Personal{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 via-indigo-600 to-rose-500">
+            <span className="text-transparent bg-clip-text bg-linear-to-r from-violet-600 via-indigo-600 to-rose-500">
               Menopause Snapshot™
             </span>
           </h1>
@@ -81,7 +81,7 @@ export function Step1Welcome({ onStart }: Step1WelcomeProps) {
         <button
           type="button"
           onClick={onStart}
-          className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 px-8 py-4 text-base font-bold text-white shadow-xl shadow-violet-500/25 transition-all hover:opacity-95 hover:shadow-violet-500/35 active:scale-95"
+          className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-2xl bg-linear-to-r from-violet-600 to-indigo-600 px-8 py-4 text-base font-bold text-white shadow-xl shadow-violet-500/25 transition-all hover:opacity-95 hover:shadow-violet-500/35 active:scale-95"
         >
           <span>Create My Free Snapshot</span>
           <ArrowRight className="h-4 w-4" />

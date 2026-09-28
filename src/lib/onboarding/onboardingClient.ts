@@ -1,5 +1,9 @@
 import { authClient } from "../auth/authClient";
-import type { OnboardingFormValues, PersonalSnapshotData } from "./onboardingTypes";
+import {
+  ONBOARDING_CONSENT_VERSION,
+  type OnboardingFormValues,
+  type PersonalSnapshotData,
+} from "./onboardingTypes";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "http://localhost:5000";
@@ -8,7 +12,8 @@ const DRAFT_STORAGE_KEY = "hercompass_onboarding_draft";
 
 export const initialOnboardingValues: OnboardingFormValues = {
   version: "1.0",
-  consentAccepted: true,
+  consentAccepted: false,
+  consentVersion: "",
   age: "",
   menopausePhase: "",
   hormoneTherapyStatus: "",
@@ -37,12 +42,14 @@ export const initialOnboardingValues: OnboardingFormValues = {
     tired: 3,
   },
   moodOverall: "",
+  moodPatterns: [],
   emotionalGoals: [],
   meditationFrequency: "",
   primaryGoal: "",
   dailyCheckinOptIn: true,
   preferredRecommendations: ["Symptom insights", "Meal ideas", "Exercise suggestions"],
   partnerSupportInterest: "",
+  partnerSupportNeeds: [],
   partnerEmail: "",
   partnerConsent: false,
   partnerSharingScopes: ["digest_summary", "communication_guidance", "shared_activities"],
@@ -69,7 +76,12 @@ export const onboardingClient = {
     try {
       const stored = localStorage.getItem(DRAFT_STORAGE_KEY);
       if (stored) {
-        return { ...initialOnboardingValues, ...JSON.parse(stored) };
+        const draft = { ...initialOnboardingValues, ...JSON.parse(stored) };
+        if (draft.consentVersion !== ONBOARDING_CONSENT_VERSION) {
+          draft.consentAccepted = false;
+          draft.consentVersion = "";
+        }
+        return draft;
       }
     } catch {
       // Fallback
@@ -95,11 +107,11 @@ export const onboardingClient = {
   async submitAssessment(
     values: OnboardingFormValues
   ): Promise<{ success: boolean; message: string; data?: any }> {
-    const tokens = authClient.getStoredTokens();
-    const token = tokens?.accessToken;
-
     const payload = {
       version: values.version || "1.0",
+      consentAccepted: values.consentAccepted,
+      consentVersion: values.consentVersion,
+      consentType: "wellness_personalization",
       isCompleted: true,
       age: values.age ? Number(values.age) : null,
       menopausePhase: values.menopausePhase || null,
@@ -121,23 +133,24 @@ export const onboardingClient = {
       lifestyleFocus: values.lifestyleFocus,
       moodBaseline: values.moodBaseline,
       moodOverall: values.moodOverall || null,
+      moodPatterns: values.moodPatterns,
       emotionalGoals: values.emotionalGoals,
       meditationFrequency: values.meditationFrequency || null,
       primaryGoal: values.primaryGoal || null,
       dailyCheckinOptIn: values.dailyCheckinOptIn,
       preferredRecommendations: values.preferredRecommendations,
       partnerSupportInterest: values.partnerSupportInterest || null,
+      partnerSupportNeeds: values.partnerSupportNeeds,
       partnerEmail: values.partnerEmail || null,
       partnerConsent: values.partnerConsent,
       partnerSharingScopes: values.partnerSharingScopes,
     };
 
     try {
-      const res = await fetch(`${API_BASE}/api/onboarding`, {
+      const res = await authClient.authenticatedFetch(`${API_BASE}/api/onboarding`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify(payload),
       });
@@ -173,7 +186,7 @@ export const onboardingClient = {
     if (!token) return { isCompleted: false };
 
     try {
-      const res = await fetch(`${API_BASE}/api/onboarding/me`, {
+      const res = await authClient.authenticatedFetch(`${API_BASE}/api/onboarding/me`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const json = await res.json();
@@ -196,7 +209,7 @@ export const onboardingClient = {
     if (!token) return { snapshot: null, error: "Authentication required" };
 
     try {
-      const res = await fetch(`${API_BASE}/api/onboarding/snapshot`, {
+      const res = await authClient.authenticatedFetch(`${API_BASE}/api/onboarding/snapshot`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const json = await res.json();

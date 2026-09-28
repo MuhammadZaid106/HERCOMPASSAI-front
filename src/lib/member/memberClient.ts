@@ -16,12 +16,10 @@ async function request<T>(
   path: string,
   init?: RequestInit,
 ): Promise<ApiResult<T>> {
-  const token = authClient.getStoredTokens()?.accessToken;
-  const response = await fetch(`${API_BASE}${path}`, {
+  const response = await authClient.authenticatedFetch(`${API_BASE}${path}`, {
     ...init,
     headers: {
       "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...init?.headers,
     },
   });

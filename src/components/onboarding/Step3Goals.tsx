@@ -60,14 +60,40 @@ const GOAL_OPTIONS = [
     category: "Couples",
     desc: "Strengthen empathy and replace awkward tension with clear communication.",
   },
+  {
+    id: "stress_relaxation",
+    label: "Stress and relaxation",
+    category: "Wellbeing",
+    desc: "Explore practical ways to make space for rest and relaxation.",
+  },
+  {
+    id: "relationship_support",
+    label: "Supporting my relationship",
+    category: "Relationships",
+    desc: "Explore ways to support communication and connection.",
+  },
+  {
+    id: "something_else",
+    label: "Something else",
+    category: "Other",
+    desc: "I have another focus in mind.",
+  },
+  {
+    id: "prefer_not_to_answer",
+    label: "Prefer not to answer",
+    category: "Privacy",
+    desc: "Skip sharing a goal for now.",
+  },
 ] as const;
 
 export function Step3Goals({ values, onChange, onNext, showNext = true }: Step3GoalsProps) {
   const toggleGoal = (id: string) => {
     const exists = values.primaryGoals.includes(id);
     const updated = exists
-      ? values.primaryGoals.filter((g) => g !== id)
-      : [...values.primaryGoals, id];
+      ? values.primaryGoals.filter((goal) => goal !== id)
+      : id === "prefer_not_to_answer"
+        ? [id]
+        : [...values.primaryGoals.filter((goal) => goal !== "prefer_not_to_answer"), id];
     onChange({ primaryGoals: updated });
   };
 
@@ -116,7 +142,7 @@ export function Step3Goals({ values, onChange, onNext, showNext = true }: Step3G
                         : "border-slate-300 bg-white"
                     }`}
                   >
-                    {isSelected && <Check className="h-3 w-3 stroke-[3]" />}
+                    {isSelected && <Check className="h-3 w-3 stroke-3" />}
                   </div>
                 </div>
                 <h3 className="text-sm font-bold text-slate-900">{goal.label}</h3>
@@ -138,7 +164,7 @@ export function Step3Goals({ values, onChange, onNext, showNext = true }: Step3G
             onClick={onNext}
             className={`inline-flex items-center justify-center rounded-xl px-7 py-3 text-sm font-bold shadow-lg transition active:scale-95 ${
               hasSelected
-                ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-violet-500/25 hover:opacity-95"
+                ? "bg-linear-to-r from-violet-600 to-indigo-600 text-white shadow-violet-500/25 hover:opacity-95"
                 : "bg-slate-200 text-slate-400 cursor-not-allowed shadow-none"
             }`}
           >

@@ -37,6 +37,20 @@ const EXERCISE_TYPES = [
   "Breathwork & stretching",
 ];
 
+const LIFESTYLE_FOCUS_OPTIONS = [
+  "Nutrition",
+  "Movement/exercise",
+  "Sleep routine",
+  "Stress management",
+  "Relaxation",
+  "Hydration",
+  "Daily routines",
+  "Work/life balance",
+  "Relationships",
+  "Self-care",
+  "None right now",
+];
+
 export function Step6Lifestyle({ values, onChange, onNext }: Step6LifestyleProps) {
   const toggleDiet = (diet: string) => {
     const exists = values.dietaryPreferences.includes(diet);
@@ -54,6 +68,16 @@ export function Step6Lifestyle({ values, onChange, onNext }: Step6LifestyleProps
     onChange({ exercisePreferences: updated });
   };
 
+  const toggleLifestyleFocus = (focus: string) => {
+    const exists = values.lifestyleFocus.includes(focus);
+    const updated = exists
+      ? values.lifestyleFocus.filter((item) => item !== focus)
+      : focus === "None right now"
+        ? [focus]
+        : [...values.lifestyleFocus.filter((item) => item !== "None right now"), focus];
+    onChange({ lifestyleFocus: updated });
+  };
+
   const isFormValid = values.activityLevel !== "";
 
   return (
@@ -66,6 +90,28 @@ export function Step6Lifestyle({ values, onChange, onNext }: Step6LifestyleProps
         <p className="text-sm text-slate-600">
           Small adjustments in protein distribution and low-impact movement can dramatically stabilize cortisol and energy.
         </p>
+      </div>
+
+      <div className="space-y-2.5">
+        <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+          Which areas would you like to improve or understand better?
+        </label>
+        <div className="flex flex-wrap gap-2">
+          {LIFESTYLE_FOCUS_OPTIONS.map((focus) => {
+            const selected = values.lifestyleFocus.includes(focus);
+            return (
+              <button
+                key={focus}
+                type="button"
+                aria-pressed={selected}
+                onClick={() => toggleLifestyleFocus(focus)}
+                className={`rounded-xl border px-3 py-2 text-xs font-semibold transition ${selected ? "border-violet-600 bg-violet-50 text-violet-900" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"}`}
+              >
+                {focus}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Dietary Preferences */}
@@ -152,7 +198,7 @@ export function Step6Lifestyle({ values, onChange, onNext }: Step6LifestyleProps
                         : "border-slate-300"
                     }`}
                   >
-                    {isSelected && <Check className="h-2.5 w-2.5 stroke-[3]" />}
+                    {isSelected && <Check className="h-2.5 w-2.5 stroke-3" />}
                   </div>
                 </div>
                 <p className="text-xs text-slate-500">{lvl.desc}</p>
@@ -196,7 +242,7 @@ export function Step6Lifestyle({ values, onChange, onNext }: Step6LifestyleProps
           onClick={onNext}
           className={`inline-flex items-center justify-center rounded-xl px-7 py-3 text-sm font-bold shadow-lg transition active:scale-95 ${
             isFormValid
-              ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-violet-500/25 hover:opacity-95"
+              ? "bg-linear-to-r from-violet-600 to-indigo-600 text-white shadow-violet-500/25 hover:opacity-95"
               : "bg-slate-200 text-slate-400 cursor-not-allowed shadow-none"
           }`}
         >

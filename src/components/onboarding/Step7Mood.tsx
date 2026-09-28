@@ -34,6 +34,27 @@ const MEDITATION_FREQUENCIES = [
   { id: "never", label: "Never" },
 ] as const;
 
+const MOOD_PATTERNS = [
+  "Generally good",
+  "More irritable than usual",
+  "More stressed than usual",
+  "More anxious than usual",
+  "More emotionally sensitive",
+  "Low or discouraged",
+  "Overwhelmed",
+  "Having trouble enjoying things",
+  "Mood feels unpredictable",
+  "Prefer not to answer",
+];
+
+const MOOD_OVERALL_OPTIONS = [
+  { id: "doing_well", label: "Doing well" },
+  { id: "mostly_okay", label: "Mostly okay" },
+  { id: "some_challenges", label: "Some challenges" },
+  { id: "significant_challenges", label: "Significant challenges" },
+  { id: "prefer_not_to_say", label: "Prefer not to answer" },
+] as const;
+
 export function Step7Mood({ values, onChange, onNext }: Step7MoodProps) {
   const updateMoodSlider = (key: string, val: number) => {
     onChange({
@@ -52,6 +73,18 @@ export function Step7Mood({ values, onChange, onNext }: Step7MoodProps) {
     onChange({ emotionalGoals: updated });
   };
 
+  const toggleMoodPattern = (pattern: string) => {
+    const exists = values.moodPatterns.includes(pattern);
+    const updated = exists
+      ? values.moodPatterns.filter((item) => item !== pattern)
+      : pattern === "Prefer not to answer"
+        ? [pattern]
+        : [...values.moodPatterns.filter((item) => item !== "Prefer not to answer"), pattern];
+    onChange({ moodPatterns: updated });
+  };
+
+  const canContinue = values.moodPatterns.length > 0 && values.moodOverall !== "";
+
   return (
     <div className="space-y-7 animate-fadeIn">
       {/* Header */}
@@ -62,6 +95,44 @@ export function Step7Mood({ values, onChange, onNext }: Step7MoodProps) {
         <p className="text-sm text-slate-600">
           Estrogen receptors in the brain interact closely with serotonin and GABA. Rate how you&apos;ve felt emotionally over the last 2 weeks.
         </p>
+      </div>
+
+      <div className="space-y-3 rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm">
+        <div className="space-y-1">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700">How have you generally been feeling emotionally lately?</h3>
+          <p className="text-xs text-slate-500">Select all that apply.</p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {MOOD_PATTERNS.map((pattern) => {
+            const selected = values.moodPatterns.includes(pattern);
+            return (
+              <button
+                key={pattern}
+                type="button"
+                onClick={() => toggleMoodPattern(pattern)}
+                className={`rounded-xl border px-3 py-2 text-xs font-semibold transition ${selected ? "border-violet-600 bg-violet-50 text-violet-900" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"}`}
+              >
+                {pattern}
+              </button>
+            );
+          })}
+        </div>
+        <fieldset className="space-y-2 border-t border-slate-100 pt-3">
+          <legend className="text-xs font-bold text-slate-700">How would you describe your emotional wellbeing overall?</legend>
+          <div className="flex flex-wrap gap-2">
+            {MOOD_OVERALL_OPTIONS.map((option) => (
+              <button
+                key={option.id}
+                type="button"
+                aria-pressed={values.moodOverall === option.id}
+                onClick={() => onChange({ moodOverall: option.id })}
+                className={`rounded-xl border px-3 py-2 text-xs font-semibold transition ${values.moodOverall === option.id ? "border-violet-600 bg-violet-50 text-violet-900" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"}`}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        </fieldset>
       </div>
 
       {/* Sliders Grid */}
@@ -166,7 +237,8 @@ export function Step7Mood({ values, onChange, onNext }: Step7MoodProps) {
         <button
           type="button"
           onClick={onNext}
-          className="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-7 py-3 text-sm font-bold text-white shadow-lg shadow-violet-500/25 transition active:scale-95 hover:opacity-95"
+          disabled={!canContinue}
+          className="inline-flex items-center justify-center rounded-xl bg-linear-to-r from-violet-600 to-indigo-600 px-7 py-3 text-sm font-bold text-white shadow-lg shadow-violet-500/25 transition active:scale-95 hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
         >
           Continue to Signature Goal
         </button>

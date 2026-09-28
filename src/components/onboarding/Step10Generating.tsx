@@ -48,7 +48,7 @@ export function Step10Generating({ onComplete }: Step10GeneratingProps) {
       {/* Animated Glowing Ring */}
       <div className="relative flex items-center justify-center">
         <div className="absolute h-36 w-36 rounded-full bg-violet-500/20 blur-2xl animate-pulse" />
-        <div className="relative flex h-24 w-24 items-center justify-center rounded-3xl bg-gradient-to-tr from-violet-600 via-indigo-600 to-rose-500 shadow-2xl shadow-violet-500/40 text-white">
+        <div className="relative flex h-24 w-24 items-center justify-center rounded-3xl bg-linear-to-tr from-violet-600 via-indigo-600 to-rose-500 shadow-2xl shadow-violet-500/40 text-white">
           <Compass className="h-12 w-12 animate-spin-slow" />
         </div>
       </div>

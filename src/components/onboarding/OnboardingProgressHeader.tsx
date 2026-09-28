@@ -36,7 +36,7 @@ export function OnboardingProgressHeader({
             </button>
           ) : (
             <div className="flex items-center gap-2">
-              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-tr from-violet-600 to-indigo-600 font-bold text-white shadow-sm text-xs">
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-linear-to-tr from-violet-600 to-indigo-600 font-bold text-white shadow-sm text-xs">
                 HC
               </span>
               <span className="text-xs font-bold uppercase tracking-wider text-slate-700 hidden sm:inline">
@@ -68,7 +68,7 @@ export function OnboardingProgressHeader({
       {/* Animated Gradient Progress Track */}
       <div className="h-1.5 w-full bg-slate-100 overflow-hidden">
         <div
-          className="h-full bg-gradient-to-r from-violet-600 via-indigo-500 to-rose-400 transition-all duration-500 ease-out"
+          className="h-full bg-linear-to-r from-violet-600 via-indigo-500 to-rose-400 transition-all duration-500 ease-out"
           style={{ width: `${percentage}%` }}
         />
       </div>

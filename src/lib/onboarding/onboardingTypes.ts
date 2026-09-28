@@ -1,7 +1,10 @@
+export const ONBOARDING_CONSENT_VERSION = "privacy-2026-09-27";
+
 export interface OnboardingFormValues {
   // Version & Consent
   version: string;
   consentAccepted: boolean;
+  consentVersion: string;
 
   // Step 2: Demographics & Phase
   age: number | "";
@@ -42,6 +45,7 @@ export interface OnboardingFormValues {
     tired: number;
   };
   moodOverall: "doing_well" | "mostly_okay" | "some_challenges" | "significant_challenges" | "prefer_not_to_say" | "";
+  moodPatterns: string[];
   emotionalGoals: string[];
   meditationFrequency: "daily" | "weekly" | "rarely" | "never" | "";
 
@@ -52,6 +56,7 @@ export interface OnboardingFormValues {
   dailyCheckinOptIn: boolean;
   preferredRecommendations: string[];
   partnerSupportInterest: "yes" | "maybe" | "not_now" | "not_interested" | "no_partner" | "prefer_not_to_say" | "";
+  partnerSupportNeeds: string[];
   partnerEmail: string;
   partnerConsent: boolean;
   partnerSharingScopes: string[];

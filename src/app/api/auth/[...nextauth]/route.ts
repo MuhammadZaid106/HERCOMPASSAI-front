@@ -28,18 +28,19 @@ export const authOptions: NextAuthOptions = {
     async signIn({ user, account }) {
       if (account?.provider === "google" && user.email) {
         try {
-          let selectedRole = "member";
-          try {
-            const cookieStore = await cookies();
-            // A completed Google OAuth flow is a confirmed new session; clear the
-            // post-logout marker so edge middleware can reach /app (not signed_out).
-            cookieStore.delete("hercompass_logout");
-            const cookieRole = cookieStore.get("hercompass_selected_role")?.value;
-            if (cookieRole === "partner" || cookieRole === "member") {
-              selectedRole = cookieRole;
-            }
-          } catch {
-            // fallback if cookies() not available in context
+          // A completed Google OAuth flow is a confirmed new session; clear the
+          // post-logout marker so edge middleware can reach /app (not signed_out).
+          const cookieStore = await cookies();
+          cookieStore.delete("hercompass_logout");
+
+          // The backend now verifies the Google ID token itself and trusts none
+          // of the claims it used to accept from the body (email/googleId/role).
+          const idToken = (account as { id_token?: string }).id_token;
+          if (!idToken) {
+            console.warn(
+              "Google OAuth succeeded but no ID token was returned; skipping backend sync."
+            );
+            return true;
           }
 
           const apiUrl =
@@ -47,13 +48,7 @@ export const authOptions: NextAuthOptions = {
           const res = await fetch(`${apiUrl}/api/auth/google`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              name: user.name || (selectedRole === "partner" ? "Partner" : "Member"),
-              email: user.email,
-              googleId: account.providerAccountId || user.id,
-              role: selectedRole,
-              plan: "free",
-            }),
+            body: JSON.stringify({ idToken }),
           });
           const json = await res.json();
           if (res.ok && json.success && json.data?.user) {

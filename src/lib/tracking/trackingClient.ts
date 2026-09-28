@@ -9,12 +9,10 @@ async function save(
   path: string,
   payload: TrackingPayload,
 ): Promise<TrackingSaveResult> {
-  const token = authClient.getStoredTokens()?.accessToken;
-  const response = await fetch(`${API_BASE}${path}`, {
+  const response = await authClient.authenticatedFetch(`${API_BASE}${path}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
     body: JSON.stringify(payload),
   });

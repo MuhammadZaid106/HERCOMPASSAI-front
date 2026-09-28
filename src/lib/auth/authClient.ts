@@ -49,6 +49,8 @@ const STORAGE_KEYS = {
   REFRESH_TOKEN: "hercompass_refresh_token",
 };
 
+let refreshInFlight: Promise<boolean> | null = null;
+
 export const authClient = {
   /**
    * Register a new member or partner
@@ -129,6 +131,66 @@ export const authClient = {
     }
   },
 
+  async refreshSession(): Promise<boolean> {
+    if (refreshInFlight) return refreshInFlight;
+
+    refreshInFlight = (async () => {
+      const tokens = authClient.getStoredTokens();
+      if (!tokens?.refreshToken) return false;
+
+      let response: Response;
+      try {
+        response = await fetch(`${API_BASE}/api/auth/refresh`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ refreshToken: tokens.refreshToken }),
+        });
+      } catch {
+        return false;
+      }
+
+      const json: ApiResponse<{ accessToken: string; refreshToken: string }> =
+        await response.json().catch(() => ({ success: false, message: "Network error" }));
+
+      if (!response.ok || !json.success || !json.data) {
+        if (response.status === 401) authClient.clearSession();
+        return false;
+      }
+
+      const user = authClient.getStoredUser();
+      if (user) {
+        authClient.setSession(user, json.data);
+      } else {
+        localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, json.data.accessToken);
+        localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, json.data.refreshToken);
+        document.cookie = `hercompass_access_token=${json.data.accessToken}; path=/; max-age=604800; SameSite=Lax`;
+      }
+      return true;
+    })().finally(() => {
+      refreshInFlight = null;
+    });
+
+    return refreshInFlight;
+  },
+
+  async authenticatedFetch(input: RequestInfo | URL, init: RequestInit = {}): Promise<Response> {
+    const headers = new Headers(init.headers);
+    const currentTokens = authClient.getStoredTokens();
+    if (currentTokens?.accessToken) {
+      headers.set("Authorization", `Bearer ${currentTokens.accessToken}`);
+    }
+
+    const response = await fetch(input, { ...init, headers });
+    if (response.status !== 401 || !(await authClient.refreshSession())) return response;
+
+    const refreshedTokens = authClient.getStoredTokens();
+    const retryHeaders = new Headers(init.headers);
+    if (refreshedTokens?.accessToken) {
+      retryHeaders.set("Authorization", `Bearer ${refreshedTokens.accessToken}`);
+    }
+    return fetch(input, { ...init, headers: retryHeaders });
+  },
+
   /**
    * Fetch current authenticated user from backend using Bearer token
    */
@@ -138,7 +200,7 @@ export const authClient = {
       return { success: false, message: "No access token found" };
     }
 
-    const res = await fetch(`${API_BASE}/api/auth/me`, {
+    const res = await authClient.authenticatedFetch(`${API_BASE}/api/auth/me`, {
       headers: {
         Authorization: `Bearer ${tokens.accessToken}`,
       },
