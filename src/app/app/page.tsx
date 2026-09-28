@@ -112,6 +112,18 @@ export default function MemberHomePage() {
         </div>
       </section>
 
+      {data.trackingSummary && data.trackingSummary.checkInStreak > 0 && (
+        <div className="rounded-2xl border border-violet-200/80 bg-violet-50/60 px-4 py-3 text-sm text-slate-700">
+          <span className="font-bold text-violet-900">
+            {data.trackingSummary.checkInStreak}-day check-in streak
+          </span>
+          <span className="text-slate-600">
+            {" "}
+            · {data.trackingSummary.daysWithAnyEntry7d} of the last 7 days logged
+          </span>
+        </div>
+      )}
+
       <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatusCard
           label="Symptoms"

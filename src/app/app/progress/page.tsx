@@ -1,19 +1,62 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Activity, BarChart3, LineChart, Moon, Smile, Zap } from "lucide-react";
+import {
+  Activity,
+  BarChart3,
+  Flame,
+  LineChart,
+  Minus,
+  Moon,
+  Smile,
+  TrendingDown,
+  TrendingUp,
+  Zap,
+} from "lucide-react";
 import { memberClient } from "@/lib/member/memberClient";
 import type {
+  DomainTrend,
   MemberProgressData,
   TrackingRange,
+  TrendDirection,
 } from "@/lib/member/memberTypes";
+import { ProgressTimelineChart } from "@/components/member/ProgressTimelineChart";
+import { formatChangePercent, trendLabel } from "@/lib/member/trendDisplay";
+import type { ProgressMetricKey } from "@/lib/member/progressChartUtils";
 
 const metrics = [
-  { key: "symptoms", label: "Symptoms", icon: Activity },
-  { key: "mood", label: "Mood", icon: Smile },
-  { key: "sleep", label: "Sleep", icon: Moon },
-  { key: "energy", label: "Energy", icon: Zap },
+  { key: "symptoms", trendKey: "symptoms", label: "Symptoms", icon: Activity },
+  { key: "mood", trendKey: "mood", label: "Mood", icon: Smile },
+  { key: "sleep", trendKey: "sleep", label: "Sleep", icon: Moon },
+  { key: "energy", trendKey: "energy", label: "Energy", icon: Zap },
 ] as const;
+
+function TrendBadge({ domain }: { domain: DomainTrend }) {
+  const Icon =
+    domain.trend === "increasing"
+      ? TrendingUp
+      : domain.trend === "decreasing"
+        ? TrendingDown
+        : Minus;
+  const tone: Record<TrendDirection, string> = {
+    increasing: "bg-amber-50 text-amber-800 border-amber-200",
+    decreasing: "bg-sky-50 text-sky-800 border-sky-200",
+    stable: "bg-slate-50 text-slate-700 border-slate-200",
+  };
+  return (
+    <span
+      className={`mt-2 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${tone[domain.trend]}`}
+    >
+      <Icon className="h-3 w-3" />
+      {trendLabel(domain.trend)}
+      {domain.sufficientData && domain.changePercent !== null && (
+        <span className="normal-case">
+          ({formatChangePercent(domain.changePercent)})
+        </span>
+      )}
+    </span>
+  );
+}
 
 export default function ProgressPage() {
   const [range, setRange] = useState<TrackingRange>("7d");
@@ -21,6 +64,7 @@ export default function ProgressPage() {
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
     let active = true;
+    setError(null);
     setData(null);
     void memberClient.getProgress(range).then((result) => {
       if (!active) return;
@@ -70,31 +114,96 @@ export default function ProgressPage() {
         <div className="h-72 animate-pulse rounded-3xl bg-slate-100" />
       ) : (
         <>
-          <div className="grid gap-3 sm:grid-cols-4">
-            {metrics.map(({ key, label, icon: Icon }) => (
-              <div
-                key={key}
-                className="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-sm"
-              >
-                <div className="flex items-center justify-between text-xs font-bold text-slate-500">
-                  <span>{label}</span>
-                  <Icon className="h-4 w-4 text-violet-600" />
+          {data.trends && !data.trends.insufficientData && (
+            <section className="grid gap-3 sm:grid-cols-3">
+              <div className="rounded-2xl border border-violet-200/80 bg-violet-50/50 p-4">
+                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-violet-800">
+                  <Flame className="h-4 w-4" />
+                  Check-in streak
                 </div>
-                <p className="mt-3 text-2xl font-extrabold text-slate-900">
-                  {data.averages[key]}
-                </p>
-                <p className="mt-1 text-[11px] text-slate-500">
-                  Average recorded level
+                <p className="mt-2 text-2xl font-extrabold text-slate-900">
+                  {data.trends.checkInStreak}{" "}
+                  <span className="text-sm font-bold text-slate-600">
+                    {data.trends.checkInStreak === 1 ? "day" : "days"}
+                  </span>
                 </p>
               </div>
-            ))}
+              <div className="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-sm">
+                <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                  Logging consistency
+                </p>
+                <p className="mt-2 text-2xl font-extrabold text-slate-900">
+                  {data.trends.consistencyScore}%
+                </p>
+                <p className="mt-1 text-[11px] text-slate-500">
+                  {data.trends.daysWithAnyEntry} days with any entry in this
+                  window
+                </p>
+              </div>
+              <div className="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-sm">
+                <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                  Symptom frequency
+                </p>
+                <p className="mt-2 text-2xl font-extrabold text-slate-900">
+                  {data.trends.symptomFrequency ?? "—"}
+                </p>
+                <p className="mt-1 text-[11px] text-slate-500">
+                  Avg. symptoms logged per day (when logged)
+                </p>
+              </div>
+            </section>
+          )}
+
+          <div className="grid gap-3 sm:grid-cols-4">
+            {metrics.map(({ key, trendKey, label, icon: Icon }) => {
+              const domain = data.trends?.[trendKey];
+              return (
+                <div
+                  key={key}
+                  className="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-sm"
+                >
+                  <div className="flex items-center justify-between text-xs font-bold text-slate-500">
+                    <span>{label}</span>
+                    <Icon className="h-4 w-4 text-violet-600" />
+                  </div>
+                  <p className="mt-3 text-2xl font-extrabold text-slate-900">
+                    {data.averages[key]}
+                  </p>
+                  <p className="mt-1 text-[11px] text-slate-500">
+                    Average recorded level
+                  </p>
+                  {domain && <TrendBadge domain={domain} />}
+                </div>
+              );
+            })}
           </div>
+
+          {data.trends?.patternIndicators &&
+            data.trends.patternIndicators.length > 0 && (
+              <section className="rounded-2xl border border-indigo-200/80 bg-indigo-50/40 p-5">
+                <h2 className="text-sm font-extrabold text-slate-900">
+                  Pattern notes (deterministic)
+                </h2>
+                <ul className="mt-3 space-y-2 text-sm leading-relaxed text-slate-700">
+                  {data.trends.patternIndicators.map((line) => (
+                    <li key={line}>• {line}</li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
           <section className="rounded-3xl border border-slate-200/90 bg-white p-5 shadow-sm sm:p-7">
-            <div className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5 text-violet-600" />
-              <h2 className="text-xl font-extrabold text-slate-900">
-                Recorded signals
-              </h2>
+            <div className="flex items-start gap-2">
+              <BarChart3 className="mt-0.5 h-5 w-5 shrink-0 text-violet-600" />
+              <div>
+                <h2 className="text-xl font-extrabold text-slate-900">
+                  Daily log timeline
+                </h2>
+                <p className="mt-1 max-w-2xl text-sm leading-relaxed text-slate-600">
+                  One column per day in your selected window. This shows what you
+                  recorded—not a medical diagnosis or proof of cause.
+                </p>
+              </div>
             </div>
             {data.entryCount === 0 ? (
               <div className="mt-8 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center">
@@ -103,30 +212,18 @@ export default function ProgressPage() {
                   Your picture will build here
                 </h3>
                 <p className="mt-1 text-sm text-slate-600">
-                  Log a few daily check-ins to see descriptive trends.
+                  Use Daily check-in a few times to fill in the timeline.
                 </p>
               </div>
             ) : (
               <div className="mt-6 space-y-4">
-                {metrics.map(({ key, label }) => (
-                  <div key={key}>
-                    <div className="mb-1 flex justify-between text-xs font-bold text-slate-600">
-                      <span>{label}</span>
-                      <span>{data.points[key].length} entries</span>
-                    </div>
-                    <div className="flex h-12 items-end gap-1 rounded-xl bg-slate-50 p-2">
-                      {data.points[key].map((point) => (
-                        <div
-                          key={`${key}-${point.date}`}
-                          title={`${point.date}: ${point.value}`}
-                          className="min-w-2 flex-1 rounded-t bg-linear-to-t from-violet-600 to-rose-400"
-                          style={{
-                            height: `${Math.max(12, point.value * 20)}%`,
-                          }}
-                        />
-                      ))}
-                    </div>
-                  </div>
+                {metrics.map(({ key }) => (
+                  <ProgressTimelineChart
+                    key={key}
+                    metricKey={key as ProgressMetricKey}
+                    range={range}
+                    points={data.points[key]}
+                  />
                 ))}
               </div>
             )}

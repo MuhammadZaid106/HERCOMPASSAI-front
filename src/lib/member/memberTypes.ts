@@ -6,6 +6,30 @@ export interface TrackingEntry {
   [key: string]: unknown;
 }
 
+export type TrendDirection = "increasing" | "decreasing" | "stable";
+
+export interface DomainTrend {
+  trend: TrendDirection;
+  changePercent: number | null;
+  recentAverage: number | null;
+  priorAverage: number | null;
+  sufficientData: boolean;
+}
+
+export interface TrendEngineOutput {
+  rangeDays: number;
+  insufficientData: boolean;
+  checkInStreak: number;
+  consistencyScore: number;
+  daysWithAnyEntry: number;
+  symptomFrequency: number | null;
+  symptoms: DomainTrend;
+  mood: DomainTrend;
+  sleep: DomainTrend;
+  energy: DomainTrend;
+  patternIndicators: string[];
+}
+
 export interface MemberDashboardData {
   member: { id: string; name: string; plan: "free" | "plus" | "premium" };
   onboarding: { completed: boolean; completedAt: string | null; snapshotAvailable: boolean };
@@ -17,6 +41,11 @@ export interface MemberDashboardData {
   };
   deterministicScores: Record<string, unknown> | null;
   partnerSupport: { interest: string | null };
+  trackingSummary?: {
+    checkInStreak: number;
+    consistencyScore7d: number;
+    daysWithAnyEntry7d: number;
+  };
 }
 
 export interface MemberProgressData {
@@ -29,6 +58,7 @@ export interface MemberProgressData {
   };
   averages: { symptoms: number | null; mood: number | null; sleep: number | null; energy: number | null };
   entryCount: number;
+  trends: TrendEngineOutput;
 }
 
 export interface ApiResult<T> {

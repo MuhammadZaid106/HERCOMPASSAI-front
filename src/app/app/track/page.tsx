@@ -437,8 +437,10 @@ function Scale({
         className="w-full accent-violet-600"
       />
       <div className="mt-2 flex justify-between text-[11px] font-semibold text-slate-500">
-        {labels.map((label) => (
-          <span key={label}>{label}</span>
+        {labels.map((label, index) => (
+          <span key={index} className={label ? undefined : "invisible"}>
+            {label || "·"}
+          </span>
         ))}
       </div>
     </div>
