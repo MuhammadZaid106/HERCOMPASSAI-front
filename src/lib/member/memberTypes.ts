@@ -6,6 +6,45 @@ export interface TrackingEntry {
   [key: string]: unknown;
 }
 
+export interface DomainLogSummary {
+  entryDate: string;
+  label: string;
+}
+
+export interface DashboardDomainLogs {
+  symptom: DomainLogSummary | null;
+  mood: DomainLogSummary | null;
+  sleep: DomainLogSummary | null;
+  energy: DomainLogSummary | null;
+}
+
+export type PartnerSupportInterest =
+  | "yes"
+  | "maybe"
+  | "not_now"
+  | "not_interested"
+  | "no_partner"
+  | "prefer_not_to_say";
+
+export interface SnapshotScores {
+  symptomBurdenScore: number;
+  sleepDisturbanceScore: number;
+  vitalityIndex: number;
+  emotionalBalanceScore: number;
+}
+
+export interface DashboardSnapshot {
+  available: boolean;
+  dominantFocusArea: string | null;
+  scores: SnapshotScores | null;
+}
+
+export interface HomeNextStep {
+  title: string;
+  body: string;
+  href: string;
+}
+
 export type TrendDirection = "increasing" | "decreasing" | "stable";
 
 export interface DomainTrend {
@@ -33,14 +72,14 @@ export interface TrendEngineOutput {
 export interface MemberDashboardData {
   member: { id: string; name: string; plan: "free" | "plus" | "premium" };
   onboarding: { completed: boolean; completedAt: string | null; snapshotAvailable: boolean };
-  today: {
-    symptom: TrackingEntry | null;
-    mood: TrackingEntry | null;
-    sleep: TrackingEntry | null;
-    energy: TrackingEntry | null;
-  };
+  today: DashboardDomainLogs;
+  latest: DashboardDomainLogs;
+  checkIn: { loggedToday: number; total: 4 };
+  snapshot: DashboardSnapshot;
+  nextStep: HomeNextStep;
+  trends: TrendEngineOutput;
   deterministicScores: Record<string, unknown> | null;
-  partnerSupport: { interest: string | null };
+  partnerSupport: { interest: PartnerSupportInterest | null };
   trackingSummary?: {
     checkInStreak: number;
     consistencyScore7d: number;
@@ -81,8 +120,101 @@ export interface MemberNotificationsData {
   unreadCount: number;
 }
 
+export type MemberPlanId = "free" | "plus" | "premium";
+export type PlanAccess = "included" | "limited" | "not_included";
+
+export interface PlanSummary {
+  id: MemberPlanId;
+  label: string;
+  summary: string;
+  description: string;
+}
+
+export interface PlanComparisonRow {
+  id: string;
+  label: string;
+  access: Record<MemberPlanId, PlanAccess>;
+}
+
+export interface NotificationPreferences {
+  snapshot: boolean;
+  trackingReminders: boolean;
+  recommendations: boolean;
+  partner: boolean;
+  plans: boolean;
+  account: boolean;
+  privacySecurity: boolean;
+}
+
+export interface ExploreProgressItem {
+  slug: string;
+  saved: boolean;
+  completed: boolean;
+}
+
+export interface MemberAccountData {
+  profile: {
+    name: string;
+    email: string;
+    emailVerified: boolean;
+    memberSince: string;
+    plan: MemberPlanId;
+    planLabel: string;
+  };
+  preferences: {
+    snapshotComplete: boolean;
+    dailyCheckIn: boolean;
+    recommendations: string[];
+  };
+  consent: {
+    type: string;
+    typeLabel: string;
+    version: string;
+    recordedAt: string | null;
+    allowsPersonalization: boolean;
+  } | null;
+  partner: {
+    interest: string | null;
+    interestLabel: string;
+    sharingOn: boolean;
+    scopes: string[];
+    emailOnFile: boolean;
+  } | null;
+  notifications: {
+    unreadCount: number;
+  };
+}
+
 export interface MemberSubscriptionData {
-  plan: "free" | "plus" | "premium";
+  plan: MemberPlanId;
   label: string;
   description: string;
+  summary: string;
+  plans: PlanSummary[];
+  comparison: PlanComparisonRow[];
+}
+
+export type InsightSection = "changing" | "connected" | "try" | "watch";
+
+export interface InsightCard {
+  id: string;
+  section: InsightSection;
+  title: string;
+  body: string;
+  href: string;
+  hrefLabel: string;
+  why: string;
+  considered: string[];
+}
+
+export interface MemberInsightsData {
+  rangeDays: number;
+  insufficientData: boolean;
+  daysWithAnyEntry: number;
+  patterns: Array<{
+    label: string;
+    direction: TrendDirection | "unknown";
+  }>;
+  cards: InsightCard[];
+  learnMore: Array<{ title: string; body: string; href: string }>;
 }
