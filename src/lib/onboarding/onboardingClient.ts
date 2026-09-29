@@ -1,8 +1,18 @@
 import { authClient } from "../auth/authClient";
 import {
+  AI_CONNECTION_MESSAGE,
+  AI_UNREADABLE_RESPONSE_MESSAGE,
+  NETWORK_ERROR_STATUS,
+  aiErrorMessage,
+  reasonFromErrorBody,
+  resolveReason,
+} from "../ai/aiErrors";
+import {
   ONBOARDING_CONSENT_VERSION,
   type OnboardingFormValues,
+  type OnboardingProfileSummary,
   type PersonalSnapshotData,
+  type SnapshotResult,
 } from "./onboardingTypes";
 
 const API_BASE =
@@ -106,7 +116,7 @@ export const onboardingClient = {
    */
   async submitAssessment(
     values: OnboardingFormValues
-  ): Promise<{ success: boolean; message: string; data?: any }> {
+  ): Promise<{ success: boolean; message: string; data?: unknown }> {
     const payload = {
       version: values.version || "1.0",
       consentAccepted: values.consentAccepted,
@@ -165,10 +175,13 @@ export const onboardingClient = {
 
       onboardingClient.clearDraft();
       return { success: true, message: json.message, data: json.data };
-    } catch (err: any) {
+    } catch {
+      // The browser only reaches here for a transport failure, so a member needs
+      // a connection message — never `err.message`, which reads "Failed to
+      // fetch" and says nothing about their saved answers.
       return {
         success: false,
-        message: err.message || "Network error submitting onboarding assessment",
+        message: AI_CONNECTION_MESSAGE,
       };
     }
   },
@@ -178,7 +191,7 @@ export const onboardingClient = {
    */
   async getProfile(): Promise<{
     isCompleted: boolean;
-    profile?: any;
+    profile?: OnboardingProfileSummary;
     error?: string;
   }> {
     const tokens = authClient.getStoredTokens();
@@ -189,34 +202,90 @@ export const onboardingClient = {
       const res = await authClient.authenticatedFetch(`${API_BASE}/api/onboarding/me`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const json = await res.json();
-      if (!res.ok) return { isCompleted: false, error: json.message };
+      const json = await res.json().catch(() => null);
+      if (!res.ok) {
+        return { isCompleted: false, error: aiErrorMessage(res.status, json?.message) };
+      }
       return json.data || { isCompleted: false };
     } catch {
-      return { isCompleted: false };
+      return { isCompleted: false, error: AI_CONNECTION_MESSAGE };
     }
   },
 
   /**
-   * Fetch the 8-part Personal Menopause Snapshot
+   * Fetch the 8-part Personal Menopause Snapshot.
+   *
+   * This is the one place a member-facing page talks to the AI Gateway, and the
+   * distinction it has to preserve is *why* a Snapshot is missing. The old
+   * version returned `{ snapshot: null, error }` and every caller rendered the
+   * same "not ready yet" line, so a Gateway outage looked identical to a member
+   * who had never finished onboarding — and, worse, an expired token looked
+   * like missing data. `SnapshotResult` carries the status, the machine-readable
+   * reason and a message that is safe to render verbatim, so the page can offer
+   * "finish onboarding", "review consent" or "try again" as appropriate.
    */
-  async getSnapshot(): Promise<{
-    snapshot: PersonalSnapshotData | null;
-    error?: string;
-  }> {
+  async getSnapshot(options: { refresh?: boolean } = {}): Promise<SnapshotResult> {
     const tokens = authClient.getStoredTokens();
-    const token = tokens?.accessToken;
-    if (!token) return { snapshot: null, error: "Authentication required" };
+    if (!tokens?.accessToken) {
+      return {
+        snapshot: null,
+        generated: false,
+        requestId: null,
+        status: 401,
+        reason: "unauthenticated",
+        message: aiErrorMessage(401, null),
+      };
+    }
+
+    const query = options.refresh ? "?refresh=true" : "";
 
     try {
-      const res = await authClient.authenticatedFetch(`${API_BASE}/api/onboarding/snapshot`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const json = await res.json();
-      if (!res.ok) return { snapshot: null, error: json.message };
-      return { snapshot: json.data?.snapshot || null };
-    } catch (err: any) {
-      return { snapshot: null, error: err.message };
+      const res = await authClient.authenticatedFetch(
+        `${API_BASE}/api/onboarding/snapshot${query}`,
+        { headers: { Authorization: `Bearer ${tokens.accessToken}` } }
+      );
+      const json = await res.json().catch(() => null);
+      const reason = reasonFromErrorBody(json);
+
+      if (!res.ok) {
+        return {
+          snapshot: null,
+          generated: false,
+          requestId: null,
+          status: res.status,
+          reason: reason ?? resolveReason(res.status, "unknown"),
+          message: aiErrorMessage(res.status, json?.message),
+        };
+      }
+
+      if (json?.success !== true) {
+        return {
+          snapshot: null,
+          generated: false,
+          requestId: null,
+          status: res.status,
+          reason: "unknown",
+          message: AI_UNREADABLE_RESPONSE_MESSAGE,
+        };
+      }
+
+      return {
+        snapshot: (json.data?.snapshot as PersonalSnapshotData | undefined) ?? null,
+        generated: json.data?.generated === true,
+        requestId: json.data?.requestId ?? null,
+        status: res.status,
+        reason: null,
+        message: "",
+      };
+    } catch {
+      return {
+        snapshot: null,
+        generated: false,
+        requestId: null,
+        status: NETWORK_ERROR_STATUS,
+        reason: "network",
+        message: AI_CONNECTION_MESSAGE,
+      };
     }
   },
 };

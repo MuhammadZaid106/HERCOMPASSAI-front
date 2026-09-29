@@ -6,6 +6,7 @@ import {
   AlertTriangle,
   CheckCircle2,
   FlaskConical,
+  Info,
   Loader2,
   RefreshCw,
   ShieldCheck,
@@ -21,6 +22,7 @@ import {
   type AiGenerateData,
   type AiRating,
 } from "@/lib/ai/aiClient";
+import { AI_CONNECTION_MESSAGE, isNetworkError } from "@/lib/ai/aiErrors";
 
 type LabState = "idle" | "running" | "done" | "error";
 
@@ -30,7 +32,16 @@ interface ProfileStatus {
   error?: string;
 }
 
+/**
+ * A developer-facing hint for a failed gateway call.
+ *
+ * Two audiences read this page, so a failure gets both: the member-safe line
+ * from the backend, and a parenthetical for whoever has to go fix the .env. A
+ * network failure has no status to map, so it gets its own branch instead of
+ * falling through to `message`.
+ */
 function hintFor(status: number, message: string): string {
+  if (isNetworkError(status)) return AI_CONNECTION_MESSAGE;
   if (status === 401)
     return "Session expired or invalid — log out and log back in.";
   if (status === 403 && message.toLowerCase().includes("health"))
@@ -42,6 +53,33 @@ function hintFor(status: number, message: string): string {
   if (status === 503)
     return "AI gateway disabled or no engine configured. Check the backend .env (AI_GATEWAY_ENABLED, *_PROVIDER_URL, *_MODEL).";
   return message;
+}
+
+/**
+ * Points at the likely cause of a degraded result.
+ *
+ * The original 503 hint covered only "disabled or unconfigured", so a 400 from an
+ * unsupported model id — the actual failure in this system — had no guidance at
+ * all and read as a mystery. A rejection is a configuration problem, and the two
+ * most common causes are named here rather than left for the reader to guess.
+ */
+function degradedHint(reason: string, engines: Array<{ kind: string }>): string {
+  if (engines.some((engine) => engine.kind === "rejected")) {
+    return "An engine refused the request. Most often the configured model id is not hosted by that provider (400 model_not_supported) or the key lacks access — check *_MODEL, *_MODEL_VERSION and the provider's access list, then the admin health endpoint.";
+  }
+  if (reason === "schema_invalid") {
+    return "The engine answered but the payload did not match the output contract. Check the prompt output contract and the model's JSON-mode support.";
+  }
+  if (reason === "guardrail_blocked") {
+    return "The engine's text was withheld by guardrails. Inspect the SCI findings in the server log for the specific check.";
+  }
+  if (reason === "integrity_check_failed") {
+    return "The engine's text failed citation or grounding verification. Check the retrieval results for this request in the server log.";
+  }
+  if (engines.some((engine) => engine.kind === "timeout")) {
+    return "The engine timed out. Check AI_GATEWAY limits and the provider's capacity.";
+  }
+  return "Check the server log for the redacted per-engine failure detail, or the admin health endpoint.";
 }
 
 export default function AiLabPage() {
@@ -86,12 +124,32 @@ export default function AiLabPage() {
     setError(null);
     setFeedbackMsg(null);
     setLastKind(kind);
-    const res = await aiClient.generate(kind);
-    if (res.ok && res.data) {
-      setResult(res.data);
-      setState("done");
-    } else {
-      setError(hintFor(res.status, res.message));
+
+    // `aiClient` resolves every failure, so a throw here means something local
+    // broke. Either way the button must return to a usable state and say what
+    // happened — an unhandled rejection used to leave it spinning forever.
+    try {
+      const res = await aiClient.generate(kind);
+      if (res.ok && res.data) {
+        setResult(res.data);
+        setState("done");
+        // A degraded result is a successful HTTP call, so reporting it as done
+        // with no explanation is how a broken engine passed for a working one.
+        // The hint names the likely cause instead of just restating "fallback".
+        if (res.data.meta?.diagnostics) {
+          setError(
+            `Degraded (${res.data.meta.diagnostics.reason}): ${degradedHint(
+              res.data.meta.diagnostics.reason,
+              res.data.meta.diagnostics.engines
+            )}`
+          );
+        }
+      } else {
+        setError(hintFor(res.status, res.message));
+        setState("error");
+      }
+    } catch {
+      setError(AI_CONNECTION_MESSAGE);
       setState("error");
     }
   }
@@ -101,24 +159,35 @@ export default function AiLabPage() {
     setResult(null);
     setHealthDump(null);
     setError(null);
-    const res = await aiClient.health();
-    setState("done");
-    if (res.ok) {
-      setHealthDump(res.data ?? {});
-    } else {
-      setError(hintFor(res.status, res.message));
+
+    try {
+      const res = await aiClient.health();
+      setState("done");
+      if (res.ok) {
+        setHealthDump(res.data ?? {});
+      } else {
+        setError(hintFor(res.status, res.message));
+      }
+    } catch {
+      setError(AI_CONNECTION_MESSAGE);
+      setState("error");
     }
   }
 
   async function submitFeedback(rating: AiRating) {
     if (!result) return;
     setFeedbackMsg(null);
-    const res = await aiClient.feedback({
-      requestId: result.meta.requestId,
-      feature: aiClient.endpoints(lastKind).feature,
-      rating,
-    });
-    setFeedbackMsg(res.message);
+
+    try {
+      const res = await aiClient.feedback({
+        requestId: result.meta.requestId,
+        feature: aiClient.endpoints(lastKind).feature,
+        rating,
+      });
+      setFeedbackMsg(res.message);
+    } catch {
+      setFeedbackMsg(AI_CONNECTION_MESSAGE);
+    }
   }
 
   if (loading || !user) {
@@ -281,9 +350,18 @@ export default function AiLabPage() {
       )}
 
       {error && (
-        <section className="space-y-2 rounded-2xl border border-rose-200 bg-rose-50 p-5 text-sm text-rose-800">
-          <p className="font-semibold">Request failed</p>
-          <p className="text-rose-700">{error}</p>
+        // A degraded result is a 200 with a usable body, so styling it as a
+        // failure would misreport it. The heading follows what actually
+        // happened: the request succeeded, the engine did not.
+        <section
+          className={`space-y-2 rounded-2xl border p-5 text-sm ${
+            result
+              ? "border-amber-200 bg-amber-50 text-amber-900"
+              : "border-rose-200 bg-rose-50 text-rose-800"
+          }`}
+        >
+          <p className="font-semibold">{result ? "Degraded" : "Request failed"}</p>
+          <p className={result ? "text-amber-800" : "text-rose-700"}>{error}</p>
         </section>
       )}
 
@@ -301,10 +379,17 @@ export default function AiLabPage() {
       {result ? (
         <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 font-semibold text-emerald-700">
-              <CheckCircle2 className="h-3.5 w-3.5" />
-              {result.meta.resultStatus}
-            </span>
+            {result.meta.diagnostics ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 font-semibold text-amber-700">
+                <Info className="h-3.5 w-3.5" />
+                {result.meta.resultStatus}
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 font-semibold text-emerald-700">
+                <CheckCircle2 className="h-3.5 w-3.5" />
+                {result.meta.resultStatus}
+              </span>
+            )}
             <span className="rounded-full bg-slate-100 px-2.5 py-1 font-mono">
               modelVersion: {result.meta.modelVersion}
             </span>
@@ -315,6 +400,34 @@ export default function AiLabPage() {
               requestId: {result.meta.requestId.slice(0, 8)}…
             </span>
           </div>
+
+          {/*
+            A 200 with a usable body is not the same as a working model, and this
+            is the screen where that difference has to be legible. The provider
+            classification is safe to show here (no message, no key, no hostname),
+            which is what lets someone tell "the engine refused this model id"
+            apart from "the engine timed out" without opening a log file.
+          */}
+          {result.meta.diagnostics && (
+            <div className="rounded-xl border border-amber-200 bg-amber-50/70 p-3.5">
+              <p className="text-xs font-bold uppercase tracking-wider text-amber-800">
+                Degraded · {result.meta.diagnostics.reason} ·{" "}
+                {result.meta.diagnostics.retryable ? "retry may help" : "retry will not help"}
+              </p>
+              <p className="mt-1.5 text-[13px] leading-relaxed text-amber-900">
+                {result.meta.diagnostics.message}
+              </p>
+              {result.meta.diagnostics.engines.length > 0 && (
+                <pre className="mt-2 overflow-auto rounded-lg bg-amber-950/90 p-3 font-mono text-[11px] leading-relaxed text-amber-50">
+                  {JSON.stringify(result.meta.diagnostics.engines, null, 2)}
+                </pre>
+              )}
+              <p className="mt-2 text-[11px] text-amber-800">
+                Full provider detail is redacted and lives in the server log and the admin
+                health endpoint.
+              </p>
+            </div>
+          )}
 
           <div>
             <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
