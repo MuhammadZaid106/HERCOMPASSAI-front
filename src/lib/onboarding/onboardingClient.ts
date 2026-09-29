@@ -219,4 +219,46 @@ export const onboardingClient = {
       return { snapshot: null, error: err.message };
     }
   },
+
+  async getSnapshotVersions(): Promise<{
+    versions: Array<{
+      id: string;
+      versionNumber: number;
+      completedAt: string;
+      dominantFocusArea: string | null;
+    }>;
+    error?: string;
+  }> {
+    try {
+      const res = await authClient.authenticatedFetch(
+        `${API_BASE}/api/onboarding/snapshot/versions`,
+      );
+      const json = await res.json();
+      if (!res.ok) return { versions: [], error: json.message };
+      return { versions: json.data?.versions ?? [] };
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Network error";
+      return { versions: [], error: message };
+    }
+  },
+
+  async sendSnapshotFeedback(
+    rating: "helpful" | "not_helpful",
+    comment: string,
+  ): Promise<{ ok: boolean; message: string }> {
+    try {
+      const res = await authClient.authenticatedFetch(
+        `${API_BASE}/api/onboarding/snapshot/feedback`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ rating, comment }),
+        },
+      );
+      const json = await res.json();
+      return { ok: res.ok && json.success === true, message: json.message ?? "Saved" };
+    } catch {
+      return { ok: false, message: "We couldn't save that feedback." };
+    }
+  },
 };
