@@ -38,7 +38,11 @@ interface InsightReading {
   suggestedNextSteps: Array<{ action: string }>;
   safetyNotice?: string;
   confidence?: { confidenceClass?: string };
-  evidence?: Array<{ sourceName?: string; title?: string }>;
+  evidence?: Array<{
+    sourceName?: string;
+    title?: string;
+    clinicianReview?: "pending" | "signed";
+  }>;
 }
 
 function isInsightReading(value: unknown): value is InsightReading {
@@ -149,8 +153,12 @@ function ModelReading() {
           <ul className="mt-2 space-y-1">
             {reading.evidence?.map((item) => (
               <li key={`${item.sourceName}-${item.title}`}>
-                Evidence: {item.sourceName}
-                {item.title ? ` — ${item.title}` : ""}
+                Educational source: {item.sourceName}
+                {item.title ? ` — ${item.title}` : ""}. The safety pass checked this
+                citation.
+                {item.clinicianReview === "signed"
+                  ? ""
+                  : " A named clinician has not signed this wording."}
               </li>
             ))}
           </ul>

@@ -93,6 +93,12 @@ export default function NotificationsPage() {
           setItems([]);
           setError(result.message);
         }
+      })
+      .catch(() => {
+        if (seq !== requestSeq.current) return;
+        setLoadedFilter(requestedFilter);
+        setItems([]);
+        setError("We couldn't reach HerCompass just now. Refresh this page.");
       });
   }, [filter, reloadToken]);
 
@@ -222,7 +228,6 @@ export default function NotificationsPage() {
           {error}
         </div>
       )}
-
       {showSkeleton ? (
         <div className="space-y-3">
           <div className="h-24 animate-pulse rounded-2xl bg-slate-100" />

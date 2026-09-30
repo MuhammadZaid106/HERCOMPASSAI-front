@@ -155,7 +155,7 @@ export const memberClient = {
     partnerEmail?: string;
     partnerConsent: boolean;
     scopes: string[];
-  }): Promise<ApiResult<{ partnerConsent: boolean; scopes: string[]; emailOnFile: boolean }>> {
+  }): Promise<ApiResult<{ partnerConsent: boolean; scopes: string[]; emailOnFile: boolean; inviteSent?: boolean }>> {
     return request("/api/member/partner", {
       method: "PUT",
       body: JSON.stringify(body),

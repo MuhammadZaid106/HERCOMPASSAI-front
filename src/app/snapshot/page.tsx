@@ -123,6 +123,7 @@ export default function SnapshotPage() {
       setHasSnapshot(true);
       setError(null);
     } else {
+      setHasSnapshot(false);
       setError({
         title: aiErrorTitle(res.status, res.reason),
         message: res.message,
@@ -347,9 +348,6 @@ export default function SnapshotPage() {
               <RefreshCw className="h-4 w-4" />
               Try again
             </button>
-            <h1 className="mt-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">Your Snapshot is not ready yet</h1>
-            <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-slate-600">Complete the short onboarding assessment so HerCompassAI can create a personal, non-diagnostic view of your current patterns and next steps.</p>
-            <Link href="/onboarding" className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-violet-500/20 hover:bg-violet-700 sm:w-auto">Start onboarding <ArrowRight className="h-4 w-4" /></Link>
             <Link href="/app" className="mx-auto mt-4 block text-xs font-semibold text-slate-500 hover:text-violet-700">Return to Home</Link>
           </div>
         </div>
@@ -411,8 +409,7 @@ export default function SnapshotPage() {
               <Flame className="h-4 w-4 shrink-0 text-rose-500" />
             </div>
             <div className="text-xl font-black text-slate-900 sm:text-2xl">
-              {metrics?.symptomBurdenScore}
-              <span className="text-xs font-medium text-slate-400">/100</span>
+              <Score value={metrics?.symptomBurdenScore} />
             </div>
             <p className="text-[11px] text-slate-500 leading-snug">
               Calculated from reported concerns &amp; severity.
@@ -425,8 +422,7 @@ export default function SnapshotPage() {
               <Moon className="h-4 w-4 shrink-0 text-indigo-600" />
             </div>
             <div className="text-xl font-black text-slate-900 sm:text-2xl">
-              {metrics?.sleepDisturbanceScore}
-              <span className="text-xs font-medium text-slate-400">/100</span>
+              <Score value={metrics?.sleepDisturbanceScore} />
             </div>
             <p className="text-[11px] text-slate-500 leading-snug">
               Derived from quality & awakening patterns.
@@ -439,8 +435,7 @@ export default function SnapshotPage() {
               <Zap className="h-4 w-4 shrink-0 text-amber-500" />
             </div>
             <div className="text-xl font-black text-slate-900 sm:text-2xl">
-              {metrics?.vitalityIndex}
-              <span className="text-xs font-medium text-slate-400">/100</span>
+              <Score value={metrics?.vitalityIndex} />
             </div>
             <p className="text-[11px] text-slate-500 leading-snug">
               Activity, post-meal energy & routines.
@@ -453,8 +448,7 @@ export default function SnapshotPage() {
               <Smile className="h-4 w-4 shrink-0 text-emerald-600" />
             </div>
             <div className="text-xl font-black text-slate-900 sm:text-2xl">
-              {metrics?.emotionalBalanceScore}
-              <span className="text-xs font-medium text-slate-400">/100</span>
+              <Score value={metrics?.emotionalBalanceScore} />
             </div>
             <p className="text-[11px] text-slate-500 leading-snug">
               Normalized balance of positive vs tense states.
@@ -499,7 +493,7 @@ export default function SnapshotPage() {
                   {obs.trend ? (
                     <TrendBadge trend={obs.trend} />
                   ) : obs.status ? (
-                    <span className="rounded-md border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-[11px] font-semibold text-slate-600">
+                    <span className="w-fit shrink-0 rounded-md border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-[11px] font-semibold text-slate-600">
                       {obs.status}
                     </span>
                   ) : null}

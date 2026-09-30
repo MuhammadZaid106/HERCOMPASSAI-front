@@ -202,9 +202,24 @@ export const authClient = {
     return fetch(input, { ...init, headers: retryHeaders });
   },
 
-  /**
-   * Fetch current authenticated user from backend using Bearer token
-   */
+  async forgotPassword(email: string): Promise<ApiResponse> {
+    const res = await fetch(`${API_BASE}/api/auth/forgot-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+    return res.json().catch(() => ({ success: false, message: "Network error" }));
+  },
+
+  async resetPassword(token: string, password: string): Promise<ApiResponse> {
+    const res = await fetch(`${API_BASE}/api/auth/reset-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token, password }),
+    });
+    return res.json().catch(() => ({ success: false, message: "Network error" }));
+  },
+
   async getMe(): Promise<ApiResponse<{ user: AuthUser }>> {
     const tokens = authClient.getStoredTokens();
     if (!tokens?.accessToken) {
