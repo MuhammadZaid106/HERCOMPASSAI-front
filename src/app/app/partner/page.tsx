@@ -62,9 +62,13 @@ export default function PartnerPage() {
     setEmailOnFile(Boolean(result.data?.emailOnFile) || emailOnFile || Boolean(email.trim()));
     setEmail("");
     setMessage(
-      nextSharing
-        ? "Partner settings saved. The invitation email is stored. Sending it is not connected yet."
-        : "Partner access is off. Raw logs stay private.",
+      !nextSharing
+        ? "Partner access is off. Raw logs stay private."
+        : result.data?.inviteSent
+          ? "Partner settings saved. The invitation email is on its way."
+          : email.trim()
+            ? "Partner settings saved. The invitation is stored, but the email could not be sent yet."
+            : "Partner settings saved. Add an email to send the invitation.",
     );
   }
 

@@ -3,6 +3,7 @@
 import React, { useState, Suspense } from "react";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
 import { useFormik } from "formik";
 import {
   Eye,
@@ -29,6 +30,9 @@ import { authClient } from "@/lib/auth/authClient";
 
 function LoginContent() {
   const { login } = useAuth();
+  const searchParams = useSearchParams();
+  const returnTo = searchParams.get("from");
+  const safeReturn = returnTo?.startsWith("/partner/invite") ? returnTo : null;
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmittingForm, setIsSubmittingForm] = useState(false);
   const [authSuccess, setAuthSuccess] = useState<string | null>(null);
@@ -68,12 +72,13 @@ function LoginContent() {
         // Admins go to /admin.
         // Partners NEVER go to /onboarding (onboarding is for members only).
         // Members enter the app directly after authentication.
-        const destination =
-          userRole === "admin"
+        const destination = safeReturn
+          ? safeReturn
+          : userRole === "admin"
             ? "/admin"
             : userRole === "partner"
-            ? "/welcome"
-            : "/app";
+              ? "/welcome"
+              : "/app";
 
         setAuthSuccess(
           userRole === "admin"

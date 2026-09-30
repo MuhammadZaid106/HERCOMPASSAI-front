@@ -10,10 +10,15 @@ export default function NotificationsPage() {
   const [data, setData] = useState<MemberNotificationsData | null>(null);
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
-    void memberClient.getNotifications().then((result) => {
-      if (result.success && result.data) setData(result.data);
-      else setError(result.message);
-    });
+    void memberClient
+      .getNotifications()
+      .then((result) => {
+        if (result.success && result.data) setData(result.data);
+        else setError(result.message);
+      })
+      .catch(() => {
+        setError("We couldn't reach HerCompass just now. Refresh this page.");
+      });
   }, []);
   return (
     <div className="mx-auto max-w-3xl space-y-6 animate-fadeIn">
@@ -34,9 +39,9 @@ export default function NotificationsPage() {
           {error}
         </div>
       )}
-      {!data ? (
+      {!data && !error ? (
         <div className="h-48 animate-pulse rounded-3xl bg-slate-100" />
-      ) : data.notifications.length === 0 ? (
+      ) : !data ? null : data.notifications.length === 0 ? (
         <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center shadow-sm">
           <Bell className="mx-auto h-9 w-9 text-slate-400" />
           <h2 className="mt-4 text-lg font-extrabold text-slate-900">

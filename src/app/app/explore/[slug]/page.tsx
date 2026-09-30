@@ -64,6 +64,16 @@ export default function ExploreDetailPage() {
       <section className="rounded-3xl border border-slate-200 bg-white p-5 sm:p-6">
         <h2 className="text-lg font-extrabold text-slate-900">Why this may matter</h2>
         <p className="mt-2 text-sm leading-relaxed text-slate-600">{item.why}</p>
+        {item.category === "nutrition" && (
+          <Link href="/app/recipes/high-protein-breakfast-bowl" className="mt-4 inline-flex text-sm font-bold text-violet-700">
+            Open a recipe
+          </Link>
+        )}
+        {item.category === "movement" && (
+          <Link href="/app/workouts/twenty-minute-low-impact" className="mt-4 inline-flex text-sm font-bold text-violet-700">
+            Open a movement session
+          </Link>
+        )}
       </section>
 
       <section className="rounded-3xl border border-slate-200 bg-white p-5 sm:p-6">

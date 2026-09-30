@@ -97,6 +97,27 @@ export const forgotPasswordValidationSchema = Yup.object().shape({
     .required("Email address is required"),
 });
 
+export interface ResetPasswordFormValues {
+  password: string;
+  confirmPassword: string;
+}
+
+export const resetPasswordInitialValues: ResetPasswordFormValues = {
+  password: "",
+  confirmPassword: "",
+};
+
+export const resetPasswordValidationSchema = Yup.object().shape({
+  password: Yup.string()
+    .min(8, "Password must be at least 8 characters")
+    .matches(/[A-Z]/, "Password must include at least one uppercase letter")
+    .matches(/[0-9]/, "Password must include at least one number")
+    .required("Password is required"),
+  confirmPassword: Yup.string()
+    .oneOf([Yup.ref("password")], "Passwords must match")
+    .required("Confirm your password"),
+});
+
 /**
  * Deterministic Password Strength Calculator
  */

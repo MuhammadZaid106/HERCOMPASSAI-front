@@ -20,6 +20,7 @@ import {
   forgotPasswordValidationSchema,
   ForgotPasswordFormValues,
 } from "@/lib/validation/authSchemas";
+import { authClient } from "@/lib/auth/authClient";
 
 export default function ForgotPasswordPage() {
   const [isSubmittingForm, setIsSubmittingForm] = useState(false);
@@ -33,13 +34,14 @@ export default function ForgotPasswordPage() {
     onSubmit: async (values) => {
       setIsSubmittingForm(true);
       setResendNotice(null);
-
-      // Simulate recovery link dispatch
-      setTimeout(() => {
-        setIsSubmittingForm(false);
-        setSubmittedEmail(values.email);
-        setCooldown(60);
-      }, 800);
+      const result = await authClient.forgotPassword(values.email);
+      setIsSubmittingForm(false);
+      if (!result.success) {
+        setResendNotice(result.message || "We couldn't send that just now. Try again in a moment.");
+        return;
+      }
+      setSubmittedEmail(values.email);
+      setCooldown(60);
     },
   });
 
@@ -55,13 +57,17 @@ export default function ForgotPasswordPage() {
   }, [submittedEmail, cooldown]);
 
   const handleResend = () => {
-    if (cooldown > 0) return;
+    if (cooldown > 0 || !submittedEmail) return;
     setIsSubmittingForm(true);
-    setTimeout(() => {
+    void authClient.forgotPassword(submittedEmail).then((result) => {
       setIsSubmittingForm(false);
       setCooldown(60);
-      setResendNotice("A new recovery link has been dispatched to your email.");
-    }, 600);
+      setResendNotice(
+        result.success
+          ? "If an account exists for that email, a new reset link is on its way."
+          : result.message || "We couldn't send that just now.",
+      );
+    });
   };
 
   return (
@@ -69,7 +75,7 @@ export default function ForgotPasswordPage() {
       title={submittedEmail ? "Check Your Inbox" : "Reset Your Password"}
       subtitle={
         submittedEmail
-          ? "We've dispatched a secure, single-use password recovery link."
+          ? "If an account exists for that email, a reset link is on its way. It expires in 30 minutes."
           : "Enter your registered email address and we'll send you instructions to recover access."
       }
       badgeText="Encrypted Account Recovery"
