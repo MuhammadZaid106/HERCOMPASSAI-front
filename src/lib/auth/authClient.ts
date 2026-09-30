@@ -40,6 +40,17 @@ export interface AuthSuccessData {
   refreshToken: string;
 }
 
+/**
+ * What a password change returns.
+ *
+ * `endedSessions` is the number of logins that were signed out by the change.
+ * The new pair is returned so the member is not signed out of the device they
+ * changed the password on.
+ */
+export interface ChangePasswordData extends AuthSuccessData {
+  endedSessions: number;
+}
+
 const API_BASE =
   process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "http://localhost:5000";
 
@@ -216,6 +227,78 @@ export const authClient = {
     }
 
     return json;
+  },
+
+  /**
+   * Replace the password on a signed-in account.
+   *
+   * The server ends every existing session and hands back a fresh pair, so the
+   * new tokens are stored here immediately. Without that the member would keep
+   * using a refresh token the server has already revoked and the next request
+   * would bounce them to the login page for no reason.
+   */
+  async changePassword(
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<ApiResponse<ChangePasswordData>> {
+    const json = await authClient.authenticatedFetch(
+      `${API_BASE}/api/auth/change-password`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ currentPassword, newPassword }),
+      },
+    ).then((res) =>
+      res.json().catch(() => ({ success: false, message: "Network error" })),
+    ) as ApiResponse<ChangePasswordData>;
+
+    if (json.success && json.data?.accessToken && json.data?.refreshToken) {
+      authClient.setSession(json.data.user, {
+        accessToken: json.data.accessToken,
+        refreshToken: json.data.refreshToken,
+      });
+    }
+
+    return json;
+  },
+
+  /**
+   * How many logins are currently live for this account.
+   *
+   * A count, not a list: the backend deliberately does not return per-device
+   * rows, because identifying a device would mean trusting a header a client can
+   * choose. "Sign out other devices" below is the control that actually matters.
+   */
+  async getSessions(): Promise<ApiResponse<{ activeSessions: number }>> {
+    return authClient
+      .authenticatedFetch(`${API_BASE}/api/auth/sessions`)
+      .then((res) =>
+        res.json().catch(() => ({ success: false, message: "Network error" })),
+      ) as Promise<ApiResponse<{ activeSessions: number }>>;
+  },
+
+  /**
+   * End every session except this one.
+   *
+   * The current refresh token is sent so the server can tell which lineage this
+   * browser belongs to. It is sent in the body, never the query string, so it
+   * stays out of access logs.
+   */
+  async revokeOtherSessions(): Promise<ApiResponse<{ revokedSessions: number }>> {
+    const tokens = authClient.getStoredTokens();
+    if (!tokens?.refreshToken) {
+      return { success: false, message: "No session found to keep" };
+    }
+
+    return authClient
+      .authenticatedFetch(`${API_BASE}/api/auth/sessions/revoke-others`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refreshToken: tokens.refreshToken }),
+      })
+      .then((res) =>
+        res.json().catch(() => ({ success: false, message: "Network error" })),
+      ) as Promise<ApiResponse<{ revokedSessions: number }>>;
   },
 
   /**

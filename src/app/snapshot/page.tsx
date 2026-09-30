@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   Compass,
   Sparkles,
@@ -93,6 +94,11 @@ function TrendBadge({ trend }: { trend: SnapshotTrend }) {
 
 export default function SnapshotPage() {
   const { user } = useAuth();
+  const pathname = usePathname();
+  const inMemberApp = pathname.startsWith("/app");
+  const pageFrame = inMemberApp
+    ? "pb-2"
+    : "min-h-screen bg-[#FBFBF9] px-4 py-8 sm:px-6 sm:py-10 lg:py-12";
   const [data, setData] = useState<PersonalSnapshotData | null>(null);
   const [hasSnapshot, setHasSnapshot] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -127,29 +133,94 @@ export default function SnapshotPage() {
     setIsLoading(false);
   }, []);
 
-  const loadSnapshot = useCallback(
+  const [versions, setVersions] = useState<
+    Array<{ id: string; versionNumber: number; completedAt: string; dominantFocusArea: string | null }>
+  >([]);
+  const [feedbackNote, setFeedbackNote] = useState<string | null>(null);
+  const [feedbackComment, setFeedbackComment] = useState("");
+
+  /** Counts Snapshot requests so `applyFetch` can tell a live one from a stale one. */
+  const latestRequest = useRef(0);
+
+  /**
+   * The one loader for this page: first paint, "Try again" and "Refresh".
+   *
+   * It carries both halves that used to be split across two same-named functions —
+   * the `refresh` option and the reason-aware error mapping of `applyResult`, and
+   * the version history from the second one, whose absence left the "Saved
+   * versions" panel permanently empty.
+   *
+   * Fetching and applying are deliberately separate. `fetchSnapshot` touches no
+   * state, so the mount effect below can call it and stay inside the
+   * `.then()`-callback shape that `react-hooks/set-state-in-effect` requires of
+   * every other page in this app; `applyFetch` is what writes state, and both
+   * callers go through it so there is still one definition of "render this".
+   *
+   * The response carries the id of the request that asked for it, so a stale one
+   * can identify itself and drop out.
+   */
+  const fetchSnapshot = useCallback(
     async (options: { refresh?: boolean } = {}) => {
-      setIsLoading(true);
-      setError(null);
-      applyResult(await onboardingClient.getSnapshot(options));
+      const requestId = ++latestRequest.current;
+      const res = await onboardingClient.getSnapshot(options);
+      // Only fetched inside the member app, the one place the panel is rendered,
+      // and only once there is a Snapshot to sit above it.
+      const history =
+        res.snapshot && inMemberApp
+          ? await onboardingClient.getSnapshotVersions()
+          : null;
+      return { requestId, res, history };
+    },
+    [inMemberApp]
+  );
+
+  const applyFetch = useCallback(
+    (bundle: {
+      requestId: number;
+      res: SnapshotResult;
+      history: Awaited<ReturnType<typeof onboardingClient.getSnapshotVersions>> | null;
+    }) => {
+      // The first load and every refresh can be in flight together, and the
+      // older response can arrive second. A superseded request writes nothing,
+      // so a slow initial load cannot overwrite a Snapshot the member just
+      // rebuilt. Unmounting bumps the same counter, which is what stops a
+      // response that lands after the page closes.
+      if (bundle.requestId !== latestRequest.current) return;
+
+      // History is applied alongside the Snapshot rather than after it, so the
+      // saved-versions list never paints as "Nothing here yet" and then refill.
+      if (bundle.history) setVersions(bundle.history.versions);
+      applyResult(bundle.res);
     },
     [applyResult]
   );
 
+  /**
+   * Rebuild the Snapshot from the latest check-ins.
+   *
+   * `isLoading` already starts true, so the first load needs no reset and the
+   * mount effect does not have to reach for state. A retry does, and keeping it
+   * here is what lets the loader above stay free of it.
+   */
+  const refreshSnapshot = useCallback(() => {
+    setIsLoading(true);
+    setError(null);
+    void fetchSnapshot({ refresh: true }).then(applyFetch);
+  }, [fetchSnapshot, applyFetch]);
+
   useEffect(() => {
-    let cancelled = false;
-    void onboardingClient.getSnapshot().then((res) => {
-      if (!cancelled) applyResult(res);
-    });
+    void fetchSnapshot().then(applyFetch);
     return () => {
-      cancelled = true;
+      // Retire the in-flight request so a response that lands after the page
+      // closes finds a newer id and writes nothing.
+      latestRequest.current += 1;
     };
-  }, [applyResult]);
+  }, [fetchSnapshot, applyFetch]);
 
   if (user && user.role === "partner") {
     return (
-      <div className="min-h-screen bg-[#FBFBF9] flex items-center justify-center px-4">
-        <div className="max-w-md w-full rounded-3xl border border-indigo-200/90 bg-white p-8 shadow-xl space-y-6 text-center animate-fadeIn">
+      <div className={`${pageFrame} flex items-center justify-center`}>
+        <div className="max-w-md w-full rounded-3xl border border-indigo-200/90 bg-white p-5 shadow-xl space-y-6 text-center animate-fadeIn sm:p-8">
           <div className="flex justify-center">
             <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-50 border border-indigo-200 text-indigo-600">
               <HeartHandshake className="h-7 w-7" />
@@ -178,7 +249,7 @@ export default function SnapshotPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#FBFBF9] flex items-center justify-center">
+      <div className={`${pageFrame} flex items-center justify-center py-16`}>
         <div className="flex flex-col items-center gap-3">
           <div className="h-10 w-10 rounded-full border-2 border-violet-600 border-t-transparent animate-spin" />
           <p className="text-xs font-semibold text-slate-500">Loading your Snapshot...</p>
@@ -197,13 +268,12 @@ export default function SnapshotPage() {
         <div className="mx-auto flex min-h-[70vh] max-w-2xl items-center justify-center">
           <div className="w-full rounded-3xl border border-violet-200/80 bg-white p-7 text-center shadow-xl shadow-violet-500/5 sm:p-10">
             <div
-              className={`mx-auto flex h-16 w-16 items-center justify-center rounded-2xl ${
-                isNetworkError(error.status)
+              className={`mx-auto flex h-16 w-16 items-center justify-center rounded-2xl ${isNetworkError(error.status)
                   ? "bg-amber-50 text-amber-600"
                   : isOnboardingPrompt
                     ? "bg-violet-50 text-violet-700"
                     : "bg-rose-50 text-rose-600"
-              }`}
+                }`}
             >
               {isNetworkError(error.status) ? (
                 <AlertTriangle className="h-7 w-7" />
@@ -227,7 +297,7 @@ export default function SnapshotPage() {
               {retry && (
                 <button
                   type="button"
-                  onClick={() => void loadSnapshot({ refresh: true })}
+                  onClick={refreshSnapshot}
                   className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-violet-500/20 transition hover:bg-violet-700"
                 >
                   <RefreshCw className="h-4 w-4" />
@@ -260,9 +330,9 @@ export default function SnapshotPage() {
 
   if (!hasSnapshot) {
     return (
-      <div className="min-h-screen bg-[#FBFBF9] px-4 py-12 sm:px-6">
-        <div className="mx-auto flex min-h-[70vh] max-w-2xl items-center justify-center">
-          <div className="w-full rounded-3xl border border-violet-200/80 bg-white p-7 text-center shadow-xl shadow-violet-500/5 sm:p-10">
+      <div className={pageFrame}>
+        <div className={`mx-auto flex max-w-2xl items-center justify-center ${inMemberApp ? "py-4" : "min-h-[70vh]"}`}>
+          <div className="w-full rounded-3xl border border-violet-200/80 bg-white p-5 text-center shadow-xl shadow-violet-500/5 sm:p-8 lg:p-10">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-violet-50 text-violet-700">
               <Sparkles className="h-7 w-7" />
             </div>
@@ -271,12 +341,15 @@ export default function SnapshotPage() {
             <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-slate-600">HerCompass confirmed there is no Snapshot to display, but did not say why. Try again, and if it persists return to your profile.</p>
             <button
               type="button"
-              onClick={() => void loadSnapshot({ refresh: true })}
+              onClick={refreshSnapshot}
               className="mt-6 inline-flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-violet-500/20 hover:bg-violet-700"
             >
               <RefreshCw className="h-4 w-4" />
               Try again
             </button>
+            <h1 className="mt-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">Your Snapshot is not ready yet</h1>
+            <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-slate-600">Complete the short onboarding assessment so HerCompassAI can create a personal, non-diagnostic view of your current patterns and next steps.</p>
+            <Link href="/onboarding" className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-violet-500/20 hover:bg-violet-700 sm:w-auto">Start onboarding <ArrowRight className="h-4 w-4" /></Link>
             <Link href="/app" className="mx-auto mt-4 block text-xs font-semibold text-slate-500 hover:text-violet-700">Return to Home</Link>
           </div>
         </div>
@@ -287,32 +360,32 @@ export default function SnapshotPage() {
   const metrics = data?.deterministicMetrics;
 
   return (
-    <div className="min-h-screen bg-[#FBFBF9] py-12 px-4 sm:px-6">
-      <div className="mx-auto max-w-4xl space-y-10 animate-fadeIn">
+    <div className={pageFrame}>
+      <div className="mx-auto max-w-4xl space-y-6 animate-fadeIn sm:space-y-8 lg:space-y-10">
         {/* Top Navigation Bar / Return */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
           <Link
-            href="/welcome"
+            href="/app"
             className="inline-flex items-center gap-2 text-xs font-bold text-violet-700 hover:text-violet-800 transition"
           >
-            ← Return to Member Hub
+            ← Return to Home
           </Link>
-          <div className="flex items-center gap-2 rounded-full border border-emerald-200/80 bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-800">
-            <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
-            <span>Verified Baseline • v{data?.version || "1.0"}</span>
+          <div className="flex max-w-full items-center gap-2 rounded-full border border-emerald-200/80 bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-800">
+            <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-emerald-600" />
+            <span className="min-w-0 leading-snug">Verified Baseline • v{data?.version || "1.0"}</span>
           </div>
         </div>
 
         {/* Hero Header */}
-        <div className="rounded-3xl border border-slate-200/90 bg-white/95 p-6 sm:p-10 shadow-xl shadow-slate-200/50 space-y-4 relative overflow-hidden">
+        <div className="relative space-y-4 overflow-hidden rounded-3xl border border-slate-200/90 bg-white/95 p-4 shadow-xl shadow-slate-200/50 sm:p-6 lg:p-10">
           <div className="absolute top-0 right-0 h-40 w-40 bg-linear-to-bl from-violet-200/40 via-rose-100/30 to-transparent rounded-bl-full pointer-events-none" />
 
-          <div className="inline-flex items-center gap-2 rounded-full border border-violet-200 bg-violet-50/80 px-3.5 py-1 text-xs font-bold text-violet-700">
-            <Compass className="h-3.5 w-3.5 text-violet-600" />
-            <span>Signature Personal Menopause Snapshot™</span>
+          <div className="inline-flex max-w-full items-center gap-2 rounded-full border border-violet-200 bg-violet-50/80 px-3 py-1 text-xs font-bold text-violet-700">
+            <Compass className="h-3.5 w-3.5 shrink-0 text-violet-600" />
+            <span className="min-w-0 leading-snug">Signature Personal Menopause Snapshot™</span>
           </div>
 
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+          <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl lg:text-4xl">
             Here&apos;s What We&apos;re Noticing Right Now
           </h1>
           <p className="text-sm text-slate-600 max-w-2xl leading-relaxed">
@@ -322,62 +395,66 @@ export default function SnapshotPage() {
           {/* Dominant Focus Area Banner */}
           {metrics?.dominantFocusArea && (
             <div className="pt-2">
-              <span className="inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-violet-600 to-indigo-600 px-4 py-2 text-xs font-bold text-white shadow-md shadow-violet-500/20">
-                <Sparkles className="h-3.5 w-3.5 text-amber-300" />
-                <span>Primary Clinical Anchor: {metrics.dominantFocusArea}</span>
+              <span className="inline-flex max-w-full items-start gap-2 rounded-xl bg-linear-to-r from-violet-600 to-indigo-600 px-3 py-2 text-left text-xs font-bold text-white shadow-md shadow-violet-500/20 sm:px-4">
+                <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-300" />
+                <span className="min-w-0 leading-snug">Primary Clinical Anchor: {metrics.dominantFocusArea}</span>
               </span>
             </div>
           )}
         </div>
 
         {/* 4 Deterministic Metric Cards */}
-        <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-4">
-          <div className="rounded-2xl border border-slate-200/90 bg-white p-4.5 shadow-sm space-y-1.5">
-            <div className="flex items-center justify-between text-xs font-bold text-slate-500">
-              <span>Symptom Burden</span>
-              <Flame className="h-4 w-4 text-rose-500" />
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="space-y-1.5 rounded-2xl border border-slate-200/90 bg-white p-4 shadow-sm sm:p-5">
+            <div className="flex items-start justify-between gap-2 text-xs font-bold text-slate-500">
+              <span className="min-w-0 leading-snug">Symptom Burden</span>
+              <Flame className="h-4 w-4 shrink-0 text-rose-500" />
             </div>
-            <div className="text-2xl font-black text-slate-900">
-              <Score value={metrics?.symptomBurdenScore} />
+            <div className="text-xl font-black text-slate-900 sm:text-2xl">
+              {metrics?.symptomBurdenScore}
+              <span className="text-xs font-medium text-slate-400">/100</span>
             </div>
             <p className="text-[11px] text-slate-500 leading-snug">
               Calculated from reported concerns &amp; severity.
             </p>
           </div>
 
-          <div className="rounded-2xl border border-slate-200/90 bg-white p-4.5 shadow-sm space-y-1.5">
-            <div className="flex items-center justify-between text-xs font-bold text-slate-500">
-              <span>Sleep Disturbance</span>
-              <Moon className="h-4 w-4 text-indigo-600" />
+          <div className="space-y-1.5 rounded-2xl border border-slate-200/90 bg-white p-4 shadow-sm sm:p-5">
+            <div className="flex items-start justify-between gap-2 text-xs font-bold text-slate-500">
+              <span className="min-w-0 leading-snug">Sleep Disturbance</span>
+              <Moon className="h-4 w-4 shrink-0 text-indigo-600" />
             </div>
-            <div className="text-2xl font-black text-slate-900">
-              <Score value={metrics?.sleepDisturbanceScore} />
+            <div className="text-xl font-black text-slate-900 sm:text-2xl">
+              {metrics?.sleepDisturbanceScore}
+              <span className="text-xs font-medium text-slate-400">/100</span>
             </div>
             <p className="text-[11px] text-slate-500 leading-snug">
               Derived from quality & awakening patterns.
             </p>
           </div>
 
-          <div className="rounded-2xl border border-slate-200/90 bg-white p-4.5 shadow-sm space-y-1.5">
-            <div className="flex items-center justify-between text-xs font-bold text-slate-500">
-              <span>Vitality Index</span>
-              <Zap className="h-4 w-4 text-amber-500" />
+          <div className="space-y-1.5 rounded-2xl border border-slate-200/90 bg-white p-4 shadow-sm sm:p-5">
+            <div className="flex items-start justify-between gap-2 text-xs font-bold text-slate-500">
+              <span className="min-w-0 leading-snug">Vitality Index</span>
+              <Zap className="h-4 w-4 shrink-0 text-amber-500" />
             </div>
-            <div className="text-2xl font-black text-slate-900">
-              <Score value={metrics?.vitalityIndex} />
+            <div className="text-xl font-black text-slate-900 sm:text-2xl">
+              {metrics?.vitalityIndex}
+              <span className="text-xs font-medium text-slate-400">/100</span>
             </div>
             <p className="text-[11px] text-slate-500 leading-snug">
               Activity, post-meal energy & routines.
             </p>
           </div>
 
-          <div className="rounded-2xl border border-slate-200/90 bg-white p-4.5 shadow-sm space-y-1.5">
-            <div className="flex items-center justify-between text-xs font-bold text-slate-500">
-              <span>Mood Equilibrium</span>
-              <Smile className="h-4 w-4 text-emerald-600" />
+          <div className="space-y-1.5 rounded-2xl border border-slate-200/90 bg-white p-4 shadow-sm sm:p-5">
+            <div className="flex items-start justify-between gap-2 text-xs font-bold text-slate-500">
+              <span className="min-w-0 leading-snug">Mood Equilibrium</span>
+              <Smile className="h-4 w-4 shrink-0 text-emerald-600" />
             </div>
-            <div className="text-2xl font-black text-slate-900">
-              <Score value={metrics?.emotionalBalanceScore} />
+            <div className="text-xl font-black text-slate-900 sm:text-2xl">
+              {metrics?.emotionalBalanceScore}
+              <span className="text-xs font-medium text-slate-400">/100</span>
             </div>
             <p className="text-[11px] text-slate-500 leading-snug">
               Normalized balance of positive vs tense states.
@@ -408,14 +485,14 @@ export default function SnapshotPage() {
             {data?.observations?.map((obs) => (
               <div
                 key={obs.id}
-                className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-sm space-y-3 transition hover:border-slate-300"
+                className="space-y-3 rounded-2xl border border-slate-200/90 bg-white p-4 shadow-sm transition hover:border-slate-300 sm:p-6"
               >
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2">
-                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-violet-100 text-xs font-bold text-violet-800">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="flex min-w-0 items-center gap-2">
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-violet-100 text-xs font-bold text-violet-800">
                       {obs.id}
                     </span>
-                    <span className="text-xs font-bold uppercase tracking-wider text-violet-700">
+                    <span className="min-w-0 text-xs font-bold uppercase leading-snug tracking-wide text-violet-700 sm:tracking-wider">
                       {obs.pillar}
                     </span>
                   </div>
@@ -435,7 +512,7 @@ export default function SnapshotPage() {
 
                 {/* Sub-elements for recommendations */}
                 {obs.recommendations && (
-                  <div className="grid grid-cols-1 gap-2.5 pt-2 sm:grid-cols-3">
+                  <div className="grid grid-cols-1 gap-2.5 pt-2 md:grid-cols-2 lg:grid-cols-3">
                     {obs.recommendations.map((rec, i) => (
                       <div
                         key={i}
@@ -470,6 +547,50 @@ export default function SnapshotPage() {
           </div>
         </div>
 
+        {inMemberApp && (
+          <section className="rounded-2xl border border-slate-200 bg-white p-5 space-y-3">
+            <h2 className="text-sm font-extrabold text-slate-900">Saved versions</h2>
+            {versions.length === 0 ? (
+              <p className="text-xs text-slate-500">Nothing here yet.</p>
+            ) : (
+              <ul className="space-y-2 text-xs text-slate-600">
+                {versions.map((version) => (
+                  <li key={version.id}>
+                    Version {version.versionNumber}
+                    {version.dominantFocusArea ? ` · ${version.dominantFocusArea}` : ""} ·{" "}
+                    {new Date(version.completedAt).toLocaleDateString()}
+                  </li>
+                ))}
+              </ul>
+            )}
+            <h3 className="text-sm font-extrabold text-slate-900">Was this Snapshot useful?</h3>
+            <textarea
+              value={feedbackComment}
+              onChange={(event) => setFeedbackComment(event.target.value)}
+              rows={3}
+              placeholder="Optional note"
+              className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs"
+            />
+            <div className="flex flex-col gap-2 sm:flex-row">
+              {(["helpful", "not_helpful"] as const).map((rating) => (
+                <button
+                  key={rating}
+                  type="button"
+                  className="min-h-10 rounded-full border border-slate-300 px-4 text-xs font-bold text-slate-800"
+                  onClick={() => {
+                    void onboardingClient
+                      .sendSnapshotFeedback(rating, feedbackComment)
+                      .then((result) => setFeedbackNote(result.message));
+                  }}
+                >
+                  {rating === "helpful" ? "Helpful" : "Not helpful"}
+                </button>
+              ))}
+            </div>
+            {feedbackNote && <p className="text-xs text-slate-600">{feedbackNote}</p>}
+          </section>
+        )}
+
         {/* SCI Safety Disclaimer Panel */}
         <div className="rounded-2xl border border-slate-200 bg-slate-50/90 p-5 text-xs text-slate-600 space-y-2">
           <div className="flex items-center gap-2 font-bold text-slate-800">
@@ -491,7 +612,7 @@ export default function SnapshotPage() {
             </div>
             <button
               type="button"
-              onClick={() => void loadSnapshot({ refresh: true })}
+              onClick={refreshSnapshot}
               className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-[11px] font-bold text-slate-600 transition hover:bg-slate-50"
             >
               <RefreshCw className="h-3.5 w-3.5" />
@@ -583,19 +704,19 @@ export default function SnapshotPage() {
         </div>
 
         {/* Bottom Pathways */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-slate-200">
+        <div className="flex flex-col items-stretch gap-3 border-t border-slate-200 pt-4 lg:flex-row lg:items-center lg:justify-between">
           <Link
-            href="/welcome"
-            className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 py-3.5 text-xs font-bold text-white shadow-md transition hover:bg-slate-800"
+            href="/app"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 py-3.5 text-xs font-bold text-white shadow-md transition hover:bg-slate-800 lg:w-auto"
           >
-            <span>Proceed to Member Hub</span>
-            <ArrowRight className="h-3.5 w-3.5" />
+            <span>Go to Home</span>
+            <ArrowRight className="h-3.5 w-3.5 shrink-0" />
           </Link>
           <Link
             href="/partner"
-            className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-6 py-3.5 text-xs font-bold text-slate-700 shadow-sm transition hover:bg-slate-50"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-3.5 text-center text-xs font-bold leading-snug text-slate-700 shadow-sm transition hover:bg-slate-50 lg:w-auto"
           >
-            <Heart className="h-3.5 w-3.5 text-rose-500" />
+            <Heart className="h-3.5 w-3.5 shrink-0 text-rose-500" />
             <span>Explore Partner Support & Men&apos;s Academy</span>
           </Link>
         </div>
