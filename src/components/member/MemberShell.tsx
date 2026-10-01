@@ -105,7 +105,7 @@ export function MemberShell({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!loading && (!user || user.role !== "member")) {
       router.replace(
-        user?.role === "partner" ? "/welcome" : "/login?from=/app",
+        user?.role === "partner" ? "/partner" : "/login?from=/app",
       );
     }
   }, [loading, router, user]);

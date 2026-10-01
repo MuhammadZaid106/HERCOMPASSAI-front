@@ -98,7 +98,7 @@ function InviteScreen() {
         <p className="mt-3 text-sm leading-relaxed text-slate-600">
           You joined HerCompassAI Partner Support. You will not see personal symptoms, raw tracking logs, or private notes.
         </p>
-        <Link href="/welcome" className="mt-6 inline-flex rounded-full bg-violet-600 px-5 py-3 text-sm font-bold text-white">
+        <Link href="/partner" className="mt-6 inline-flex rounded-full bg-violet-600 px-5 py-3 text-sm font-bold text-white">
           Continue
         </Link>
       </main>
