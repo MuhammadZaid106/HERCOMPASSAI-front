@@ -48,16 +48,14 @@ function RegisterContent() {
       setAuthSuccess(null);
       setAuthError(null);
 
-      const planValue: "free" | "plus" | "premium" =
-        planQuery === "plus" || planQuery === "premium" ? planQuery : "free";
-
       try {
+        // No role and no plan: the server owns both. `values.role` is only the
+        // persona this person chose, used below to route them to the right
+        // onboarding — it is not an account privilege.
         const res = await register({
           name: values.fullName.trim(),
           email: values.email.trim().toLowerCase(),
           password: values.password,
-          role: values.role,
-          plan: planValue,
         });
 
         if (!res.success) {
@@ -96,23 +94,30 @@ function RegisterContent() {
     [formik.values.password]
   );
 
+  /**
+   * The plan named in the URL is interest, not a grant.
+   *
+   * Billing is not connected, so nothing is charged and no paid tier is applied
+   * here — every new account starts on Free. Naming the plan the visitor clicked
+   * keeps the intent visible while being explicit that nothing was purchased.
+   */
   const planInfo = useMemo(() => {
     if (planQuery === "plus") {
       return {
-        name: "Plus Plan ($19/mo)",
-        tag: "14-Day Free Trial",
+        name: "Interested in Plus",
+        tag: "Starts on Free — billing not connected yet",
         badgeColor: "bg-indigo-50 border-indigo-200 text-indigo-700",
       };
     }
     if (planQuery === "premium") {
       return {
-        name: "Premium Couple Plan ($34/mo)",
-        tag: "14-Day Free Trial",
+        name: "Interested in Premium",
+        tag: "Starts on Free — billing not connected yet",
         badgeColor: "bg-purple-50 border-purple-200 text-purple-700",
       };
     }
     return {
-      name: "14-Day Free Trial",
+      name: "Free Baseline",
       tag: "No Credit Card Required",
       badgeColor: "bg-violet-50 border-violet-200 text-violet-700",
     };
@@ -142,7 +147,7 @@ function RegisterContent() {
     >
       {/* Selected Plan Banner if chosen - Responsive wrap */}
       {planQuery && (
-        <div className={`mb-4 sm:mb-6 p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border text-xs flex flex-col xs:flex-row items-start xs:items-center justify-between gap-1.5 sm:gap-2 ${planInfo.badgeColor}`}>
+        <div className={`mb-4 sm:mb-6 p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border text-xs flex flex-col min-[420px]:flex-row items-start min-[420px]:items-center justify-between gap-1.5 sm:gap-2 ${planInfo.badgeColor}`}>
           <div className="flex items-center gap-2 min-w-0">
             <span className="flex h-4 w-4 sm:h-5 sm:w-5 items-center justify-center rounded-full bg-violet-600 text-white text-[9px] sm:text-[10px] font-bold flex-shrink-0">
               ✓

@@ -4,6 +4,11 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ArrowRight, ChevronDown } from "lucide-react";
 import { aiClient } from "@/lib/ai/aiClient";
+import AiFeedbackControl from "@/components/ai/AiFeedbackControl";
+import RecommendationBlock, {
+  type GatewayNextStep,
+  type GatewayRecommendation,
+} from "@/components/ai/RecommendationBlock";
 import { memberClient } from "@/lib/member/memberClient";
 import type {
   InsightCard,
@@ -34,8 +39,8 @@ interface InsightReading {
   moodPattern: PatternReading;
   sleepPattern: PatternReading;
   energyPattern: PatternReading;
-  personalizedRecommendations: Array<{ what: string; why: string }>;
-  suggestedNextSteps: Array<{ action: string }>;
+  personalizedRecommendations?: GatewayRecommendation[] | null;
+  suggestedNextSteps?: GatewayNextStep[] | null;
   safetyNotice?: string;
   confidence?: { confidenceClass?: string };
   evidence?: Array<{
@@ -58,6 +63,7 @@ function ModelReading() {
   const [reading, setReading] = useState<InsightReading | null>(null);
   const [note, setNote] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
+  const [requestId, setRequestId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -68,6 +74,9 @@ function ModelReading() {
       if (result.ok && isInsightReading(result.data?.output)) {
         setReading(result.data.output);
         setStatus(result.data.meta.resultStatus);
+        // Kept so the member can rate or report a concern against this exact
+        // generation rather than against the page.
+        setRequestId(result.data.meta.requestId);
         return;
       }
       if (result.status === 403) {
@@ -78,6 +87,12 @@ function ModelReading() {
       }
       if (result.status === 404) {
         setNote("Finish your Snapshot before a model reading can use your logs.");
+        return;
+      }
+      if (result.status === 402) {
+        setNote(
+          "You have used all the AI insights included on your plan this month. Your pattern cards below still use your logs, and your allowance refreshes soon.",
+        );
         return;
       }
       setNote(
@@ -128,12 +143,10 @@ function ModelReading() {
           </li>
         ))}
       </ul>
-      {reading.personalizedRecommendations?.[0] && (
-        <p className="mt-4 text-sm leading-relaxed text-slate-700">
-          <span className="font-bold text-slate-900">One thing to try. </span>
-          {reading.personalizedRecommendations[0].what} {reading.personalizedRecommendations[0].why}
-        </p>
-      )}
+      <RecommendationBlock
+        recommendations={reading.personalizedRecommendations}
+        nextSteps={reading.suggestedNextSteps}
+      />
       <details className="mt-4 rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
         <summary className="cursor-pointer font-semibold text-slate-800">
           About this insight
@@ -164,6 +177,15 @@ function ModelReading() {
           </ul>
         )}
       </details>
+
+      {/* Rating and concern reporting for the generation above, on the page a
+          member actually reads. Previously this control existed only in the AI Lab
+          test bench, so the safety reporting path had no reachable surface. */}
+      {requestId && (
+        <div className="mt-4 border-t border-slate-100 pt-4">
+          <AiFeedbackControl requestId={requestId} feature="ai_insight" />
+        </div>
+      )}
     </section>
   );
 }

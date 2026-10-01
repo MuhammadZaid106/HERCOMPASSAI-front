@@ -295,6 +295,12 @@ export const onboardingClient = {
       versionNumber: number;
       completedAt: string;
       dominantFocusArea: string | null;
+      /**
+       * The narrative as it was shown for this version, or null when the version
+       * was recorded before narratives were captured. Null means "not recorded",
+       * not "the same as your latest Snapshot".
+       */
+      payload: Record<string, unknown> | null;
     }>;
     error?: string;
   }> {
@@ -311,8 +317,16 @@ export const onboardingClient = {
     }
   },
 
+  /**
+   * Rate the Snapshot.
+   *
+   * `report_concern` is offered here as well as on the AI surfaces. A member
+   * reading their Snapshot is exactly where someone is most likely to spot
+   * something that should not have been said, so it needs the same route to a
+   * human that the AI pages have.
+   */
   async sendSnapshotFeedback(
-    rating: "helpful" | "not_helpful",
+    rating: "helpful" | "not_helpful" | "report_concern",
     comment: string,
   ): Promise<{ ok: boolean; message: string }> {
     try {

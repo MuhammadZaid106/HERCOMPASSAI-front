@@ -16,7 +16,7 @@
  *  3. If neither is present → redirect to /login?from=<path> so the user
  *     returns to the right page after signing in.
  *
- * NOTE: This runs on the Vercel Edge runtime — keep it lightweight.
+ * NOTE: This file was `middleware.ts` until Next.js 16 deprecated that name in favour of `proxy.ts`. Renamed to clear the build warning; behaviour is unchanged.\n *\n * NOTE: This runs on the Vercel Edge runtime — keep it lightweight.
  * Heavy session validation happens inside each protected page / API route.
  */
 
@@ -26,7 +26,7 @@ import type { NextRequest } from "next/server";
 // Routes that require an authenticated session
 const PROTECTED_ROUTES = ["/onboarding", "/snapshot", "/welcome", "/app", "/admin"];
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // ── 1. Check for any valid session token (NextAuth OR custom JWT cookie) ──
@@ -57,17 +57,36 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // ── 3. Role-based route guard: partners do not take member onboarding or snapshots ──
+  // ── 3. Role-based route guards ──
   const userRole =
     request.cookies.get("hercompass_user_role")?.value ||
     request.cookies.get("hercompass_selected_role")?.value;
 
+  // Partners do not take member onboarding or snapshots; staff belong in /admin.
   if (isAuthenticated && (pathname.startsWith("/onboarding") || pathname.startsWith("/snapshot"))) {
     if (userRole === "partner") {
       return NextResponse.redirect(new URL("/welcome", request.url));
     }
-    if (userRole === "admin") {
+    if (userRole === "admin" || userRole === "developer") {
       return NextResponse.redirect(new URL("/admin", request.url));
+    }
+  }
+
+  /*
+   * A signed-in non-staff member opening /admin goes to their own dashboard,
+   * not to /login. Sending them to /login looked like their session had expired
+   * and discarded whatever they were doing.
+   *
+   * This is UX only. `hercompass_user_role` is a client-writable cookie, so a
+   * member could forge "admin" here and see nothing but their own render error —
+   * the actual protection is `requireStaff` on every /api/admin route, which
+   * verifies the role from the signed JWT rather than from anything in the
+   * browser. The page-level guard in /app/admin repeats the check against the
+   * real user object for the same reason.
+   */
+  if (isAuthenticated && pathname.startsWith("/admin")) {
+    if (userRole !== "admin" && userRole !== "developer") {
+      return NextResponse.redirect(new URL(userRole === "partner" ? "/welcome" : "/app", request.url));
     }
   }
 

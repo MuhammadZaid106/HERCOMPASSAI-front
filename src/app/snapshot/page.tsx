@@ -135,7 +135,13 @@ export default function SnapshotPage() {
   }, []);
 
   const [versions, setVersions] = useState<
-    Array<{ id: string; versionNumber: number; completedAt: string; dominantFocusArea: string | null }>
+    Array<{
+      id: string;
+      versionNumber: number;
+      completedAt: string;
+      dominantFocusArea: string | null;
+      payload: Record<string, unknown> | null;
+    }>
   >([]);
   const [feedbackNote, setFeedbackNote] = useState<string | null>(null);
   const [feedbackComment, setFeedbackComment] = useState("");
@@ -520,6 +526,9 @@ export default function SnapshotPage() {
                         {rec.start && (
                           <p className="text-[11px] font-semibold text-violet-700">Start: {rec.start}</p>
                         )}
+                        {rec.evidenceNote && (
+                          <p className="text-[10px] text-slate-400 italic">Source: {rec.evidenceNote}</p>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -553,6 +562,14 @@ export default function SnapshotPage() {
                     Version {version.versionNumber}
                     {version.dominantFocusArea ? ` · ${version.dominantFocusArea}` : ""} ·{" "}
                     {new Date(version.completedAt).toLocaleDateString()}
+                    {version.payload ? null : (
+                      // Stated rather than hidden: an old version with no stored
+                      // narrative is a real gap, and quietly dropping it would
+                      // suggest history is complete when it is not.
+                      <span className="block text-[11px] text-slate-400">
+                        Narrative not recorded for this version.
+                      </span>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -566,21 +583,32 @@ export default function SnapshotPage() {
               className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs"
             />
             <div className="flex flex-col gap-2 sm:flex-row">
-              {(["helpful", "not_helpful"] as const).map((rating) => (
+              {(["helpful", "not_helpful", "report_concern"] as const).map((rating) => (
                 <button
                   key={rating}
                   type="button"
-                  className="min-h-10 rounded-full border border-slate-300 px-4 text-xs font-bold text-slate-800"
+                  className={`min-h-10 rounded-full border px-4 text-xs font-bold ${
+                    rating === "report_concern"
+                      ? "border-rose-300 text-rose-700"
+                      : "border-slate-300 text-slate-800"
+                  }`}
                   onClick={() => {
                     void onboardingClient
                       .sendSnapshotFeedback(rating, feedbackComment)
                       .then((result) => setFeedbackNote(result.message));
                   }}
                 >
-                  {rating === "helpful" ? "Helpful" : "Not helpful"}
+                  {rating === "helpful"
+                    ? "Helpful"
+                    : rating === "not_helpful"
+                      ? "Not helpful"
+                      : "Report a concern"}
                 </button>
               ))}
             </div>
+            <p className="text-xs text-slate-500">
+              &ldquo;Report a concern&rdquo; sends this to our review team.
+            </p>
             {feedbackNote && <p className="text-xs text-slate-600">{feedbackNote}</p>}
           </section>
         )}

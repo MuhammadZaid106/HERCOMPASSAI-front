@@ -76,11 +76,14 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <p>© {new Date().getFullYear()} HerCompassAI Inc. All rights reserved.</p>
-          <div className="flex items-center gap-6">
-            <Link href="/privacy" className="hover:text-slate-400 transition-colors">Privacy Policy</Link>
-            <Link href="/terms" className="hover:text-slate-400 transition-colors">Terms of Service</Link>
-            <a href="mailto:privacy@hercompassai.com" className="hover:text-slate-400 transition-colors">
+          <p className="text-center sm:text-left">© {new Date().getFullYear()} HerCompassAI Inc. All rights reserved.</p>
+          {/* Wraps, and each target is padded to the 44px minimum. Three links plus a
+              mailto address did not fit one 320px row, so they overflowed horizontally
+              and the legal links below the fold became unreachable on a phone. */}
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1">
+            <Link href="/privacy" className="inline-flex min-h-11 items-center px-1 hover:text-slate-400 transition-colors">Privacy Policy</Link>
+            <Link href="/terms" className="inline-flex min-h-11 items-center px-1 hover:text-slate-400 transition-colors">Terms of Service</Link>
+            <a href="mailto:privacy@hercompassai.com" className="inline-flex min-h-11 items-center break-all px-1 hover:text-slate-400 transition-colors">
               privacy@hercompassai.com
             </a>
           </div>

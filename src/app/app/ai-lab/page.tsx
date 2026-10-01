@@ -12,16 +12,11 @@ import {
   ShieldCheck,
   Sparkles,
   Stethoscope,
-  ThumbsDown,
-  ThumbsUp,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { onboardingClient } from "@/lib/onboarding/onboardingClient";
-import {
-  aiClient,
-  type AiGenerateData,
-  type AiRating,
-} from "@/lib/ai/aiClient";
+import { aiClient, type AiGenerateData } from "@/lib/ai/aiClient";
+import AiFeedbackControl from "@/components/ai/AiFeedbackControl";
 import { AI_CONNECTION_MESSAGE, isNetworkError } from "@/lib/ai/aiErrors";
 
 type LabState = "idle" | "running" | "done" | "error";
@@ -89,7 +84,6 @@ export default function AiLabPage() {
   const [result, setResult] = useState<AiGenerateData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [healthDump, setHealthDump] = useState<unknown>(null);
-  const [feedbackMsg, setFeedbackMsg] = useState<string | null>(null);
   const [lastKind, setLastKind] = useState<"snapshot" | "insight">("insight");
 
   const refreshProfile = useCallback(async () => {
@@ -122,7 +116,6 @@ export default function AiLabPage() {
     setState("running");
     setResult(null);
     setError(null);
-    setFeedbackMsg(null);
     setLastKind(kind);
 
     // `aiClient` resolves every failure, so a throw here means something local
@@ -171,22 +164,6 @@ export default function AiLabPage() {
     } catch {
       setError(AI_CONNECTION_MESSAGE);
       setState("error");
-    }
-  }
-
-  async function submitFeedback(rating: AiRating) {
-    if (!result) return;
-    setFeedbackMsg(null);
-
-    try {
-      const res = await aiClient.feedback({
-        requestId: result.meta.requestId,
-        feature: aiClient.endpoints(lastKind).feature,
-        rating,
-      });
-      setFeedbackMsg(res.message);
-    } catch {
-      setFeedbackMsg(AI_CONNECTION_MESSAGE);
     }
   }
 
@@ -438,30 +415,10 @@ export default function AiLabPage() {
             </pre>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-              Was this useful?
-            </span>
-            <button
-              type="button"
-              onClick={() => void submitFeedback("helpful")}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50"
-            >
-              <ThumbsUp className="h-3.5 w-3.5" />
-              Helpful
-            </button>
-            <button
-              type="button"
-              onClick={() => void submitFeedback("not_helpful")}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50"
-            >
-              <ThumbsDown className="h-3.5 w-3.5" />
-              Not helpful
-            </button>
-            {feedbackMsg && (
-              <span className="text-xs font-medium text-emerald-700">{feedbackMsg}</span>
-            )}
-          </div>
+            <AiFeedbackControl
+              requestId={result.meta.requestId}
+              feature={aiClient.endpoints(lastKind).feature}
+            />
         </section>
       ) : null}
     </div>
