@@ -19,11 +19,14 @@ import {
   Search,
   Settings,
   Sparkles,
+  Flower2,
+  MessagesSquare,
   UserRound,
   X,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuth } from "@/lib/auth/AuthContext";
+import { homeRouteForRole } from "@/lib/auth/routeGuards";
 import { memberClient } from "@/lib/member/memberClient";
 import type { MemberNotification } from "@/lib/member/memberTypes";
 import { NOTIFICATIONS_CHANGED } from "@/lib/member/notificationEvents";
@@ -36,6 +39,8 @@ const sidebarLinks = [
   { href: "/app/ai-lab", label: "AI Lab", icon: FlaskConical },
   { href: "/app/plans", label: "Plans", icon: Compass },
   { href: "/app/explore", label: "Explore", icon: Search },
+  { href: "/app/meditation", label: "Meditation", icon: Flower2 },
+  { href: "/app/community", label: "Community", icon: MessagesSquare },
   { href: "/app/partner", label: "Partner", icon: HeartHandshake },
 ];
 
@@ -64,6 +69,7 @@ export function MemberShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, loading, logout } = useAuth();
+  const role = user?.role;
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   /**
    * Mobile slide-in drawer.
@@ -97,39 +103,45 @@ export function MemberShell({ children }: { children: React.ReactNode }) {
   const loadNotifications = useCallback(() => {
     if (isFetchingNotifications.current) return;
     isFetchingNotifications.current = true;
-    void memberClient.getNotifications().then((result) => {
-      isFetchingNotifications.current = false;
-      if (result.success && result.data) {
-        setNotifications(result.data.notifications);
-        setUnreadCount(result.data.unreadCount);
-        setNotificationsError(null);
-      } else {
-        setNotificationsError(result.message);
-      }
-    });
+    void memberClient
+      .getNotifications()
+      .then((result) => {
+        isFetchingNotifications.current = false;
+        if (result.success && result.data) {
+          setNotifications(result.data.notifications);
+          setUnreadCount(result.data.unreadCount);
+          setNotificationsError(null);
+        } else {
+          setNotificationsError(result.message);
+        }
+      })
+      .catch(() => {
+        isFetchingNotifications.current = false;
+        setNotificationsError("Notifications are unavailable right now. Your information is safe.");
+      });
   }, []);
 
   useEffect(() => {
-    if (loading || !user || user.role !== "member") return;
+    if (loading || role !== "member") return;
     // The badge should be right on every page, not only after the bell is opened.
     loadNotifications();
-  }, [loadNotifications, loading, user]);
+  }, [loadNotifications, loading, role]);
 
   useEffect(() => {
-    if (loading || !user || user.role !== "member") return;
+    if (loading || role !== "member") return;
     // The notifications screen reads and clears notices in a different tree, so
     // it announces the change and the badge re-reads rather than going stale.
     window.addEventListener(NOTIFICATIONS_CHANGED, loadNotifications);
     return () => window.removeEventListener(NOTIFICATIONS_CHANGED, loadNotifications);
-  }, [loadNotifications, loading, user]);
+  }, [loadNotifications, loading, role]);
 
   useEffect(() => {
-    if (!loading && (!user || user.role !== "member")) {
-      router.replace(
-        user?.role === "partner" ? "/partner" : "/login?from=/app",
-      );
-    }
-  }, [loading, router, user]);
+    if (loading) return;
+    if (role === "member") return;
+    const destination = role ? homeRouteForRole(role) : "/login?from=/app";
+    if (pathname === destination) return;
+    router.replace(destination);
+  }, [loading, pathname, role, router]);
 
   /**
    * Dismiss the mobile sheet after navigating.
@@ -461,7 +473,7 @@ export function MemberShell({ children }: { children: React.ReactNode }) {
           id="member-mobile-drawer"
           className={`fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] overflow-y-auto border-r border-slate-200 bg-white shadow-xl transition-transform duration-200 lg:hidden ${isDrawerOpen ? "translate-x-0" : "-translate-x-full"}`}
           aria-label="Navigation"
-          {...(!isDrawerOpen ? { inert: "" as never } : {})}
+          {...(!isDrawerOpen ? { inert: true } : {})}
         >
           <div className="flex h-16 items-center justify-between border-b border-slate-200 px-4">
             <span className="text-sm font-bold tracking-tight text-slate-900">

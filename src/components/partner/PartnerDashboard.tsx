@@ -1,36 +1,17 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import {
   BookOpen,
   Footprints,
   HandHeart,
-  HeartHandshake,
   MessageCircle,
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth/AuthContext";
-import { authClient } from "@/lib/auth/authClient";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "http://localhost:5000";
-
-interface PartnerHomeOff {
-  connected: false;
-  access?: "off";
-}
-
-interface PartnerHomeOn {
-  connected: true;
-  access: "on";
-  memberFirstName: string;
-  generalSupport: boolean;
-  sharedActivities: boolean;
-  communicationGuidance: boolean;
-  digestIncluded: boolean;
-}
-
-type PartnerHome = PartnerHomeOff | PartnerHomeOn;
+import { PartnerFrame } from "./PartnerFrame";
+import { usePartnerHome } from "./usePartnerHome";
 
 const ACTIVITIES = [
   "Walk together",
@@ -91,58 +72,13 @@ function SupportCard({
 }
 
 export function PartnerDashboard() {
-  const { user, logout } = useAuth();
-  const [home, setHome] = useState<PartnerHome | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
+  const { home, error } = usePartnerHome();
   const partnerName = user?.name?.trim().split(/\s+/)[0];
-
-  useEffect(() => {
-    let active = true;
-    void authClient
-      .authenticatedFetch(`${API_BASE}/api/partner/home`)
-      .then(async (response) => {
-        const body = (await response.json()) as { success?: boolean; message?: string; data?: PartnerHome };
-        if (!active) return;
-        if (!response.ok || !body.success || !body.data) {
-          setError(body.message || "We couldn't open Partner Support just now.");
-          return;
-        }
-        setHome(body.data);
-      })
-      .catch(() => {
-        if (active) setError("We couldn't reach HerCompass just now. Refresh this page.");
-      });
-    return () => {
-      active = false;
-    };
-  }, []);
-
   const connected = home?.connected === true;
 
   return (
-    <div className="min-h-screen bg-[#FBFBF9] text-slate-900">
-      <header className="border-b border-slate-200/80 bg-white/90 backdrop-blur">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3.5 sm:px-6">
-          <div className="flex min-w-0 items-center gap-2.5">
-            <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-violet-600 text-white">
-              <HeartHandshake className="h-4 w-4" />
-            </span>
-            <div className="min-w-0">
-              <p className="truncate text-sm font-extrabold tracking-tight">HerCompassAI</p>
-              <p className="text-[11px] font-semibold text-slate-500">Partner home</p>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={() => void logout()}
-            className="shrink-0 rounded-full border border-slate-200 px-3.5 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50"
-          >
-            Sign out
-          </button>
-        </div>
-      </header>
-
-      <main className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-8">
+    <PartnerFrame>
         <section className="relative overflow-hidden rounded-3xl bg-linear-to-br from-violet-950 via-indigo-900 to-slate-900 p-6 text-white shadow-xl shadow-violet-900/10 sm:p-8">
           <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-violet-400/20 blur-3xl" />
           <div className="relative">
@@ -314,12 +250,11 @@ export function PartnerDashboard() {
               <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-700">
                 {home.digestIncluded
                   ? "A weekly guide is part of their plan. It is not ready yet, so this card stays empty until that guide exists. It will not list symptoms or check-ins."
-                  : "Go deeper with HerCompass Plus. A weekly guide is not part of the current plan, so there is nothing to preview here."}
+                  : "Go deeper with HerCompass Plus. A weekly guide is not part of the current plan, so there is nothing to preview here. The member chooses the plan. There is no upgrade step on your side."}
               </p>
             </section>
           </div>
         )}
-      </main>
-    </div>
+      </PartnerFrame>
   );
 }

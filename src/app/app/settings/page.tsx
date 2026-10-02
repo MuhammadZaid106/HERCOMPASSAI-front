@@ -454,10 +454,19 @@ export default function SettingsPage() {
                   never receives your raw logs.
                 </p>
               ) : (
-                <p className="mt-1 text-sm text-slate-600">Partner choices appear after the Snapshot.</p>
+                <p className="mt-1 text-sm text-slate-600">
+                  Partner choices appear after the{" "}
+                  <Link href="/onboarding" className={linkClass}>
+                    Snapshot
+                  </Link>
+                  .
+                </p>
               )}
-              <Link href="/app/partner" className={`mt-2 inline-flex ${linkClass}`}>
-                Review partner support
+              <Link
+                href={data.partner ? "/app/partner" : "/onboarding"}
+                className={`mt-2 inline-flex ${linkClass}`}
+              >
+                {data.partner ? "Review partner support" : "Open the Snapshot"}
               </Link>
             </div>
 

@@ -5,6 +5,7 @@ import type {
   MemberAccountData,
   MemberConsentUpdate,
   MemberDashboardData,
+  ConnectedPartner,
   MemberProfileUpdate,
   NotificationPreferences,
   MemberInsightsData,
@@ -22,19 +23,26 @@ async function request<T>(
   path: string,
   init?: RequestInit,
 ): Promise<ApiResult<T>> {
-  const response = await authClient.authenticatedFetch(`${API_BASE}${path}`, {
-    ...init,
-    headers: {
-      "Content-Type": "application/json",
-      ...init?.headers,
-    },
-  });
-  return (await response
-    .json()
-    .catch(() => ({
+  try {
+    const response = await authClient.authenticatedFetch(`${API_BASE}${path}`, {
+      ...init,
+      headers: {
+        "Content-Type": "application/json",
+        ...init?.headers,
+      },
+    });
+    return (await response
+      .json()
+      .catch(() => ({
+        success: false,
+        message: "Network error",
+      }))) as ApiResult<T>;
+  } catch {
+    return {
       success: false,
-      message: "Network error",
-    }))) as ApiResult<T>;
+      message: "We couldn't reach HerCompass just now. Your information is safe.",
+    };
+  }
 }
 
 export const memberClient = {
@@ -155,10 +163,19 @@ export const memberClient = {
     partnerEmail?: string;
     partnerConsent: boolean;
     scopes: string[];
-  }): Promise<ApiResult<{ partnerConsent: boolean; scopes: string[]; emailOnFile: boolean; inviteSent?: boolean }>> {
+  }): Promise<ApiResult<{ partnerConsent: boolean; scopes: string[]; emailOnFile: boolean; inviteSent?: boolean; inviteUrl?: string | null }>> {
     return request("/api/member/partner", {
       method: "PUT",
       body: JSON.stringify(body),
     });
+  },
+  createPartnerInviteLink(): Promise<ApiResult<{ inviteUrl: string }>> {
+    return request("/api/member/partner/invite-link", { method: "POST" });
+  },
+  getPartnerConnection(): Promise<ApiResult<{ partner: ConnectedPartner | null }>> {
+    return request("/api/member/partner/connection");
+  },
+  revokePartnerConnection(): Promise<ApiResult<{ partner: null }>> {
+    return request("/api/member/partner/revoke", { method: "POST" });
   },
 };

@@ -22,6 +22,22 @@ export interface WorkoutCard {
   started: boolean;
 }
 
+export interface MeditationCard {
+  slug: string;
+  title: string;
+  focus: string;
+  minutes: number;
+  included: boolean;
+  saved: boolean;
+  started: boolean;
+  why: string;
+  steps: string[] | null;
+  sourceName: string;
+  sourceYear: number;
+  sourceNote: string;
+  plusMessage: string | null;
+}
+
 interface ApiResult<T> {
   success: boolean;
   message: string;
@@ -45,4 +61,9 @@ export const contentClient = {
   getWorkout: (slug: string) => request<WorkoutCard>(`/api/member/workouts/${slug}`),
   saveWorkout: (slug: string, body: { saved: boolean; started: boolean }) =>
     request<WorkoutCard>(`/api/member/workouts/${slug}`, { method: "PUT", body: JSON.stringify(body) }),
+  listMeditations: () =>
+    request<{ suggestion: string; suggestedSlug: string; items: MeditationCard[] }>("/api/member/meditation"),
+  getMeditation: (slug: string) => request<MeditationCard>(`/api/member/meditation/${slug}`),
+  saveMeditation: (slug: string, body: { saved: boolean; started: boolean }) =>
+    request<MeditationCard>(`/api/member/meditation/${slug}`, { method: "PUT", body: JSON.stringify(body) }),
 };

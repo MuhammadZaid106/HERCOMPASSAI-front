@@ -239,11 +239,11 @@ export default function SnapshotPage() {
               The 8-Part Personal Menopause Snapshot™ contains private, raw clinical baseline metrics for member accounts.
             </p>
             <p className="text-xs text-slate-500">
-              Your partner companion insights are delivered through the weekly Consented Partner Digest and Men&apos;s Academy.
+              Partner Support is the place for what you are allowed to see.
             </p>
           </div>
           <Link
-            href="/app"
+            href="/partner"
             className="inline-flex items-center justify-center gap-2 w-full py-3.5 px-6 rounded-xl bg-linear-to-r from-indigo-600 to-violet-600 text-white font-bold text-sm hover:from-indigo-700 hover:to-violet-700 shadow-md transition-all cursor-pointer"
           >
             <span>Return to Partner Portal</span>
@@ -345,7 +345,13 @@ export default function SnapshotPage() {
             </div>
             <p className="mt-5 text-xs font-bold uppercase tracking-wider text-violet-700">Your Personal Snapshot</p>
             <h1 className="mt-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">Nothing to show yet</h1>
-            <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-slate-600">HerCompass confirmed there is no Snapshot to display, but did not say why. Try again, and if it persists return to your profile.</p>
+            <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-slate-600">
+              HerCompass confirmed there is no Snapshot to display, but did not say why. Try again, and if it persists return to your{" "}
+              <Link href="/app/account" className="font-semibold text-violet-700 hover:text-violet-800">
+                profile
+              </Link>
+              .
+            </p>
             <button
               type="button"
               onClick={refreshSnapshot}

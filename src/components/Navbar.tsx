@@ -6,6 +6,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Menu, X, ArrowRight, User } from "lucide-react";
 import { useAuth } from "@/lib/auth/AuthContext";
+import { homeRouteForRole } from "@/lib/auth/routeGuards";
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -111,7 +112,7 @@ export default function Navbar() {
         <div className="hidden lg:flex items-center gap-2.5 xl:gap-3 flex-shrink-0">
           {user ? (
             <Link
-              href="/welcome"
+              href={homeRouteForRole(user.role)}
               className="rounded-xl px-3.5 xl:px-4 py-2 xl:py-2.5 text-xs xl:text-sm font-semibold text-violet-700 bg-violet-50/90 hover:bg-violet-100 border border-violet-200/80 transition-all flex items-center gap-1.5 whitespace-nowrap shadow-xs"
             >
               <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -220,7 +221,7 @@ export default function Navbar() {
           <div className="mt-4 flex flex-col gap-2.5 pt-4 border-t border-slate-100">
             {user ? (
               <Link
-                href="/welcome"
+                href={homeRouteForRole(user.role)}
                 onClick={() => setMobileMenuOpen(false)}
                 className="w-full text-center py-2.5 text-sm font-semibold text-violet-700 bg-violet-50 border border-violet-200 rounded-xl hover:bg-violet-100 flex items-center justify-center gap-2"
               >

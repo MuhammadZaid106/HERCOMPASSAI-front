@@ -28,6 +28,7 @@ import {
 } from "@/lib/validation/authSchemas";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { authClient } from "@/lib/auth/authClient";
+import { homeRouteForRole } from "@/lib/auth/routeGuards";
 
 function RegisterContent() {
   const { register } = useAuth();
@@ -72,15 +73,16 @@ function RegisterContent() {
         }
 
         const userName = res.data?.user.name || values.fullName;
+        const accountRole = res.data?.user.role;
         if (res.data?.accessToken) {
           document.cookie = `hercompass_access_token=${res.data.accessToken}; path=/; max-age=604800; SameSite=Lax`;
         }
-        if (values.role) {
-          document.cookie = `hercompass_user_role=${values.role}; path=/; max-age=604800; SameSite=Lax`;
+        if (accountRole) {
+          document.cookie = `hercompass_user_role=${accountRole}; path=/; max-age=604800; SameSite=Lax`;
         }
         setAuthSuccess(`Welcome to HerCompass, ${userName}! Opening your wellness space...`);
         setTimeout(() => {
-          window.location.href = values.role === "partner" ? "/welcome" : "/app";
+          window.location.href = values.role === "partner" ? "/partner" : homeRouteForRole(accountRole);
         }, 500);
       } catch (err: unknown) {
         setAuthError("Failed to connect to registration server. Please try again.");
@@ -130,7 +132,7 @@ function RegisterContent() {
     authClient.clearLogoutMarker();
     document.cookie = `hercompass_selected_role=${selectedRole}; path=/; max-age=900; SameSite=Lax`;
     localStorage.setItem("hercompass_selected_role", selectedRole);
-    signIn("google", { callbackUrl: selectedRole === "partner" ? "/welcome?role=partner" : "/app" });
+    signIn("google", { callbackUrl: selectedRole === "partner" ? "/partner" : "/app" });
   };
 
   return (

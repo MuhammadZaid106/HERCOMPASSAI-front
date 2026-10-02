@@ -15,6 +15,7 @@ import {
   LogOut,
   Menu,
   MessageSquare,
+  MessagesSquare,
   PanelLeftClose,
   PanelLeftOpen,
   ScrollText,
@@ -29,7 +30,7 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/lib/auth/AuthContext";
-import { isStaff } from "@/lib/auth/routeGuards";
+import { homeRouteForRole, isStaff } from "@/lib/auth/routeGuards";
 
 export interface AdminNavItem {
   label: string;
@@ -58,6 +59,7 @@ export const ADMIN_NAV: AdminNavItem[] = [
   { label: "Partners", href: "/admin/partners", icon: HeartHandshake },
   { label: "Subscriptions", href: "/admin/subscriptions", icon: CreditCard },
   { label: "Feedback", href: "/admin/feedback", icon: MessageSquare },
+  { label: "Community", href: "/admin/community", icon: MessagesSquare },
   { label: "Support", href: "/admin/support", icon: Headphones },
   { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
   { label: "Audit Logs", href: "/admin/audit", icon: ScrollText },
@@ -99,7 +101,7 @@ export function AdminShell({
       return;
     }
     if (!isStaff(user.role)) {
-      router.replace(user.role === "partner" ? "/welcome" : "/app");
+      router.replace(homeRouteForRole(user.role));
     }
   }, [loading, pathname, router, user]);
 

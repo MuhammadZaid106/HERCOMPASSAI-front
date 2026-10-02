@@ -40,6 +40,9 @@ export default function ExplorePage() {
           Short educational notes you can open beside your logs. They explain
           context. They do not diagnose.
         </p>
+        <Link href="/app/community" className="mt-3 inline-flex text-sm font-bold text-violet-700">
+          Community notes
+        </Link>
       </header>
 
       <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">

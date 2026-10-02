@@ -193,6 +193,15 @@ export interface MemberAccountData {
   };
 }
 
+/** A partner who accepted an invitation. No logs, scores, or notes. */
+export interface ConnectedPartner {
+  firstName: string;
+  email: string;
+  joinedAt: string;
+  sharingOn: boolean;
+  scopes: string[];
+}
+
 /** Echoed back after a profile save, so the UI reflects stored values. */
 export interface MemberProfileUpdate {
   name: string;

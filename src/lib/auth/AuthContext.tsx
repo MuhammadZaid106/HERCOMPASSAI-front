@@ -61,7 +61,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
         })
         .catch(() => {
-          authClient.clearSession();
+          const kept = authClient.getStoredUser();
+          if (kept) {
+            setUser(kept);
+            return;
+          }
           setUser(null);
         })
         .finally(() => setLoading(false));
@@ -127,7 +131,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
         })
         .catch(() => {
-          authClient.clearSession();
+          const kept = authClient.getStoredUser();
+          if (kept) {
+            setUser(kept);
+            return;
+          }
           setUser(null);
         })
         .finally(() => setLoading(false));

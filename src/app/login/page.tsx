@@ -27,6 +27,7 @@ import {
 } from "@/lib/validation/authSchemas";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { authClient } from "@/lib/auth/authClient";
+import { homeRouteForRole } from "@/lib/auth/routeGuards";
 
 function LoginContent() {
   const { login } = useAuth();
@@ -72,13 +73,7 @@ function LoginContent() {
         // Admins go to /admin.
         // Partners NEVER go to /onboarding (onboarding is for members only).
         // Members enter the app directly after authentication.
-        const destination = safeReturn
-          ? safeReturn
-          : userRole === "admin"
-            ? "/admin"
-            : userRole === "partner"
-              ? "/welcome"
-              : "/app";
+        const destination = safeReturn ?? homeRouteForRole(userRole);
 
         setAuthSuccess(
           userRole === "admin"
@@ -110,7 +105,7 @@ function LoginContent() {
     authClient.clearLogoutMarker();
     document.cookie = `hercompass_selected_role=${selectedPersona}; path=/; max-age=900; SameSite=Lax`;
     localStorage.setItem("hercompass_selected_role", selectedPersona);
-    signIn("google", { callbackUrl: selectedPersona === "partner" ? "/welcome?role=partner" : "/app" });
+    signIn("google", { callbackUrl: selectedPersona === "partner" ? "/partner" : "/app" });
   };
 
   return (

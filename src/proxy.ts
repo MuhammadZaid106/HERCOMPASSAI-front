@@ -4,9 +4,9 @@
  * Enforces authentication on protected routes:
  * - /onboarding  — must be an authenticated member (not a guest)
  * - /snapshot    — must have completed onboarding
- * - /welcome     — must be authenticated
- * - /app         — must be authenticated
+ * - /app         — must be an authenticated member
  * - /admin       — must be authenticated (role check done in page-level guard)
+ * - /partner/consent, /partner/permissions, /partner/settings, /partner/account — signed-in partner pages. The public /partner page and /partner/invite stay open.
  *
  * Strategy:
  *  1. Primary (edge-safe): checks for a NextAuth session cookie (next-auth.session-token)
@@ -22,9 +22,19 @@
 
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { homeRouteForRole } from "./lib/auth/routeGuards";
 
 // Routes that require an authenticated session
-const PROTECTED_ROUTES = ["/onboarding", "/snapshot", "/welcome", "/app", "/admin"];
+const PROTECTED_ROUTES = [
+  "/onboarding",
+  "/snapshot",
+  "/app",
+  "/admin",
+  "/partner/consent",
+  "/partner/permissions",
+  "/partner/settings",
+  "/partner/account",
+];
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -38,6 +48,9 @@ export function proxy(request: NextRequest) {
   const logoutRequested = request.cookies.get("hercompass_logout")?.value === "1";
 
   const isAuthenticated = Boolean(nextAuthToken || customToken);
+  const userRole =
+    request.cookies.get("hercompass_user_role")?.value ||
+    request.cookies.get("hercompass_selected_role")?.value;
 
   // ── 2. Guard protected routes ──
   const isProtected = PROTECTED_ROUTES.some(
@@ -50,6 +63,13 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/login?reason=signed_out", request.url));
   }
 
+  if (pathname === "/welcome" || pathname.startsWith("/welcome/")) {
+    if (!isAuthenticated || logoutRequested) {
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
+    return NextResponse.redirect(new URL(homeRouteForRole(userRole), request.url));
+  }
+
   if (isProtected && !isAuthenticated) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("from", pathname); // preserve intended destination
@@ -58,14 +78,10 @@ export function proxy(request: NextRequest) {
   }
 
   // ── 3. Role-based route guards ──
-  const userRole =
-    request.cookies.get("hercompass_user_role")?.value ||
-    request.cookies.get("hercompass_selected_role")?.value;
-
   // Partners do not take member onboarding or snapshots; staff belong in /admin.
   if (isAuthenticated && (pathname.startsWith("/onboarding") || pathname.startsWith("/snapshot"))) {
     if (userRole === "partner") {
-      return NextResponse.redirect(new URL("/welcome", request.url));
+      return NextResponse.redirect(new URL("/partner", request.url));
     }
     if (userRole === "admin" || userRole === "developer") {
       return NextResponse.redirect(new URL("/admin", request.url));
@@ -86,7 +102,7 @@ export function proxy(request: NextRequest) {
    */
   if (isAuthenticated && pathname.startsWith("/admin")) {
     if (userRole !== "admin" && userRole !== "developer") {
-      return NextResponse.redirect(new URL(userRole === "partner" ? "/welcome" : "/app", request.url));
+      return NextResponse.redirect(new URL(homeRouteForRole(userRole), request.url));
     }
   }
 
