@@ -62,6 +62,7 @@ function isInsightReading(value: unknown): value is InsightReading {
 function ModelReading() {
   const [reading, setReading] = useState<InsightReading | null>(null);
   const [note, setNote] = useState<string | null>(null);
+  const [nextStep, setNextStep] = useState<{ href: string; label: string } | null>(null);
   const [status, setStatus] = useState<string | null>(null);
   const [requestId, setRequestId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -83,10 +84,12 @@ function ModelReading() {
         setNote(
           "Personalized AI text stays off until wellness personalization is the consent on this account. The pattern cards below still use your logs.",
         );
+        setNextStep({ href: "/app/settings#privacy", label: "Review privacy settings" });
         return;
       }
       if (result.status === 404) {
         setNote("Finish your Snapshot before a model reading can use your logs.");
+        setNextStep({ href: "/onboarding", label: "Open the Snapshot" });
         return;
       }
       if (result.status === 402) {
@@ -114,9 +117,17 @@ function ModelReading() {
 
   if (!reading) {
     return note ? (
-      <p className="rounded-2xl border border-slate-200 bg-white p-4 text-sm leading-relaxed text-slate-600">
-        {note}
-      </p>
+      <div className="rounded-2xl border border-slate-200 bg-white p-4 text-sm leading-relaxed text-slate-600">
+        <p>{note}</p>
+        {nextStep && (
+          <Link
+            href={nextStep.href}
+            className="mt-3 inline-flex min-h-11 items-center justify-center rounded-full bg-violet-600 px-5 text-sm font-bold text-white"
+          >
+            {nextStep.label}
+          </Link>
+        )}
+      </div>
     ) : null;
   }
 

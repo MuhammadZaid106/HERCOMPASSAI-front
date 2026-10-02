@@ -25,12 +25,13 @@ export function isStaff(role: string | undefined | null): boolean {
 }
 
 /**
- * Where a member should land when they hit a page they may not view.
+ * Where a signed-in person should land.
  *
- * Signed-in users go to their own dashboard; only a genuinely absent session is
- * sent to `/login`. A partner has no member dashboard to return to, so
- * `/welcome` is their equivalent home.
+ * A member opens the member dashboard, a partner opens Partner Support, and
+ * staff open the admin panel. A missing role is treated as a member.
  */
 export function homeRouteForRole(role: string | undefined | null): string {
-  return role === "partner" ? "/welcome" : "/app";
+  if (role === "partner") return "/partner";
+  if (role === "admin" || role === "developer") return "/admin";
+  return "/app";
 }

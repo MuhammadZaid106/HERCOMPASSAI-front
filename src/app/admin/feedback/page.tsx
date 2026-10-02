@@ -12,7 +12,7 @@ import {
   X,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth/AuthContext";
-import { isStaff } from "@/lib/auth/routeGuards";
+import { homeRouteForRole, isStaff } from "@/lib/auth/routeGuards";
 import { AdminShell } from "@/components/admin/AdminShell";
 import {
   adminClient,
@@ -129,7 +129,7 @@ export default function AdminFeedbackPage() {
       return;
     }
     if (!isStaff(user.role)) {
-      router.replace(user.role === "partner" ? "/welcome" : "/app");
+      router.replace(homeRouteForRole(user.role));
       return;
     }
     // A `filter` change keeps the previous list on screen until the new one

@@ -21,6 +21,7 @@ import {
 } from "@/lib/onboarding/onboardingClient";
 import type { OnboardingFormValues } from "@/lib/onboarding/onboardingTypes";
 import { ONBOARDING_CONSENT_VERSION } from "@/lib/onboarding/onboardingTypes";
+import { homeRouteForRole } from "@/lib/auth/routeGuards";
 import { useAuth } from "@/lib/auth/AuthContext";
 
 const TOTAL_STEPS = 8;
@@ -51,8 +52,8 @@ export function OnboardingWizard() {
       router.replace("/login?from=/onboarding&reason=auth_required");
       return;
     }
-    if (user && (user.role === "partner" || user.role === "admin")) {
-      router.replace(user.role === "admin" ? "/admin" : "/welcome");
+    if (user && user.role !== "member") {
+      router.replace(homeRouteForRole(user.role));
     }
   }, [authLoading, isAuthenticated, user, router]);
 
@@ -137,10 +138,10 @@ export function OnboardingWizard() {
             </p>
           </div>
           <Link
-            href="/welcome"
+            href="/partner"
             className="inline-flex items-center justify-center gap-2 w-full py-3.5 px-6 rounded-xl bg-linear-to-r from-indigo-600 to-violet-600 text-white font-bold text-sm hover:from-indigo-700 hover:to-violet-700 shadow-md transition-all cursor-pointer"
           >
-            <span>Return to Partner Welcome Portal</span>
+            <span>Return to Partner home</span>
             <ArrowRight className="h-4 w-4" />
           </Link>
         </div>

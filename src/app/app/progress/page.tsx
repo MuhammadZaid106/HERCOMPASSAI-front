@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import {
   Activity,
   BarChart3,
@@ -216,7 +217,11 @@ export default function ProgressPage() {
                   Your picture will build here
                 </h3>
                 <p className="mt-1 text-sm text-slate-600">
-                  Use Daily check-in a few times to fill in the timeline.
+                  Use{" "}
+                  <Link href="/app/track" className="font-bold text-violet-700">
+                    Daily check-in
+                  </Link>{" "}
+                  a few times to fill in the timeline.
                 </p>
               </div>
             ) : (

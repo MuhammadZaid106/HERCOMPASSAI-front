@@ -74,6 +74,11 @@ export default function ExploreDetailPage() {
             Open a movement session
           </Link>
         )}
+        {(item.category === "sleep" || item.category === "stress") && (
+          <Link href="/app/meditation" className="mt-4 inline-flex text-sm font-bold text-violet-700">
+            Open a short meditation
+          </Link>
+        )}
       </section>
 
       <section className="rounded-3xl border border-slate-200 bg-white p-5 sm:p-6">

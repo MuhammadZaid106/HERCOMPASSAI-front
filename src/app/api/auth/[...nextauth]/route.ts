@@ -59,6 +59,20 @@ export const authOptions: NextAuthOptions = {
               json.data.accessToken;
             (user as { backendRefreshToken?: string }).backendRefreshToken =
               json.data.refreshToken;
+            if (json.data.user.role) {
+              cookieStore.set("hercompass_user_role", json.data.user.role, {
+                path: "/",
+                maxAge: 604800,
+                sameSite: "lax",
+              });
+            }
+            if (json.data.accessToken) {
+              cookieStore.set("hercompass_access_token", json.data.accessToken, {
+                path: "/",
+                maxAge: 604800,
+                sameSite: "lax",
+              });
+            }
           }
         } catch (err) {
           console.error("Failed to sync Google user with Neon PostgreSQL:", err);
@@ -96,7 +110,7 @@ export const authOptions: NextAuthOptions = {
       if (url.startsWith("/")) return `${baseUrl}${url}`;
       // Allows callback URLs on the same origin
       if (new URL(url).origin === baseUrl) return url;
-      return `${baseUrl}/welcome`;
+      return `${baseUrl}/app`;
     },
   },
   pages: {

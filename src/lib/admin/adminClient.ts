@@ -50,6 +50,16 @@ export interface AdminResult<T> {
   data?: T;
 }
 
+export interface CommunityReviewNote {
+  id: string;
+  topic: string;
+  body: string;
+  status: "pending" | "approved" | "hidden";
+  firstName: string;
+  createdAt: string;
+  reviewedAt: string | null;
+}
+
 const API_BASE =
   process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "http://localhost:5000";
 
@@ -121,5 +131,18 @@ export const adminClient = {
     }>
   > {
     return request(`/api/admin/ai-usage/${encodeURIComponent(userId)}`);
+  },
+
+  listCommunityNotes(status: "pending" | "approved" | "hidden" | "all" = "pending") {
+    return request<{ notes: CommunityReviewNote[] }>(
+      `/api/admin/community-notes?status=${status}`,
+    );
+  },
+
+  reviewCommunityNote(id: string, status: "approved" | "hidden") {
+    return request<{ note: CommunityReviewNote }>(`/api/admin/community-notes/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify({ status }),
+    });
   },
 };

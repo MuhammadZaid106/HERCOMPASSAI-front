@@ -62,7 +62,7 @@ export const initialOnboardingValues: OnboardingFormValues = {
   partnerSupportNeeds: [],
   partnerEmail: "",
   partnerConsent: false,
-  partnerSharingScopes: ["digest_summary", "communication_guidance", "shared_activities"],
+  partnerSharingScopes: ["general_support", "communication_guidance", "shared_activities"],
 };
 
 export const onboardingClient = {
