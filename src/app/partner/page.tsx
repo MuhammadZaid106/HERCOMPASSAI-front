@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PartnerPageClient from "@/components/partner/PartnerPageClient";
+import { PartnerGate } from "@/components/partner/PartnerGate";
 
 export const metadata: Metadata = {
   title: "Couple & Partner Support (CPS) & Men's Academy — HerCompassAI",
@@ -20,17 +21,14 @@ export const metadata: Metadata = {
 
 export default function PartnerPage() {
   return (
-    <div className="flex min-h-screen flex-col bg-[#FBFBF9] text-[#0F172A]">
-      {/* Sticky Header */}
-      <Navbar />
-
-      {/* Main Page Content */}
-      <main className="flex-1">
-        <PartnerPageClient />
-      </main>
-
-      {/* Footer & Clinical Disclaimer */}
-      <Footer />
-    </div>
+    <PartnerGate>
+      <div className="flex min-h-screen flex-col bg-[#FBFBF9] text-[#0F172A]">
+        <Navbar />
+        <main className="flex-1">
+          <PartnerPageClient />
+        </main>
+        <Footer />
+      </div>
+    </PartnerGate>
   );
 }
