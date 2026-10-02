@@ -108,7 +108,15 @@ export interface SnapshotObservation {
   evidenceNote?: string;
   vitalityIndex?: number;
   preferences?: string[];
-  recommendations?: Array<{ action: string; why: string; category: string; start?: string }>;
+  recommendations?: Array<{
+    action: string;
+    why: string;
+    category: string;
+    start?: string;
+    /** Approved sources this specific step was grounded in. */
+    citationIds?: string[];
+    evidenceNote?: string;
+  }>;
   action?: string;
   status?: string;
   trend?: SnapshotTrend;

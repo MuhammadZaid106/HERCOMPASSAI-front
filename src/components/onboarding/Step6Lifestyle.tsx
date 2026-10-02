@@ -146,7 +146,10 @@ export function Step6Lifestyle({ values, onChange, onNext }: Step6LifestyleProps
         <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
           How is your usual energy level after meals?
         </label>
-        <div className="grid grid-cols-3 gap-2.5">
+        {/* These three cards each carry a heading and a sentence, so they need the full
+            width of a phone. Three across at 320px left ~90px per card and the
+            text wrapped to four lines. */}
+        <div className="grid grid-cols-1 gap-2.5 min-[420px]:grid-cols-3">
           {[
             { val: 1, label: "Sluggish / Foggy", desc: "Energy drops after eating" },
             { val: 2, label: "Steady / Neutral", desc: "Normal consistent rhythm" },

@@ -14,12 +14,21 @@ export interface AuthTokens {
   refreshToken: string;
 }
 
+/**
+ * Sign-up payload.
+ *
+ * Deliberately carries no `role` and no `plan`. Both are server-owned: the
+ * backend sets them itself and rejects a request that tries to set them, so
+ * sending them here could only ever fail. A paid plan arrives through a verified
+ * billing event, never through the sign-up form.
+ *
+ * The persona the person picked on screen stays on the client and is used only
+ * to decide where to send them next.
+ */
 export interface RegisterPayload {
   name: string;
   email: string;
   password: string;
-  role?: "member" | "partner";
-  plan?: "free" | "plus" | "premium";
 }
 
 export interface LoginPayload {

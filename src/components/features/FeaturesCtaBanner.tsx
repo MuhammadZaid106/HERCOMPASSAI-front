@@ -52,7 +52,7 @@ export default function FeaturesCtaBanner() {
             </div>
 
             {/* Trust Highlights */}
-            <div className="mt-8 pt-6 border-t border-slate-700/60 grid grid-cols-1 xs:grid-cols-3 sm:grid-cols-3 gap-3 sm:gap-4 text-xs text-slate-400">
+            <div className="mt-8 pt-6 border-t border-slate-700/60 grid grid-cols-1 min-[420px]:grid-cols-3 gap-3 sm:gap-4 text-xs text-slate-400">
               <div className="flex items-center justify-center gap-1.5">
                 <ShieldCheck className="h-4 w-4 text-teal-400 shrink-0" />
                 <span>Zero-Knowledge Partner Privacy</span>

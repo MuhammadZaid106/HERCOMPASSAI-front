@@ -12,6 +12,7 @@ import {
   Home,
   LineChart,
   LogOut,
+  Menu,
   PanelLeftClose,
   PanelLeftOpen,
   RefreshCw,
@@ -19,6 +20,7 @@ import {
   Settings,
   Sparkles,
   UserRound,
+  X,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuth } from "@/lib/auth/AuthContext";
@@ -37,6 +39,16 @@ const sidebarLinks = [
   { href: "/app/partner", label: "Partner", icon: HeartHandshake },
 ];
 
+/**
+ * The four pages promoted into the phone's bottom bar.
+ *
+ * This is a shortcut list, not the navigation. The complete set of pages is
+ * `sidebarLinks`, and on mobile it is rendered in the slide-in drawer instead of
+ * being dropped. An earlier version treated this array as the whole mobile nav,
+ * which is how My Snapshot, AI Lab, Plans and Partner ended up unreachable on a
+ * phone: the sidebar carrying them was `lg:block` and nothing replaced it.
+ * Anything omitted here must still appear in the drawer.
+ */
 const mobileLinks = [
   { href: "/app", label: "Home", icon: Home },
   { href: "/app/track", label: "Track", icon: Activity },
@@ -53,6 +65,15 @@ export function MemberShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { user, loading, logout } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  /**
+   * Mobile slide-in drawer.
+   *
+   * Deliberately separate from `isSidebarOpen`. The desktop sidebar is a width
+   * preference the member can collapse and stay collapsed; the drawer is a modal
+   * that must close on every navigation. Sharing one flag meant collapsing the
+   * sidebar on desktop could leave the drawer open on mobile and vice versa.
+   */
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   /**
    * `null` means "not loaded yet", which is deliberately distinct from an empty
@@ -110,6 +131,44 @@ export function MemberShell({ children }: { children: React.ReactNode }) {
     }
   }, [loading, router, user]);
 
+  /**
+   * Dismiss the mobile sheet after navigating.
+   *
+   * Tapping a link inside it changes the route but leaves the component mounted,
+   * so without this the sheet would stay open over the page just opened and the
+   * member would have to close it by hand every time. Navigation is also the
+   * signal to release the body scroll lock below.
+   *
+   * `previousPathname` is kept in a ref and compared in an effect rather than
+   * calling setState unconditionally, because a setState in the effect body
+   * re-renders on mount too — the sheet is closed on arrival, so that render is
+   * pure waste, and `react-hooks/set-state-in-effect` rejects the pattern.
+   * Toggling during the click handler would not work either: Next.js updates
+   * `pathname` after the click finishes, so the route change would land after the
+   * handler and re-open nothing but also re-run nothing.
+   */
+  const previousPathname = useRef(pathname);
+  useEffect(() => {
+    if (previousPathname.current === pathname) return;
+    previousPathname.current = pathname;
+    setIsDrawerOpen(false);
+  }, [pathname]);
+
+  /**
+   * Locks body scroll while the sheet is open so the page underneath cannot
+   * scroll away and leave the sheet floating over a different screen. The lock
+   * is restored on unmount too, otherwise navigating away while open would leave
+   * the document permanently unscrollable.
+   */
+  useEffect(() => {
+    if (!isDrawerOpen) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [isDrawerOpen]);
+
   if (loading || !user || user.role !== "member") {
     return (
       <div className="min-h-screen bg-[#FBFBF9] flex items-center justify-center">
@@ -122,6 +181,23 @@ export function MemberShell({ children }: { children: React.ReactNode }) {
     void logout();
     window.location.replace("/login");
   };
+
+  /**
+   * The bar carries `mobileLinks` plus the menu button. Deriving the column
+   * count means adding a shortcut cannot leave a dead cell behind.
+   */
+  const mobileBarGridStyle = {
+    gridTemplateColumns: `repeat(${mobileLinks.length + 1}, minmax(0, 1fr))`,
+  } as React.CSSProperties;
+
+  /**
+   * True when the current route is a page the bottom bar does not carry, so the
+   * Menu tab can reflect that. Without it the four shortcut tabs would all read
+   * as inactive while you were on, say, My Snapshot.
+   */
+  const isOffBarPage =
+    !mobileLinks.some((link) => isActive(pathname, link.href)) &&
+    sidebarLinks.some((link) => isActive(pathname, link.href));
 
   return (
     <div className="min-h-screen bg-[#FBFBF9] text-slate-900">
@@ -146,12 +222,34 @@ export function MemberShell({ children }: { children: React.ReactNode }) {
               <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-linear-to-br from-violet-600 to-indigo-600 text-white shadow-sm">
                 <Compass className="h-5 w-5" />
               </span>
+              {/* The wordmark is dropped below `sm` so the hamburger and the
+                  profile control both fit on a 320px screen without overlap. */}
               <span className="hidden font-bold tracking-tight sm:inline">
                 HerCompass<span className="text-violet-600">AI</span>
               </span>
             </Link>
           </div>
-          <div className="flex items-center gap-5">
+          {/* Phone-only trigger for the full navigation. It replaces the
+              desktop collapse toggle, which is `lg:flex` and therefore invisible
+              here — without this button nothing on a small screen could open
+              the remaining pages. */}
+          <button
+            type="button"
+            onClick={() => setIsDrawerOpen(true)}
+            aria-label="Open menu"
+            aria-expanded={isDrawerOpen}
+            aria-controls="member-mobile-drawer"
+            className="-ml-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-2 focus-visible:outline-violet-700 lg:hidden"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+          {/* `gap-5` unconditionally was ~334px of content on a 320px phone once the
+                profile name was counted, which pushed this whole group past the
+                viewport edge. The anchored dropdowns then rendered off-screen
+                because their anchor had moved off-screen. Narrow gaps below `sm`
+                keep the row inside the viewport; `sm` returns to the roomier
+                spacing on tablets and up. */}
+            <div className="flex min-w-0 items-center gap-2 sm:gap-5">
             <p className="hidden text-xs font-semibold uppercase tracking-wider text-slate-500 sm:block">
               Member workspace
             </p>
@@ -175,7 +273,12 @@ export function MemberShell({ children }: { children: React.ReactNode }) {
                   </span>
                 )}
               </summary>
-              <div className="absolute right-0 top-full z-50 mt-2 w-80 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg">
+              {/* `right-0` alone anchored a fixed 320px panel to a bell that sat near the
+                  viewport edge, so on a 320-375px phone the panel ran off the
+                  right side and clipped. `w-[min(20rem,calc(100vw-1.5rem))]`
+                  keeps the desktop width but never exceeds the viewport minus a
+                  margin, and `left-0` is ignored once the min() clamps it. */}
+              <div className="absolute right-0 top-full z-50 mt-2 w-[min(20rem,calc(100vw-1.5rem))] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg">
                 <div className="flex items-center justify-between gap-2 border-b border-slate-200 px-4 py-3">
                   <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
                     Notifications
@@ -260,12 +363,16 @@ export function MemberShell({ children }: { children: React.ReactNode }) {
               </div>
             </details>
             <details className="group relative">
-              <summary className="flex cursor-pointer list-none items-center gap-3 rounded-xl px-2 py-1.5 text-left transition hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-violet-700">
+              {/* `min-w-0` lets the name truncate instead of forcing the row wider than the
+                  screen, which is what pushed the dropdowns off-screen. The name
+                  is dropped entirely below `sm`; on a 320px phone the avatar plus
+                  plan line identify the account well enough without it. */}
+              <summary className="flex min-w-0 cursor-pointer list-none items-center gap-2 rounded-xl px-1.5 py-1.5 text-left transition hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-violet-700 sm:gap-3 sm:px-2">
                 <span className="flex h-9 w-9 items-center justify-center rounded-full bg-violet-100 text-violet-800">
                   <UserRound className="h-4 w-4" />
                 </span>
                 <span className="min-w-0">
-                  <span className="block max-w-24 truncate text-xs font-semibold text-slate-900 sm:max-w-44 sm:text-sm">
+                  <span className="hidden max-w-44 truncate text-sm font-semibold text-slate-900 sm:block">
                     {user.name || "Member"}
                   </span>
                   <span className="block text-[10px] capitalize text-slate-500 sm:text-xs">
@@ -274,7 +381,8 @@ export function MemberShell({ children }: { children: React.ReactNode }) {
                 </span>
                 <ChevronDown className="h-4 w-4 text-slate-500 transition group-open:rotate-180" />
               </summary>
-              <div className="absolute right-0 top-full z-50 mt-2 w-52 rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg">
+              {/* Same viewport clamp as the notification panel above. */}
+              <div className="absolute right-0 top-full z-50 mt-2 w-[min(13rem,calc(100vw-1.5rem))] rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg">
                 <Link
                   href="/app/settings"
                   className="flex min-h-10 items-center gap-2.5 rounded-lg px-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 hover:text-slate-900"
@@ -303,13 +411,72 @@ export function MemberShell({ children }: { children: React.ReactNode }) {
         </div>
       </header>
       <div className="flex min-h-[calc(100vh-4rem)] items-stretch">
+        {/*
+          One list of links, rendered two ways.
+
+          On desktop this is a persistent rail whose width collapses. On mobile
+          it becomes an off-canvas drawer holding the *same* `sidebarLinks`, so
+          every page in the app is reachable by phone without a second,
+          hand-maintained subset. The earlier `hidden lg:block` here meant the
+          list vanished on small screens entirely while the bottom bar carried
+          only four of the eight — that is why the remaining four could not be
+          opened on a phone at all.
+        */}
         <aside
           id="member-dashboard-sidebar"
-          aria-hidden={!isSidebarOpen}
-          className={`sticky top-16 hidden h-[calc(100vh-4rem)] shrink-0 overflow-hidden transition-[width] duration-200 lg:block ${isSidebarOpen ? "w-60 border-r border-slate-200/80 py-6" : "w-0 border-r-0 py-0"}`}
+          aria-label="Dashboard"
+          aria-hidden={isSidebarOpen ? undefined : true}
+          className={`${
+            isSidebarOpen ? "lg:w-60 lg:border-r lg:border-slate-200/80 lg:py-6" : "lg:w-0 lg:border-r-0 lg:py-0"
+          } sticky top-16 hidden h-[calc(100vh-4rem)] shrink-0 overflow-hidden transition-[width] duration-200 lg:block`}
         >
           {isSidebarOpen && (
             <nav aria-label="Dashboard" className="flex flex-col gap-1 pr-5">
+              {sidebarLinks.map(({ href, label, icon: Icon }) => {
+                const active = isActive(pathname, href);
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    aria-current={active ? "page" : undefined}
+                    className={`flex min-h-11 items-center gap-3 border-l-2 px-3 text-sm font-semibold transition ${active ? "border-violet-700 bg-violet-50/70 text-violet-800" : "border-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-900"}`}
+                  >
+                    <Icon className="h-4 w-4 shrink-0" />
+                    {label}
+                  </Link>
+                );
+              })}
+            </nav>
+          )}
+        </aside>
+        {/* Phone drawer: the same links, off-canvas. */}
+        {isDrawerOpen && (
+          <div
+            className="fixed inset-0 z-50 bg-slate-900/40 lg:hidden"
+            onClick={() => setIsDrawerOpen(false)}
+            aria-hidden="true"
+          />
+        )}
+        <div
+          id="member-mobile-drawer"
+          className={`fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] overflow-y-auto border-r border-slate-200 bg-white shadow-xl transition-transform duration-200 lg:hidden ${isDrawerOpen ? "translate-x-0" : "-translate-x-full"}`}
+          aria-label="Navigation"
+          {...(!isDrawerOpen ? { inert: "" as never } : {})}
+        >
+          <div className="flex h-16 items-center justify-between border-b border-slate-200 px-4">
+            <span className="text-sm font-bold tracking-tight text-slate-900">
+              HerCompass<span className="text-violet-600">AI</span>
+            </span>
+            <button
+              type="button"
+              onClick={() => setIsDrawerOpen(false)}
+              aria-label="Close menu"
+              className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-600 transition hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-violet-700"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+          <nav aria-label="All pages" className="flex flex-col gap-1 p-3">
             {sidebarLinks.map(({ href, label, icon: Icon }) => {
               const active = isActive(pathname, href);
               return (
@@ -317,34 +484,93 @@ export function MemberShell({ children }: { children: React.ReactNode }) {
                   key={href}
                   href={href}
                   aria-current={active ? "page" : undefined}
-                  className={`flex min-h-11 items-center gap-3 border-l-2 px-3 text-sm font-semibold transition ${active ? "border-violet-700 bg-violet-50/70 text-violet-800" : "border-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-900"}`}
+                  onClick={() => setIsDrawerOpen(false)}
+                  className={`flex min-h-12 items-center gap-3 rounded-xl px-3 text-sm font-semibold transition ${active ? "bg-violet-50 text-violet-800" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"}`}
                 >
                   <Icon className="h-4 w-4 shrink-0" />
                   {label}
                 </Link>
               );
             })}
-            </nav>
-          )}
-        </aside>
+            <div className="my-2 border-t border-slate-100" />
+            <Link
+              href="/app/notifications"
+              onClick={() => setIsDrawerOpen(false)}
+              className="flex min-h-12 items-center gap-3 rounded-xl px-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+            >
+              <Bell className="h-4 w-4 shrink-0" />
+              Notifications
+              {unreadCount > 0 && (
+                <span className="ml-auto rounded-full bg-rose-600 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              )}
+            </Link>
+            <Link
+              href="/app/settings"
+              onClick={() => setIsDrawerOpen(false)}
+              className="flex min-h-12 items-center gap-3 rounded-xl px-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+            >
+              <Settings className="h-4 w-4 shrink-0" />
+              Settings
+            </Link>
+            <Link
+              href="/app/account"
+              onClick={() => setIsDrawerOpen(false)}
+              className="flex min-h-12 items-center gap-3 rounded-xl px-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+            >
+              <UserRound className="h-4 w-4 shrink-0" />
+              Profile
+            </Link>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="flex min-h-12 items-center gap-3 rounded-xl px-3 text-left text-sm font-semibold text-rose-700 transition hover:bg-rose-50"
+            >
+              <LogOut className="h-4 w-4 shrink-0" />
+              Log out
+            </button>
+          </nav>
+        </div>
         <main className="min-w-0 flex-1 pb-24 pt-6 lg:pb-10">
           <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
             {children}
           </div>
         </main>
       </div>
-      <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-slate-200/90 bg-white/95 px-2 py-2 backdrop-blur-md lg:hidden">
-        <div className="mx-auto grid max-w-md grid-cols-5 gap-1">
+      <nav
+        aria-label="Primary"
+        className="fixed bottom-0 left-0 right-0 z-40 border-t border-slate-200/90 bg-white/95 px-2 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur-md lg:hidden"
+      >
+        {/* The column count is derived from the rows rather than hardcoded. An
+            earlier `grid-cols-5` outlived the fifth link it was sized for and left
+            a dead cell that shoved the last tab off-centre. */}
+        <div className="mx-auto grid max-w-md gap-1" style={mobileBarGridStyle}>
           {mobileLinks.map(({ href, label, icon: Icon }) => (
             <Link
               key={href}
               href={href}
+              aria-current={isActive(pathname, href) ? "page" : undefined}
               className={`flex min-h-12 flex-col items-center justify-center gap-1 rounded-xl text-[10px] font-semibold ${isActive(pathname, href) ? "bg-violet-50 text-violet-700" : "text-slate-500"}`}
             >
               <Icon className="h-4 w-4" />
               {label}
             </Link>
           ))}
+          {/* Opens the drawer, which lists every page in `sidebarLinks`. It is
+              marked active whenever the current route is one the bar does not
+              carry, so the tab still reflects where you are. */}
+          <button
+            type="button"
+            onClick={() => setIsDrawerOpen(true)}
+            aria-label="Open menu, all pages"
+            aria-expanded={isDrawerOpen}
+            aria-controls="member-mobile-drawer"
+            className={`flex min-h-12 flex-col items-center justify-center gap-1 rounded-xl text-[10px] font-semibold transition ${isDrawerOpen || isOffBarPage ? "bg-violet-50 text-violet-700" : "text-slate-500"}`}
+          >
+            <Menu className="h-4 w-4" />
+            Menu
+          </button>
         </div>
       </nav>
     </div>
