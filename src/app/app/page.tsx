@@ -15,11 +15,7 @@ export default function MemberHomePage() {
   const { user } = useAuth();
   const [data, setData] = useState<MemberDashboardData | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [greeting, setGreeting] = useState("Hello");
-
-  useEffect(() => {
-    setGreeting(greetingForHour(new Date().getHours()));
-  }, []);
+  const [greeting] = useState(() => greetingForHour(new Date().getHours()));
 
   useEffect(() => {
     let active = true;

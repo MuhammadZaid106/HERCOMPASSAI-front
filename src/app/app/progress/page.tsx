@@ -62,14 +62,18 @@ export default function ProgressPage() {
   const [range, setRange] = useState<TrackingRange>("7d");
   const [data, setData] = useState<MemberProgressData | null>(null);
   const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
     let active = true;
     setError(null);
     setData(null);
     void memberClient.getProgress(range).then((result) => {
       if (!active) return;
-      if (result.success && result.data) setData(result.data);
-      else setError(result.message);
+      if (result.success && result.data) {
+        setData(result.data);
+      } else {
+        setError(result.message || "We couldn't load your progress.");
+      }
     });
     return () => {
       active = false;
