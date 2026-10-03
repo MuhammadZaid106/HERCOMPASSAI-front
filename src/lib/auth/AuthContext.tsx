@@ -64,7 +64,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         })
         .catch(() => {
           if (!isMounted) return;
-          authClient.clearSession();
           const kept = authClient.getStoredUser();
           if (kept) {
             setUser(kept);
@@ -143,7 +142,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         })
         .catch(() => {
           if (!isMounted) return;
-          authClient.clearSession();
           const kept = authClient.getStoredUser();
           if (kept) {
             setUser(kept);
