@@ -50,9 +50,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const storedTokens = authClient.getStoredTokens();
     if (storedUser && storedTokens) {
       setUser(storedUser);
+      let isMounted = true;
       authClient
         .getMe()
         .then((res) => {
+          if (!isMounted) return;
           if (res.success && res.data?.user) {
             setUser(res.data.user);
           } else {
@@ -61,6 +63,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
         })
         .catch(() => {
+          if (!isMounted) return;
+          authClient.clearSession();
           const kept = authClient.getStoredUser();
           if (kept) {
             setUser(kept);
@@ -68,8 +72,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
           setUser(null);
         })
-        .finally(() => setLoading(false));
-      return;
+        .finally(() => {
+          if (isMounted) {
+            setLoading(false);
+          }
+        });
+      return () => {
+        isMounted = false;
+      };
     }
 
     if (nextAuthStatus === "authenticated" && nextAuthSession?.user) {
@@ -119,10 +129,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Check custom JWT stored session if not signed in through NextAuth
     if (storedUser) {
       setUser(storedUser);
-      // Validate session with backend
+      let isMounted = true;
       authClient
         .getMe()
         .then((res) => {
+          if (!isMounted) return;
           if (res.success && res.data?.user) {
             setUser(res.data.user);
           } else {
@@ -131,6 +142,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
         })
         .catch(() => {
+          if (!isMounted) return;
+          authClient.clearSession();
           const kept = authClient.getStoredUser();
           if (kept) {
             setUser(kept);
@@ -138,7 +151,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
           setUser(null);
         })
-        .finally(() => setLoading(false));
+        .finally(() => {
+          if (isMounted) {
+            setLoading(false);
+          }
+        });
+      return () => {
+        isMounted = false;
+      };
     } else {
       setUser(null);
       setLoading(false);

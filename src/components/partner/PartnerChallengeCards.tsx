@@ -17,7 +17,7 @@ interface Challenge {
   category: string;
   description: string;
   benefit: string;
-  icon: any;
+  icon: React.ComponentType<{ className?: string }>;
   color: string;
 }
 

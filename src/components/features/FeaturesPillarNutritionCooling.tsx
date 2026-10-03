@@ -19,23 +19,11 @@ export default function FeaturesPillarNutritionCooling() {
   const [isBreathingActive, setIsBreathingActive] = useState(false);
   const [breathCounter, setBreathCounter] = useState(4);
 
-  // Simple box breathing simulator
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (isBreathingActive) {
       timer = setInterval(() => {
-        setBreathCounter((prev) => {
-          if (prev <= 1) {
-            setBreathingPhase((current) => {
-              if (current === "Inhale (4s)") return "Hold (4s)";
-              if (current === "Hold (4s)") return "Exhale (4s)";
-              if (current === "Exhale (4s)") return "Hold (4s)";
-              return "Inhale (4s)";
-            });
-            return 4;
-          }
-          return prev - 1;
-        });
+        setBreathCounter((prev) => prev - 1);
       }, 1000);
     } else {
       setBreathCounter(4);
@@ -43,6 +31,18 @@ export default function FeaturesPillarNutritionCooling() {
     }
     return () => clearInterval(timer);
   }, [isBreathingActive]);
+
+  useEffect(() => {
+    if (isBreathingActive && breathCounter <= 1) {
+      setBreathingPhase((current) => {
+        if (current === "Inhale (4s)") return "Hold (4s)";
+        if (current === "Hold (4s)") return "Exhale (4s)";
+        if (current === "Exhale (4s)") return "Hold (4s)";
+        return "Inhale (4s)";
+      });
+      setBreathCounter(4);
+    }
+  }, [isBreathingActive, breathCounter]);
 
   const nutritionPillars = [
     {

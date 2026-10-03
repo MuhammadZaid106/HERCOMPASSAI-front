@@ -95,7 +95,9 @@ export default function TrackPage() {
 
   useEffect(() => {
     const requested = new URLSearchParams(window.location.search).get("tab");
-    if (isTrackTab(requested)) setTab(requested);
+    if (isTrackTab(requested)) {
+      setTab(requested);
+    }
   }, []);
 
   const openTab = (id: Tab) => {

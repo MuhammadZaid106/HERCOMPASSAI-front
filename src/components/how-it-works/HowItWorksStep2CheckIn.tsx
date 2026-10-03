@@ -86,7 +86,7 @@ export default function HowItWorksStep2CheckIn() {
                   ].map((opt) => (
                     <button
                       key={opt.key}
-                      onClick={() => setSleepLogged(opt.key as any)}
+                      onClick={() => setSleepLogged(opt.key as "good" | "fair" | "interrupted")}
                       className={`py-2 px-2 rounded-xl text-center border text-xs font-semibold transition-all cursor-pointer ${
                         sleepLogged === opt.key
                           ? "bg-indigo-600 text-white border-indigo-600 shadow-xs"
@@ -142,7 +142,7 @@ export default function HowItWorksStep2CheckIn() {
                   ].map((opt) => (
                     <button
                       key={opt.key}
-                      onClick={() => setEnergyLogged(opt.key as any)}
+                      onClick={() => setEnergyLogged(opt.key as "steady" | "drained" | "peak")}
                       className={`py-2 px-2 rounded-xl text-center border text-xs font-semibold transition-all cursor-pointer ${
                         energyLogged === opt.key
                           ? "bg-amber-500 text-white border-amber-500 shadow-xs"

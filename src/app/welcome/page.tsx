@@ -29,7 +29,7 @@ export default function WelcomePage() {
   const { user, loading, logout } = useAuth();
   const [onboardingStatus, setOnboardingStatus] = useState<{
     isCompleted: boolean;
-    profile?: any;
+    profile?: Record<string, unknown>;
   } | null>(null);
   const [checkingOnboarding, setCheckingOnboarding] = useState(true);
 
@@ -40,8 +40,8 @@ export default function WelcomePage() {
   }, [loading, user, router]);
 
   useEffect(() => {
+    let isMounted = true;
     if (user && user.role === "member") {
-      let isMounted = true;
       onboardingClient
         .getProfile()
         .then((res) => {
@@ -56,13 +56,15 @@ export default function WelcomePage() {
             setCheckingOnboarding(false);
           }
         });
-
-      return () => {
-        isMounted = false;
-      };
     } else {
-      setCheckingOnboarding(false);
+      if (isMounted) {
+        setCheckingOnboarding(false);
+      }
     }
+
+    return () => {
+      isMounted = false;
+    };
   }, [user]);
 
   if (loading || !user) {
