@@ -5,6 +5,8 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   ChevronDown,
   Compass,
+  BookOpen,
+  Footprints,
   HandHeart,
   Home,
   LogOut,
@@ -21,6 +23,9 @@ import { useAuth } from "@/lib/auth/AuthContext";
 
 const sidebarLinks = [
   { href: "/partner", label: "Home", icon: Home },
+  { href: "/partner/activities", label: "Activities", icon: Footprints },
+  { href: "/partner/academy", label: "Academy", icon: BookOpen },
+  { href: "/partner/digest", label: "Digest", icon: Compass },
   { href: "/partner/consent", label: "Consent", icon: HandHeart },
   { href: "/partner/permissions", label: "Permissions", icon: ShieldCheck },
   { href: "/partner/settings", label: "Settings", icon: Settings },
@@ -29,8 +34,8 @@ const sidebarLinks = [
 
 const mobileLinks = [
   { href: "/partner", label: "Home", icon: Home },
-  { href: "/partner/consent", label: "Consent", icon: HandHeart },
-  { href: "/partner/permissions", label: "Permissions", icon: ShieldCheck },
+  { href: "/partner/activities", label: "Activities", icon: Footprints },
+  { href: "/partner/digest", label: "Digest", icon: Compass },
   { href: "/partner/account", label: "Account", icon: UserRound },
 ];
 

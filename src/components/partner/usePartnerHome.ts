@@ -18,6 +18,11 @@ export interface PartnerHomeOn {
   sharedActivities: boolean;
   communicationGuidance: boolean;
   digestIncluded: boolean;
+  academyIncluded: boolean;
+  supportIncluded: boolean;
+  memberEmail: string;
+  joinedAt: string;
+  scopes: string[];
 }
 
 export type PartnerHome = PartnerHomeOff | PartnerHomeOn;

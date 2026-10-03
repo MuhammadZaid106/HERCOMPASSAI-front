@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import Link from "next/link";
 import {
   BookOpen,
   Footprints,
@@ -11,17 +12,8 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { PartnerFrame } from "./PartnerFrame";
+import { ConnectedMemberCard } from "./ConnectedMemberCard";
 import { usePartnerHome } from "./usePartnerHome";
-
-const ACTIVITIES = [
-  "Walk together",
-  "Relaxation",
-  "Meal preparation",
-  "Conversation",
-  "Sleep routine",
-  "Fun activity",
-  "Connection",
-];
 
 function StatusPill({ on }: { on: boolean }) {
   return (
@@ -73,7 +65,7 @@ function SupportCard({
 
 export function PartnerDashboard() {
   const { user } = useAuth();
-  const { home, error } = usePartnerHome();
+  const { home, error, reload } = usePartnerHome();
   const partnerName = user?.name?.trim().split(/\s+/)[0];
   const connected = home?.connected === true;
 
@@ -148,27 +140,7 @@ export function PartnerDashboard() {
 
         {connected && home.connected && (
           <div className="mt-5 space-y-4">
-            <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-              <p className="text-xs font-bold uppercase tracking-wider text-violet-700">Who this is for</p>
-              <h2 className="mt-2 text-2xl font-extrabold tracking-tight">
-                You are connected with {home.memberFirstName}
-              </h2>
-              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-600">
-                The cards below are the support they allowed. A dashed card is a topic they have not shared. It stays
-                empty on purpose.
-              </p>
-              <div className="mt-4 flex flex-wrap gap-2">
-                <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-700">
-                  General support <StatusPill on={home.generalSupport} />
-                </span>
-                <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-700">
-                  Conversation <StatusPill on={home.communicationGuidance} />
-                </span>
-                <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-700">
-                  Time together <StatusPill on={home.sharedActivities} />
-                </span>
-              </div>
-            </section>
+            <ConnectedMemberCard home={home} onLeft={reload} />
 
             <div className="grid gap-4 sm:grid-cols-2">
               <SupportCard
@@ -177,9 +149,17 @@ export function PartnerDashboard() {
                 title="Learn what may be changing"
                 shared={home.generalSupport}
               >
-                {home.generalSupport
-                  ? "This card is for patterns they chose to share. It describes support. It does not diagnose."
-                  : "This part has not been shared."}
+                {home.generalSupport ? (
+                  home.supportIncluded ? (
+                    <Link href="/partner/support" className="font-bold text-violet-700">
+                      Open support ideas
+                    </Link>
+                  ) : (
+                    "Go deeper with HerCompass Plus. Support ideas are part of a paid plan. The member chooses the plan."
+                  )
+                ) : (
+                  "This part has not been shared."
+                )}
               </SupportCard>
               <SupportCard
                 icon={<HandHeart className="h-5 w-5" />}
@@ -198,9 +178,13 @@ export function PartnerDashboard() {
                 shared={home.communicationGuidance}
               >
                 {home.communicationGuidance ? (
-                  <p className="rounded-2xl bg-violet-50 px-4 py-3 text-base font-semibold text-violet-950">
-                    “How can I support you this week?”
-                  </p>
+                  home.supportIncluded ? (
+                    <Link href="/partner/conversation" className="font-bold text-violet-700">
+                      Open conversation ideas
+                    </Link>
+                  ) : (
+                    "Go deeper with HerCompass Plus. Conversation ideas are part of a paid plan."
+                  )
                 ) : (
                   "This part has not been shared."
                 )}
@@ -212,16 +196,9 @@ export function PartnerDashboard() {
                 shared={home.sharedActivities}
               >
                 {home.sharedActivities ? (
-                  <ul className="flex flex-wrap gap-2">
-                    {ACTIVITIES.map((activity) => (
-                      <li
-                        key={activity}
-                        className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-700"
-                      >
-                        {activity}
-                      </li>
-                    ))}
-                  </ul>
+                  <Link href="/partner/activities" className="font-bold text-violet-700">
+                    See the seven activities
+                  </Link>
                 ) : (
                   "This part has not been shared."
                 )}
@@ -249,9 +226,14 @@ export function PartnerDashboard() {
               </div>
               <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-700">
                 {home.digestIncluded
-                  ? "A weekly guide is part of their plan. It is not ready yet, so this card stays empty until that guide exists. It will not list symptoms or check-ins."
+                  ? "A weekly guide is part of their plan. It will not list symptoms or check-ins."
                   : "Go deeper with HerCompass Plus. A weekly guide is not part of the current plan, so there is nothing to preview here. The member chooses the plan. There is no upgrade step on your side."}
               </p>
+              {home.digestIncluded && (
+                <Link href="/partner/digest" className="mt-4 inline-flex min-h-11 items-center text-sm font-bold text-violet-800">
+                  Open this week’s guide
+                </Link>
+              )}
             </section>
           </div>
         )}

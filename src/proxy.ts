@@ -6,7 +6,7 @@
  * - /snapshot    — must have completed onboarding
  * - /app         — must be an authenticated member
  * - /admin       — must be authenticated (role check done in page-level guard)
- * - /partner/consent, /partner/permissions, /partner/settings, /partner/account — signed-in partner pages. The public /partner page and /partner/invite stay open.
+ * - /partner/consent, /partner/permissions, /partner/settings, /partner/account, /partner/activities, /partner/academy, /partner/digest, /partner/support, /partner/conversation — signed-in partner pages. The public /partner page and /partner/invite stay open.
  *
  * Strategy:
  *  1. Primary (edge-safe): checks for a NextAuth session cookie (next-auth.session-token)
@@ -34,6 +34,11 @@ const PROTECTED_ROUTES = [
   "/partner/permissions",
   "/partner/settings",
   "/partner/account",
+  "/partner/activities",
+  "/partner/academy",
+  "/partner/digest",
+  "/partner/support",
+  "/partner/conversation",
 ];
 
 export function proxy(request: NextRequest) {
