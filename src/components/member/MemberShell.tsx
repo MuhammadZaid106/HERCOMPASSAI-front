@@ -31,7 +31,7 @@ import { memberClient } from "@/lib/member/memberClient";
 import type { MemberNotification } from "@/lib/member/memberTypes";
 import { NOTIFICATIONS_CHANGED } from "@/lib/member/notificationEvents";
 
-const sidebarLinks = [
+const ALL_SIDEBAR_LINKS = [
   { href: "/app", label: "Home", icon: Home },
   { href: "/app/snapshot", label: "My Snapshot", icon: Sparkles },
   { href: "/app/track", label: "Track", icon: Activity },
@@ -43,6 +43,10 @@ const sidebarLinks = [
   { href: "/app/community", label: "Community", icon: MessagesSquare },
   { href: "/app/partner", label: "Partner", icon: HeartHandshake },
 ];
+
+function getSidebarLinks(role: string | undefined | null) {
+  return ALL_SIDEBAR_LINKS.filter((link) => link.href !== "/app/ai-lab");
+}
 
 /**
  * The four pages promoted into the phone's bottom bar.
@@ -181,7 +185,22 @@ export function MemberShell({ children }: { children: React.ReactNode }) {
     };
   }, [isDrawerOpen]);
 
-  if (loading || !user || user.role !== "member") {
+  const sidebarLinks = getSidebarLinks(user?.role);
+  const drawerLinks = getSidebarLinks(user?.role);
+
+  if (loading || !user) {
+    return (
+      <div className="min-h-screen bg-[#FBFBF9] flex items-center justify-center">
+        <div className="h-10 w-10 rounded-full border-2 border-violet-600 border-t-transparent animate-spin" />
+      </div>
+    );
+  }
+
+  if (user.role !== "member") {
+    const destination = homeRouteForRole(user.role);
+    if (pathname !== destination) {
+      router.replace(destination);
+    }
     return (
       <div className="min-h-screen bg-[#FBFBF9] flex items-center justify-center">
         <div className="h-10 w-10 rounded-full border-2 border-violet-600 border-t-transparent animate-spin" />

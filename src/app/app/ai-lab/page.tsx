@@ -39,10 +39,20 @@ function hintFor(status: number, message: string): string {
   if (isNetworkError(status)) return AI_CONNECTION_MESSAGE;
   if (status === 401)
     return "Session expired or invalid — log out and log back in.";
-  if (status === 403 && message.toLowerCase().includes("health"))
+  if (status === 403 && (message.toLowerCase().includes("health") || message.toLowerCase().includes("staff") || message.toLowerCase().includes("restricted")))
     return "Engine health is restricted to admin/developer. Generation works for members.";
-  if (status === 403)
+  if (status === 403) {
+    const lower = message.toLowerCase();
+    if (lower.includes("limit") || lower.includes("quota") || lower.includes("upgrade") || lower.includes("plan"))
+      return "You’ve reached your AI insight limit for this month. Upgrade your plan to get more insights.";
     return "Consent missing or revoked — re-submit onboarding with consentType `wellness_personalization`.";
+  }
+  if (status === 402) {
+    const lower = message.toLowerCase();
+    if (lower.includes("limit") || lower.includes("quota") || lower.includes("upgrade") || lower.includes("plan"))
+      return "You’ve reached your AI insight limit for this month. Upgrade your plan to continue generating insights.";
+    return message;
+  }
   if (status === 404)
     return "No completed assessment found — finish the 5-minute onboarding first.";
   if (status === 503)
@@ -311,7 +321,11 @@ export default function AiLabPage() {
             onClick={() => void runHealth()}
             className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 disabled:opacity-50"
           >
-            <ShieldCheck className="h-4 w-4 text-emerald-600" />
+            {state === "running" ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <ShieldCheck className="h-4 w-4 text-emerald-600" />
+            )}
             Engine health
           </button>
         </section>
