@@ -11,6 +11,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth/AuthContext";
+import { partnerPlanText } from "@/lib/partner/partnerPlan";
 import { PartnerFrame } from "./PartnerFrame";
 import { ConnectedMemberCard } from "./ConnectedMemberCard";
 import { usePartnerHome } from "./usePartnerHome";
@@ -155,7 +156,7 @@ export function PartnerDashboard() {
                       Open support ideas
                     </Link>
                   ) : (
-                    "Go deeper with HerCompass Plus. Support ideas are part of a paid plan. The member chooses the plan."
+                    partnerPlanText(home.planMessage)
                   )
                 ) : (
                   "This part has not been shared."
@@ -183,7 +184,7 @@ export function PartnerDashboard() {
                       Open conversation ideas
                     </Link>
                   ) : (
-                    "Go deeper with HerCompass Plus. Conversation ideas are part of a paid plan."
+                    partnerPlanText(home.planMessage)
                   )
                 ) : (
                   "This part has not been shared."
@@ -221,13 +222,13 @@ export function PartnerDashboard() {
                     home.digestIncluded ? "bg-white text-violet-800" : "bg-white text-slate-500"
                   }`}
                 >
-                  {home.digestIncluded ? "On this plan" : "Plus"}
+                  {home.digestIncluded ? "On their plan" : "Their plan"}
                 </span>
               </div>
               <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-700">
                 {home.digestIncluded
                   ? "A weekly guide is part of their plan. It will not list symptoms or check-ins."
-                  : "Go deeper with HerCompass Plus. A weekly guide is not part of the current plan, so there is nothing to preview here. The member chooses the plan. There is no upgrade step on your side."}
+                  : partnerPlanText(home.planMessage)}
               </p>
               {home.digestIncluded && (
                 <Link href="/partner/digest" className="mt-4 inline-flex min-h-11 items-center text-sm font-bold text-violet-800">

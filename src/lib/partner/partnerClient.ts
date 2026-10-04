@@ -25,6 +25,8 @@ export interface AcademyLessonDetail extends AcademyListItem {
   evidenceId: string;
   paragraphs: string[];
   sourceName: string | null;
+  personalizedParagraph?: string | null;
+  safeLine?: string | null;
 }
 
 export interface DigestSections {
@@ -34,6 +36,8 @@ export interface DigestSections {
   whatToAvoid: string[];
   oneSimpleSupportAction: string | null;
   evidenceIds: string[];
+  safeLine?: string | null;
+  advancedObservation?: string | null;
 }
 
 async function getJson<T>(path: string): Promise<{ ok: true; data: T } | { ok: false; message: string }> {
@@ -62,15 +66,31 @@ export const partnerClient = {
       return { ok: false, message: "We couldn't reach HerCompass just now. Your information is safe." };
     }
   },
-  support: () => getJson<{ included: boolean; plusMessage?: string; memberFirstName?: string; lines?: string[]; sources?: string[] }>("/api/partner/support"),
+  support: () =>
+    getJson<{
+      included: boolean;
+      plusMessage?: string;
+      memberFirstName?: string;
+      lines?: string[];
+      sources?: string[];
+      safeLine?: string | null;
+    }>("/api/partner/support"),
   conversation: () =>
-    getJson<{ included: boolean; plusMessage?: string; memberFirstName?: string; lines?: string[]; sources?: string[] }>("/api/partner/conversation"),
+    getJson<{
+      included: boolean;
+      plusMessage?: string;
+      memberFirstName?: string;
+      lines?: string[];
+      sources?: string[];
+      safeLine?: string | null;
+    }>("/api/partner/conversation"),
   digest: () =>
     getJson<{
       included: boolean;
       plusMessage?: string;
       memberFirstName?: string;
       weekStart?: string;
+      safeLine?: string | null;
       sections?: DigestSections;
       sources?: string[];
     }>("/api/partner/digest"),

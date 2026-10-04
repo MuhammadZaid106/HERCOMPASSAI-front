@@ -2,7 +2,6 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
-import { ShieldCheck } from "lucide-react";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { authClient } from "@/lib/auth/authClient";
 import {
@@ -12,8 +11,10 @@ import {
   primaryButton,
   type SaveState,
 } from "@/components/member/accountUi";
+import { PartnerCrumb, partnerCrumbs } from "./PartnerCrumb";
 import { PartnerFrame } from "./PartnerFrame";
-import { leavePartnerSupport, updatePartnerName, usePartnerHome, type PartnerHomeOn } from "./usePartnerHome";
+import { ConnectedMemberCard } from "./ConnectedMemberCard";
+import { updatePartnerName, usePartnerHome, type PartnerHomeOn } from "./usePartnerHome";
 
 const NEVER_SHARED = ["Personal symptoms", "Raw check-ins", "Private notes"];
 
@@ -64,6 +65,7 @@ function ConnectionGate({
 export function PartnerConsentPage() {
   return (
     <PartnerFrame>
+      <PartnerCrumb items={partnerCrumbs({ label: "Consent" })} />
       <header className="rounded-3xl bg-linear-to-br from-violet-950 via-indigo-900 to-slate-900 p-6 text-white sm:p-8">
         <p className="text-xs font-bold uppercase tracking-wider text-violet-200">Consent</p>
         <h1 className="mt-2 text-3xl font-extrabold tracking-tight">What you accepted</h1>
@@ -107,6 +109,7 @@ export function PartnerConsentPage() {
 export function PartnerPermissionsPage() {
   return (
     <PartnerFrame>
+      <PartnerCrumb items={partnerCrumbs({ label: "Permissions" })} />
       <header className="rounded-3xl bg-linear-to-br from-violet-950 via-indigo-900 to-slate-900 p-6 text-white sm:p-8">
         <p className="text-xs font-bold uppercase tracking-wider text-violet-200">Permissions</p>
         <h1 className="mt-2 text-3xl font-extrabold tracking-tight">What they chose to share</h1>
@@ -141,26 +144,11 @@ export function PartnerPermissionsPage() {
 }
 
 export function PartnerSettingsPage() {
-  const { logout } = useAuth();
   const { home, error, reload } = usePartnerHome();
-  const [leaving, setLeaving] = useState(false);
-  const [confirmLeave, setConfirmLeave] = useState(false);
-  const [notice, setNotice] = useState<string | null>(null);
-
-  async function leave() {
-    setLeaving(true);
-    setNotice(null);
-    const result = await leavePartnerSupport();
-    setLeaving(false);
-    setNotice(result.message);
-    if (result.ok) {
-      setConfirmLeave(false);
-      reload();
-    }
-  }
 
   return (
     <PartnerFrame>
+      <PartnerCrumb items={partnerCrumbs({ label: "Settings" })} />
       <header className="rounded-3xl bg-linear-to-br from-violet-950 via-indigo-900 to-slate-900 p-6 text-white sm:p-8">
         <p className="text-xs font-bold uppercase tracking-wider text-violet-200">Settings</p>
         <h1 className="mt-2 text-3xl font-extrabold tracking-tight">Your side of Partner Support</h1>
@@ -169,12 +157,7 @@ export function PartnerSettingsPage() {
       <div className="mt-5 space-y-4">
         {error && <p className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">{error}</p>}
         {!error && !home && <p className="text-sm text-slate-500">Preparing your information...</p>}
-        {home?.connected && (
-          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <p className="text-xs font-bold uppercase tracking-wider text-violet-700">Connected</p>
-            <h2 className="mt-2 text-xl font-extrabold">You are connected with {home.memberFirstName}</h2>
-          </section>
-        )}
+        {home?.connected && <ConnectedMemberCard home={home} onLeft={reload} />}
         {home && !home.connected && (
           <PageState
             title={home.access === "off" ? "Partner access has been revoked" : "Nothing here yet"}
@@ -185,40 +168,6 @@ export function PartnerSettingsPage() {
             }
           />
         )}
-
-        <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-          <div className="flex items-start gap-3">
-            <ShieldCheck className="mt-0.5 h-5 w-5 text-violet-700" />
-            <div>
-              <h2 className="text-lg font-extrabold">Leave Partner Support</h2>
-              <p className="mt-1 text-sm leading-relaxed text-slate-600">
-                Leaving turns sharing off. Your partner&apos;s logs stay on their account.
-              </p>
-            </div>
-          </div>
-          {notice && <p className="mt-4 text-sm text-slate-700">{notice}</p>}
-          <div className="mt-4 flex flex-col gap-3 sm:flex-row">
-            {confirmLeave ? (
-              <button
-                type="button"
-                disabled={leaving || home?.connected !== true}
-                onClick={() => void leave()}
-                className="min-h-11 rounded-full bg-violet-600 px-5 text-sm font-bold text-white disabled:opacity-50"
-              >
-                {leaving ? "Leaving..." : "Confirm leave"}
-              </button>
-            ) : (
-              <button
-                type="button"
-                disabled={home?.connected !== true}
-                onClick={() => setConfirmLeave(true)}
-                className="min-h-11 rounded-full border border-slate-300 px-5 text-sm font-bold text-slate-700 disabled:opacity-50"
-              >
-                Leave Partner Support
-              </button>
-            )}
-          </div>
-        </section>
       </div>
     </PartnerFrame>
   );
@@ -284,6 +233,7 @@ export function PartnerAccountPage() {
 
   return (
     <PartnerFrame>
+      <PartnerCrumb items={partnerCrumbs({ label: "Account" })} />
       <div className="animate-fadeIn">
         <PageHeading
           title="Account"

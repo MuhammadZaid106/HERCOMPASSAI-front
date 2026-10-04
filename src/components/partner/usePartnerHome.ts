@@ -20,6 +20,7 @@ export interface PartnerHomeOn {
   digestIncluded: boolean;
   academyIncluded: boolean;
   supportIncluded: boolean;
+  planMessage: string | null;
   memberEmail: string;
   joinedAt: string;
   scopes: string[];

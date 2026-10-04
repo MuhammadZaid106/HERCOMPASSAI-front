@@ -2,21 +2,30 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { PartnerCrumb, type PartnerCrumbItem } from "./PartnerCrumb";
 import { PartnerFrame } from "./PartnerFrame";
 
 export function PartnerState({
   title,
+  kicker,
   body,
   action,
+  crumbs,
 }: {
   title: string;
+  kicker?: string;
   body: string;
   action?: { href: string; label: string };
+  crumbs?: PartnerCrumbItem[];
 }) {
   return (
     <PartnerFrame>
+      {crumbs && crumbs.length > 0 && <PartnerCrumb items={crumbs} />}
       <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-        <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">{title}</h1>
+        {kicker && (
+          <p className="text-xs font-bold uppercase tracking-wider text-violet-700">{kicker}</p>
+        )}
+        <h1 className={`text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl ${kicker ? "mt-2" : ""}`}>{title}</h1>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-600 sm:text-base">{body}</p>
         {action && (
           <Link

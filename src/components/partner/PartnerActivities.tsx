@@ -2,13 +2,15 @@
 
 import Link from "next/link";
 import { partnerClient } from "@/lib/partner/partnerClient";
+import { PartnerCrumb, partnerCrumbs } from "./PartnerCrumb";
 import { PartnerFrame } from "./PartnerFrame";
 import { PartnerState, usePartnerQuery } from "./PartnerState";
 
 export function PartnerActivitiesPage() {
   const query = usePartnerQuery(() => partnerClient.activities());
+  const crumbs = partnerCrumbs({ label: "Activities" });
   if (!query.ready) {
-    return <PartnerState title="Shared activities" body="Preparing your information..." />;
+    return <PartnerState title="Shared activities" body="Preparing your information..." crumbs={crumbs} />;
   }
   if (query.error || !query.data) {
     return (
@@ -16,11 +18,13 @@ export function PartnerActivitiesPage() {
         title="Nothing here yet"
         body={query.error || "Shared activities stay hidden until that topic is on."}
         action={{ href: "/partner", label: "Back to Partner home" }}
+        crumbs={crumbs}
       />
     );
   }
   return (
     <PartnerFrame>
+      <PartnerCrumb items={crumbs} />
       <header className="rounded-3xl bg-gradient-to-br from-violet-950 via-indigo-900 to-slate-900 p-6 text-white sm:p-8">
         <p className="text-xs font-bold uppercase tracking-wider text-violet-200">Shared activity</p>
         <h1 className="mt-2 text-3xl font-extrabold tracking-tight sm:text-4xl">Try something together</h1>

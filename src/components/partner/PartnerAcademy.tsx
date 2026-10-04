@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { partnerClient, type AcademyListItem } from "@/lib/partner/partnerClient";
+import { partnerPlanText } from "@/lib/partner/partnerPlan";
+import { PartnerCrumb, partnerCrumbs } from "./PartnerCrumb";
 import { PartnerFrame } from "./PartnerFrame";
 import { PartnerState, usePartnerQuery } from "./PartnerState";
 
@@ -13,16 +15,25 @@ const CATEGORY_LABELS: Record<string, string> = {
 
 export function PartnerAcademyPage() {
   const query = usePartnerQuery(() => partnerClient.academy());
-  if (!query.ready) return <PartnerState title="Men’s Academy" body="Preparing your information..." />;
+  const crumbs = partnerCrumbs({ label: "Academy" });
+  if (!query.ready) return <PartnerState title="Men’s Academy" body="Preparing your information..." crumbs={crumbs} />;
   if (query.error || !query.data) {
-    return <PartnerState title="Nothing here yet" body={query.error || "The academy is not available right now."} />;
+    return (
+      <PartnerState
+        title="Nothing here yet"
+        body={query.error || "The academy is not available right now."}
+        crumbs={crumbs}
+      />
+    );
   }
   if (!query.data.included) {
     return (
       <PartnerState
         title="Men’s Academy"
-        body={query.data.plusMessage || "Go deeper with HerCompass Plus."}
+        kicker="Their plan"
+        body={partnerPlanText(query.data.plusMessage)}
         action={{ href: "/partner", label: "Back to Partner home" }}
+        crumbs={crumbs}
       />
     );
   }
@@ -33,6 +44,7 @@ export function PartnerAcademyPage() {
   }, {});
   return (
     <PartnerFrame>
+      <PartnerCrumb items={crumbs} />
       <header className="rounded-3xl bg-gradient-to-br from-violet-950 via-indigo-900 to-slate-900 p-6 text-white sm:p-8">
         <p className="text-xs font-bold uppercase tracking-wider text-violet-200">Men’s Academy</p>
         <h1 className="mt-2 text-3xl font-extrabold tracking-tight sm:text-4xl">Short lessons for support</h1>
