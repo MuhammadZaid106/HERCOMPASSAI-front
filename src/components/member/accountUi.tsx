@@ -170,8 +170,7 @@ export function ReadOnlyValue({ children }: { children: ReactNode }) {
 
 export function PanelSkeleton({ lines = 3 }: { lines?: number }) {
   return (
-    <div className="space-y-4" aria-busy="true" aria-live="polite">
-      <p className="text-sm font-semibold text-slate-500">Loading...</p>
+    <div className="space-y-4" aria-busy="true" aria-live="polite" aria-label="Loading">
       <div className="divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-white">
         {Array.from({ length: lines }).map((_, index) => (
           <div key={index} className="flex items-center gap-6 px-7 py-6">

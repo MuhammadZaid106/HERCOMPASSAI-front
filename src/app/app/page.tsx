@@ -48,10 +48,7 @@ export default function MemberHomePage() {
 
   if (!data) {
     return (
-      <div className="space-y-4" aria-busy="true" aria-live="polite">
-        <p className="text-sm font-semibold text-slate-500">
-          Preparing your information...
-        </p>
+      <div className="space-y-4" aria-busy="true" aria-live="polite" aria-label="Loading">
         <div className="h-16 animate-pulse rounded-2xl bg-slate-100" />
         <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
           <div className="h-72 animate-pulse rounded-3xl bg-violet-100" />

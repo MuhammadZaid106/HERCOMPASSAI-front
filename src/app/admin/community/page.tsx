@@ -6,6 +6,7 @@ import { useAuth } from "@/lib/auth/AuthContext";
 import { homeRouteForRole, isStaff } from "@/lib/auth/routeGuards";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { adminClient, type CommunityReviewNote } from "@/lib/admin/adminClient";
+import { BlockSkeleton } from "@/components/ui/LoadState";
 
 const FILTERS = [
   { id: "pending", label: "Needs review" },
@@ -72,7 +73,7 @@ export default function AdminCommunityPage() {
           ))}
         </div>
         {error && <p className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">{error}</p>}
-        {!error && !notes && <p className="text-sm font-semibold text-slate-500">Preparing your information...</p>}
+        {!error && !notes && <BlockSkeleton rows={2} />}
         {notes && notes.length === 0 && (
           <p className="rounded-3xl border border-dashed border-slate-300 bg-white p-5 text-sm text-slate-600">
             Nothing here yet.

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import { communityClient, type CommunityBoard } from "@/lib/member/communityClient";
+import { BlockSkeleton } from "@/components/ui/LoadState";
 
 export default function CommunityPage() {
   const [board, setBoard] = useState<CommunityBoard | null>(null);
@@ -45,7 +46,7 @@ export default function CommunityPage() {
   }
 
   if (!board) {
-    return <p className="text-sm font-semibold text-slate-500">Preparing your information...</p>;
+    return <BlockSkeleton rows={3} />;
   }
 
   const selected = board.topics.find((item) => item.id === topic) ?? board.topics[0];

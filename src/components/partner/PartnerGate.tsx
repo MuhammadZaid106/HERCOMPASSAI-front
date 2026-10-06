@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { useAuth } from "@/lib/auth/AuthContext";
+import { PageSpinner } from "@/components/ui/LoadState";
 import { PartnerDashboard } from "./PartnerDashboard";
 
 export function PartnerGate({ children }: { children: ReactNode }) {
@@ -10,7 +11,7 @@ export function PartnerGate({ children }: { children: ReactNode }) {
   if (loading) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#FBFBF9] px-4">
-        <p className="text-sm text-slate-500">Preparing your information...</p>
+        <PageSpinner />
       </main>
     );
   }

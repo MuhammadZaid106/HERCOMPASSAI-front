@@ -96,7 +96,11 @@ export function PartnerDashboard() {
         )}
 
         {!error && !home && (
-          <p className="mt-5 text-sm text-slate-500">Preparing your information...</p>
+          <div className="mt-5 grid gap-4 sm:grid-cols-2" aria-busy="true" aria-label="Loading">
+            <div className="h-36 animate-pulse rounded-3xl bg-slate-100" />
+            <div className="h-36 animate-pulse rounded-3xl bg-slate-100" />
+            <div className="h-36 animate-pulse rounded-3xl bg-slate-100 sm:col-span-2" />
+          </div>
         )}
 
         {home && !home.connected && home.access !== "off" && (
