@@ -110,6 +110,21 @@ export default function PlansPage() {
     };
   }, [reload]);
 
+  // When the homepage pricing cards send a logged-in member here (?plan=plus),
+  // scroll the requested card into view so the upgrade button is right there.
+  useEffect(() => {
+    if (!data) return;
+    const requested = new URLSearchParams(window.location.search).get("plan");
+    if (requested !== "plus" && requested !== "premium") return;
+    const el = document.getElementById(`plan-${requested}`);
+    if (!el) return;
+    const delay = window.setTimeout(
+      () => el.scrollIntoView({ behavior: "smooth", block: "center" }),
+      300,
+    );
+    return () => window.clearTimeout(delay);
+  }, [data]);
+
   async function startCheckout(plan: "plus" | "premium") {
     setActionError(null);
     setPending(plan);
@@ -168,24 +183,6 @@ export default function PlansPage() {
   const plusAdds = data.comparison.filter((row) =>
     row.access.free !== "included" && row.access.plus === "included"
   );
-
-  // When the homepage pricing cards send a logged-in member here (?plan=plus),
-  // scroll the requested card into view so the upgrade button is right there.
-  useEffect(() => {
-    if (data) {
-      const requested = new URLSearchParams(window.location.search).get("plan");
-      if (requested === "plus" || requested === "premium") {
-        const el = document.getElementById(`plan-${requested}`);
-        if (el) {
-          const delay = window.setTimeout(
-            () => el.scrollIntoView({ behavior: "smooth", block: "center" }),
-            300,
-          );
-          return () => window.clearTimeout(delay);
-        }
-      }
-    }
-  }, [data]);
 
   return (
     <div className="space-y-8 animate-fadeIn">
