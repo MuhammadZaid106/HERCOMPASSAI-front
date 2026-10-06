@@ -3,9 +3,14 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { Check, ArrowRight } from "lucide-react";
+import { useAuth } from "@/lib/auth/AuthContext";
 
 export default function PricingSection() {
   const [annualBilling, setAnnualBilling] = useState(true);
+  // Auth-aware CTAs: a signed-in member should not be sent back to the sign-up
+  // form; their upgrade belongs on the in-app plans page.
+  const { user } = useAuth();
+  const signedIn = Boolean(user);
 
   const tiers = [
     {
@@ -24,6 +29,7 @@ export default function PricingSection() {
       ],
       ctaText: "Start Free Today",
       ctaHref: "/onboarding",
+      plan: null,
       popular: false,
     },
     {
@@ -41,8 +47,9 @@ export default function PricingSection() {
         "Complete Men’s Academy micro-courses",
         "Direct evidence citation inspection",
       ],
-      ctaText: "Start 14-Day Free Trial",
-      ctaHref: "/register?plan=plus",
+      ctaText: "Get Started with Plus",
+      ctaHref: signedIn ? "/app/plans?plan=plus" : "/register?plan=plus",
+      plan: "plus",
       popular: true,
     },
     {
@@ -60,8 +67,9 @@ export default function PricingSection() {
         "Priority clinical knowledge updates",
         "Dedicated VIP support",
       ],
-      ctaText: "Start 14-Day Free Trial",
-      ctaHref: "/register?plan=premium",
+      ctaText: "Get Started with Premium",
+      ctaHref: signedIn ? "/app/plans?plan=premium" : "/register?plan=premium",
+      plan: "premium",
       popular: false,
     },
   ];

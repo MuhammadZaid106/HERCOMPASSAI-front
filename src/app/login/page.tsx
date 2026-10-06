@@ -116,7 +116,7 @@ function LoginContent() {
       badgeIcon={<Sparkles className="h-3.5 w-3.5" />}
       alternateAction={{
         label: "Don't have an account?",
-        linkText: "Start Free Trial",
+        linkText: "Sign up",
         href: "/register",
       }}
     >
@@ -349,7 +349,7 @@ function LoginContent() {
             href="/register"
             className="font-semibold text-violet-600 hover:text-violet-700 hover:underline"
           >
-            Start Free Trial
+            Create an account
           </Link>
         </p>
       </div>

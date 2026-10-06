@@ -105,7 +105,7 @@ export default function HeroSection() {
                 href="/register"
                 className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-slate-200 bg-white/80 px-5 py-3 text-sm font-semibold text-slate-700 backdrop-blur-sm transition-all hover:border-violet-300 hover:bg-violet-50/50 hover:text-violet-900"
               >
-                <span>Start Free Trial</span>
+                <span>Get Started</span>
               </Link>
             </div>
 

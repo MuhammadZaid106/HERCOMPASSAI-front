@@ -63,7 +63,7 @@ export default function PartnerHero({ activeSection, onSelectSection }: PartnerH
               className="inline-flex items-center justify-center gap-2 rounded-full bg-teal-600 px-5 sm:px-7 py-2.5 sm:py-3.5 text-xs sm:text-sm font-bold text-white shadow-lg shadow-teal-600/25 hover:bg-teal-500 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap"
             >
               <HeartHandshake className="h-4 w-4 shrink-0" />
-              <span>Invite Your Partner (Free Trial)</span>
+              <span>Invite Your Partner</span>
             </Link>
             <button
               onClick={() => onSelectSection("digest")}

@@ -242,7 +242,7 @@ export default function Navbar() {
                   onClick={() => setMobileMenuOpen(false)}
                   className="w-full text-center py-2.5 text-sm font-semibold text-violet-700 bg-violet-50 border border-violet-200 rounded-xl hover:bg-violet-100/70"
                 >
-                  Free Trial
+                  Create Account
                 </Link>
               </div>
             )}
