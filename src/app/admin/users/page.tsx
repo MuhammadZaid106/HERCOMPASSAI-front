@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
 import { AdminShell } from "@/components/admin/AdminShell";
 import {
@@ -20,6 +21,8 @@ import {
 export default function AdminUsersPage() {
   const [draft, setDraft] = useState("");
   const [query, setQuery] = useState("");
+  const [plan, setPlan] = useState("");
+  const [role, setRole] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
   const [users, setUsers] = useState<AdminUserRow[] | null>(null);
@@ -31,7 +34,12 @@ export default function AdminUsersPage() {
 
   useEffect(() => {
     let active = true;
-    void adminClient.searchUsers(query, page).then((result) => {
+    void adminClient
+      .searchUsers(query, page, {
+        plan: plan || undefined,
+        role: role || undefined,
+      })
+      .then((result) => {
       if (!active) return;
       if (!result.ok || !result.data) {
         setError(result.message || "Accounts are unavailable right now.");
@@ -46,7 +54,7 @@ export default function AdminUsersPage() {
     return () => {
       active = false;
     };
-  }, [query, page]);
+  }, [query, page, plan, role]);
 
   useEffect(() => {
     if (!selectedId) return;
@@ -89,7 +97,7 @@ export default function AdminUsersPage() {
     <AdminShell title="Users" subtitle="Accounts, plans, and partner status">
       <div className="space-y-5">
         <form
-          className="flex flex-col gap-3 sm:flex-row"
+          className="flex flex-col gap-3 lg:flex-row"
           onSubmit={(event) => {
             event.preventDefault();
             setPage(1);
@@ -97,15 +105,44 @@ export default function AdminUsersPage() {
           }}
         >
           <label className="relative min-w-0 flex-1">
-            <span className="sr-only">Search name or email</span>
+            <span className="sr-only">Search name, email, or user id</span>
             <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <input
               value={draft}
               onChange={(event) => setDraft(event.target.value)}
-              placeholder="Search name or email"
+              placeholder="Search name, email, or user id"
               className="h-11 w-full rounded-xl border border-slate-300 bg-white pr-3 pl-10 text-sm text-slate-900 outline-none focus:border-violet-500"
             />
           </label>
+          <select
+            aria-label="Plan"
+            value={plan}
+            onChange={(event) => {
+              setPage(1);
+              setPlan(event.target.value);
+            }}
+            className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900"
+          >
+            <option value="">All plans</option>
+            <option value="free">Free</option>
+            <option value="plus">Plus</option>
+            <option value="premium">Premium</option>
+          </select>
+          <select
+            aria-label="Role"
+            value={role}
+            onChange={(event) => {
+              setPage(1);
+              setRole(event.target.value);
+            }}
+            className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900"
+          >
+            <option value="">All roles</option>
+            <option value="member">Member</option>
+            <option value="partner">Partner</option>
+            <option value="admin">Admin</option>
+            <option value="developer">Developer</option>
+          </select>
           <button
             type="submit"
             className="h-11 rounded-xl bg-violet-600 px-5 text-sm font-semibold text-white"
@@ -118,7 +155,8 @@ export default function AdminUsersPage() {
         {!users && !error && <TableSkeleton rows={8} />}
         {users && (
           <p className="text-xs text-slate-500">
-            Showing {rangeStart}–{rangeEnd} of {total} {query ? "matches" : "accounts"}.
+            Showing {rangeStart}–{rangeEnd} of {total}{" "}
+            {query || plan || role ? "matches" : "accounts"}.
           </p>
         )}
 
@@ -263,8 +301,42 @@ export default function AdminUsersPage() {
                         : "No consent record"
                   }
                 />
-                <Field label="Support tickets" value={String(detail.supportTickets)} />
                 <Field label="Joined" value={shortDate(detail.createdAt)} />
+                <div>
+                  <dt className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                    Support notes
+                  </dt>
+                  <dd className="mt-1">
+                    <Link
+                      href={`/admin/support?userId=${detail.id}`}
+                      className="font-semibold text-violet-700"
+                    >
+                      {detail.supportTickets} {detail.supportTickets === 1 ? "note" : "notes"}
+                    </Link>
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                    Recent activity
+                  </dt>
+                  <dd className="mt-2">
+                    {detail.audit.length === 0 ? (
+                      <p className="text-slate-600">Nothing here yet.</p>
+                    ) : (
+                      <ul className="space-y-2">
+                        {detail.audit.map((line) => (
+                          <li key={`${line.source}-${line.createdAt}-${line.label}`} className="text-slate-800">
+                            <span className="font-semibold">{line.label}</span>
+                            <span className="text-slate-500">
+                              {" "}
+                              · {line.result} · {shortDate(line.createdAt)}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </dd>
+                </div>
               </dl>
             )}
           </aside>

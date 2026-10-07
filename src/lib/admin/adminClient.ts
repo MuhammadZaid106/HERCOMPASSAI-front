@@ -27,6 +27,9 @@ export interface ReviewFlag {
   createdAt: string;
   citationIds: string[] | null;
   resultStatus: string | null;
+  safetyStatus: string | null;
+  sciFindingCodes: string[] | null;
+  latencyMs: number | null;
   memberComment: string | null;
 }
 
@@ -89,9 +92,17 @@ export interface AdminUserRow {
   createdAt: string;
 }
 
+export interface AdminAuditLine {
+  source: "ai" | "partner";
+  label: string;
+  result: string;
+  createdAt: string;
+}
+
 export interface AdminUserDetail extends AdminUserRow {
   consent: "on" | "off" | "unknown";
   supportTickets: number;
+  audit: AdminAuditLine[];
 }
 
 export interface AdminPartnerRow {
@@ -103,6 +114,43 @@ export interface AdminPartnerRow {
   createdAt: string;
 }
 
+export interface AdminPartnerActivity {
+  id: string;
+  action: string;
+  result: string;
+  memberFirstName: string;
+  createdAt: string;
+}
+
+export interface AdminAuditRow {
+  id: string;
+  source: "ai" | "partner";
+  label: string;
+  result: string;
+  detail: string;
+  memberFirstName: string;
+  createdAt: string;
+}
+
+export interface AdminSupportRow {
+  id: string;
+  memberFirstName: string;
+  topic: string;
+  message: string;
+  createdAt: string;
+}
+
+export interface AdminEvidenceRow {
+  evidenceId: string;
+  citationId: string;
+  sourceName: string;
+  publisher: string;
+  sourceCategory: string;
+  publicationDate: string;
+  status: string;
+  version: string;
+  clinicianReview: "pending" | "signed";
+}
 export interface AdminPlanCard {
   id: "free" | "plus" | "premium";
   label: string;
@@ -148,16 +196,19 @@ async function request<T>(
 }
 
 export const adminClient = {
-  metrics(): Promise<AdminResult<AdminMetrics>> {
-    return request<AdminMetrics>("/api/admin/metrics");
+  metrics(days = 14): Promise<AdminResult<AdminMetrics>> {
+    return request<AdminMetrics>(`/api/admin/metrics?days=${days}`);
   },
 
   searchUsers(
     q: string,
     page = 1,
+    filters: { plan?: string; role?: string } = {},
   ): Promise<AdminResult<{ users: AdminUserRow[]; total: number; page: number; pageSize: number }>> {
     const query = new URLSearchParams();
     if (q.trim()) query.set("q", q.trim());
+    if (filters.plan) query.set("plan", filters.plan);
+    if (filters.role) query.set("role", filters.role);
     query.set("page", String(page));
     return request(`/api/admin/users?${query.toString()}`);
   },
@@ -166,12 +217,48 @@ export const adminClient = {
     return request(`/api/admin/users/${encodeURIComponent(id)}`);
   },
 
-  partners(): Promise<AdminResult<{ invitesByState: InviteCount[]; invites: AdminPartnerRow[] }>> {
+  partners(): Promise<
+    AdminResult<{
+      invitesByState: InviteCount[];
+      invites: AdminPartnerRow[];
+      activity: AdminPartnerActivity[];
+    }>
+  > {
     return request("/api/admin/partners");
   },
 
   plans(): Promise<AdminResult<{ billingConnected: false; plans: AdminPlanCard[] }>> {
     return request("/api/admin/plans");
+  },
+
+  audit(page = 1): Promise<
+    AdminResult<{
+      rows: AdminAuditRow[];
+      total: number;
+      page: number;
+      pageSize: number;
+      resultsByStatus: Array<{ status: string; count: number }>;
+    }>
+  > {
+    return request(`/api/admin/audit?page=${page}`);
+  },
+
+  support(
+    page = 1,
+    userId?: string,
+  ): Promise<AdminResult<{ rows: AdminSupportRow[]; total: number; page: number; pageSize: number }>> {
+    const query = new URLSearchParams({ page: String(page) });
+    if (userId) query.set("userId", userId);
+    return request(`/api/admin/support?${query.toString()}`);
+  },
+
+  evidence(q = ""): Promise<
+    AdminResult<{ records: AdminEvidenceRow[]; clinicianReview: string }>
+  > {
+    const query = new URLSearchParams();
+    if (q.trim()) query.set("q", q.trim());
+    const suffix = query.toString() ? `?${query.toString()}` : "";
+    return request(`/api/admin/evidence${suffix}`);
   },
 
   /**

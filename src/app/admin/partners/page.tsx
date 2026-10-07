@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { AdminBarChart } from "@/components/admin/AdminCharts";
 import { AdminShell } from "@/components/admin/AdminShell";
-import { adminClient, type AdminPartnerRow, type InviteCount } from "@/lib/admin/adminClient";
+import { adminClient, type AdminPartnerActivity, type AdminPartnerRow, type InviteCount } from "@/lib/admin/adminClient";
 import { INVITE_LABEL, SCOPE_LABEL, shortDate } from "@/lib/admin/labels";
 import { ChartSkeleton } from "@/components/ui/LoadState";
 
@@ -17,6 +17,7 @@ const INVITE_COLOR: Record<string, string> = {
 export default function AdminPartnersPage() {
   const [counts, setCounts] = useState<InviteCount[] | null>(null);
   const [invites, setInvites] = useState<AdminPartnerRow[] | null>(null);
+  const [activity, setActivity] = useState<AdminPartnerActivity[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -30,6 +31,7 @@ export default function AdminPartnersPage() {
       setError(null);
       setCounts(result.data.invitesByState);
       setInvites(result.data.invites);
+      setActivity(result.data.activity);
     });
     return () => {
       active = false;
@@ -105,6 +107,30 @@ export default function AdminPartnersPage() {
               </table>
             </div>
           </>
+        )}
+        {activity && (
+          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
+            <h3 className="text-sm font-bold text-slate-900">Recent activity</h3>
+            <p className="mt-1 text-xs text-slate-500">
+              Action, result, and date. Digest text stays off this list.
+            </p>
+            {activity.length === 0 ? (
+              <p className="mt-4 text-sm text-slate-600">Nothing here yet.</p>
+            ) : (
+              <ul className="mt-4 divide-y divide-slate-100">
+                {activity.map((row) => (
+                  <li key={row.id} className="flex flex-wrap items-baseline justify-between gap-2 py-3 text-sm">
+                    <span className="font-semibold text-slate-900">
+                      {row.action} · {row.memberFirstName}
+                    </span>
+                    <span className="text-slate-500">
+                      {row.result} · {shortDate(row.createdAt)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
         )}
       </div>
     </AdminShell>

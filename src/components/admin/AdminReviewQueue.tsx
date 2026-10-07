@@ -365,6 +365,22 @@ export function AdminReviewQueue({
                         : "none"}
                     </dd>
                   </div>
+                  <div className="flex gap-2">
+                    <dt className="font-semibold">safety</dt>
+                    <dd>{flag.safetyStatus ?? "No matching audit row"}</dd>
+                  </div>
+                  <div className="flex gap-2">
+                    <dt className="font-semibold">findings</dt>
+                    <dd className="truncate font-mono">
+                      {flag.sciFindingCodes?.length
+                        ? flag.sciFindingCodes.join(", ")
+                        : "none"}
+                    </dd>
+                  </div>
+                  <div className="flex gap-2">
+                    <dt className="font-semibold">latency</dt>
+                    <dd>{flag.latencyMs == null ? "—" : `${flag.latencyMs} ms`}</dd>
+                  </div>
                 </dl>
 
                 {rowError?.id === flag.id && (
