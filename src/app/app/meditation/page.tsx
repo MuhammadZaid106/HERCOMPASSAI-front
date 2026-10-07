@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { contentClient, type MeditationCard } from "@/lib/member/contentClient";
+import { BlockSkeleton } from "@/components/ui/LoadState";
 
 export default function MeditationPage() {
   const [items, setItems] = useState<MeditationCard[] | null>(null);
@@ -25,7 +26,7 @@ export default function MeditationPage() {
   }
 
   if (!items) {
-    return <p className="text-sm font-semibold text-slate-500">Preparing your information...</p>;
+    return <BlockSkeleton rows={2} />;
   }
 
   return (

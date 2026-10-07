@@ -10,7 +10,7 @@ export function PartnerActivitiesPage() {
   const query = usePartnerQuery(() => partnerClient.activities());
   const crumbs = partnerCrumbs({ label: "Activities" });
   if (!query.ready) {
-    return <PartnerState title="Shared activities" body="Preparing your information..." crumbs={crumbs} />;
+    return <PartnerState title="Shared activities" loading crumbs={crumbs} />;
   }
   if (query.error || !query.data) {
     return (

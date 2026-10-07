@@ -50,6 +50,67 @@ export interface AdminResult<T> {
   data?: T;
 }
 
+export interface DayCount {
+  day: string;
+  count: number;
+}
+
+export interface PlanCount {
+  plan: "free" | "plus" | "premium";
+  count: number;
+}
+
+export interface InviteCount {
+  status: "sent" | "accepted" | "declined" | "revoked";
+  count: number;
+}
+
+export interface AdminMetrics {
+  members: number;
+  snapshots: number;
+  openAiFlags: number;
+  acceptedPartnerConnections: number;
+  medianTtfv: null;
+  signupsByDay: DayCount[];
+  membersByPlan: PlanCount[];
+  invitesByState: InviteCount[];
+  flagSeverity: { low: number; medium: number; high: number } | null;
+}
+
+export interface AdminUserRow {
+  id: string;
+  name: string;
+  email: string;
+  role: "member" | "partner" | "admin" | "developer";
+  plan: "free" | "plus" | "premium";
+  accountStatus: "confirmed" | "unconfirmed";
+  hasSnapshot: boolean;
+  partnerState: "none" | "sent" | "accepted" | "declined" | "revoked";
+  createdAt: string;
+}
+
+export interface AdminUserDetail extends AdminUserRow {
+  consent: "on" | "off" | "unknown";
+  supportTickets: number;
+}
+
+export interface AdminPartnerRow {
+  id: string;
+  memberFirstName: string;
+  partnerEmail: string;
+  status: InviteCount["status"];
+  scopes: string[];
+  createdAt: string;
+}
+
+export interface AdminPlanCard {
+  id: "free" | "plus" | "premium";
+  label: string;
+  summary: string;
+  memberCount: number;
+  included: string[];
+}
+
 export interface CommunityReviewNote {
   id: string;
   topic: string;
@@ -81,12 +142,38 @@ async function request<T>(
   } catch {
     return {
       ok: false,
-      message: "We could not reach the review queue. Check your connection.",
+      message: "We could not reach the admin desk. Check your connection.",
     };
   }
 }
 
 export const adminClient = {
+  metrics(): Promise<AdminResult<AdminMetrics>> {
+    return request<AdminMetrics>("/api/admin/metrics");
+  },
+
+  searchUsers(
+    q: string,
+    page = 1,
+  ): Promise<AdminResult<{ users: AdminUserRow[]; total: number; page: number; pageSize: number }>> {
+    const query = new URLSearchParams();
+    if (q.trim()) query.set("q", q.trim());
+    query.set("page", String(page));
+    return request(`/api/admin/users?${query.toString()}`);
+  },
+
+  user(id: string): Promise<AdminResult<{ user: AdminUserDetail }>> {
+    return request(`/api/admin/users/${encodeURIComponent(id)}`);
+  },
+
+  partners(): Promise<AdminResult<{ invitesByState: InviteCount[]; invites: AdminPartnerRow[] }>> {
+    return request("/api/admin/partners");
+  },
+
+  plans(): Promise<AdminResult<{ billingConnected: false; plans: AdminPlanCard[] }>> {
+    return request("/api/admin/plans");
+  },
+
   /**
    * List flagged AI events.
    *

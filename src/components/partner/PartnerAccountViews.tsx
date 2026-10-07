@@ -42,7 +42,14 @@ function ConnectionGate({
   if (error) {
     return <p className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">{error}</p>;
   }
-  if (!home) return <p className="text-sm text-slate-500">Preparing your information...</p>;
+  if (!home) {
+    return (
+      <div className="space-y-3" aria-busy="true" aria-label="Loading">
+        <div className="h-8 w-48 animate-pulse rounded-xl bg-slate-200" />
+        <div className="h-28 animate-pulse rounded-3xl bg-slate-100" />
+      </div>
+    );
+  }
   if (!home.connected && home.access === "off") {
     return (
       <PageState
@@ -156,7 +163,9 @@ export function PartnerSettingsPage() {
 
       <div className="mt-5 space-y-4">
         {error && <p className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">{error}</p>}
-        {!error && !home && <p className="text-sm text-slate-500">Preparing your information...</p>}
+        {!error && !home && (
+          <div className="h-40 animate-pulse rounded-3xl bg-slate-100" aria-busy="true" aria-label="Loading" />
+        )}
         {home?.connected && <ConnectedMemberCard home={home} onLeft={reload} />}
         {home && !home.connected && (
           <PageState

@@ -109,9 +109,10 @@ function ModelReading() {
 
   if (loading) {
     return (
-      <p className="text-sm font-semibold text-slate-500">
-        We&apos;re preparing your personalized insight...
-      </p>
+      <div className="space-y-3" aria-busy="true" aria-live="polite" aria-label="Loading">
+        <div className="h-28 animate-pulse rounded-3xl bg-violet-100" />
+        <div className="h-20 animate-pulse rounded-2xl bg-slate-100" />
+      </div>
     );
   }
 
@@ -267,10 +268,7 @@ export default function InsightsPage() {
 
   if (!data) {
     return (
-      <div className="space-y-4" aria-busy="true" aria-live="polite">
-        <p className="text-sm font-semibold text-slate-500">
-          We&apos;re preparing your personalized insight...
-        </p>
+      <div className="space-y-4" aria-busy="true" aria-live="polite" aria-label="Loading">
         <div className="h-36 animate-pulse rounded-3xl bg-violet-100" />
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <div className="h-20 animate-pulse rounded-2xl bg-slate-100" />

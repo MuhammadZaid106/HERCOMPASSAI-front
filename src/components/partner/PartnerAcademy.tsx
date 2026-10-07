@@ -16,7 +16,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 export function PartnerAcademyPage() {
   const query = usePartnerQuery(() => partnerClient.academy());
   const crumbs = partnerCrumbs({ label: "Academy" });
-  if (!query.ready) return <PartnerState title="Men’s Academy" body="Preparing your information..." crumbs={crumbs} />;
+  if (!query.ready) return <PartnerState title="Men’s Academy" loading crumbs={crumbs} />;
   if (query.error || !query.data) {
     return (
       <PartnerState

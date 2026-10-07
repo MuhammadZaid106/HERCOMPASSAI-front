@@ -27,7 +27,7 @@ export function PartnerIdeaPage({ kind }: { kind: "support" | "conversation" }) 
   const query = usePartnerQuery(() => (kind === "support" ? partnerClient.support() : partnerClient.conversation()));
   const title = kind === "support" ? "Ideas for today" : "Start a better conversation";
   const crumbs = partnerCrumbs({ label: kind === "support" ? "Support" : "Conversation" });
-  if (!query.ready) return <PartnerState title={title} body="Preparing your information..." crumbs={crumbs} />;
+  if (!query.ready) return <PartnerState title={title} loading crumbs={crumbs} />;
   if (query.error || !query.data) {
     return <PartnerState title="Nothing here yet" body={query.error || "That topic is not shared."} crumbs={crumbs} />;
   }
@@ -104,7 +104,7 @@ function DigestBody({ sections }: { sections: DigestSections }) {
 export function PartnerDigestPage() {
   const query = usePartnerQuery(() => partnerClient.digest());
   const crumbs = partnerCrumbs({ label: "Digest" });
-  if (!query.ready) return <PartnerState title="Weekly partner digest" body="Preparing your information..." crumbs={crumbs} />;
+  if (!query.ready) return <PartnerState title="Weekly partner digest" loading crumbs={crumbs} />;
   if (query.error || !query.data) {
     return <PartnerState title="Nothing here yet" body={query.error || "A weekly guide is not available."} crumbs={crumbs} />;
   }

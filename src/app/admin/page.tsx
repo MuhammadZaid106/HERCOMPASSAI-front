@@ -1,6 +1,7 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 import {
   Activity,
   AlertTriangle,
@@ -14,17 +15,12 @@ import {
   ADMIN_NAV,
   AdminShell,
   AdminStat,
-  isAdminNavActive,
 } from "@/components/admin/AdminShell";
+import { AdminBarChart, AdminDonut } from "@/components/admin/AdminCharts";
+import { adminClient, type AdminMetrics } from "@/lib/admin/adminClient";
+import { INVITE_LABEL, PLAN_LABEL, shortDay } from "@/lib/admin/labels";
+import { DashboardSkeleton } from "@/components/ui/LoadState";
 
-/**
- * Operational status per subsystem.
- *
- * These were hardcoded to "Healthy" with no check behind them, which made the
- * panel decorative — worse than showing nothing, because it read as a working
- * monitor. Each row is honest about being unverified until a health endpoint
- * exists to verify it, so nothing here claims a green light it has not earned.
- */
 const SERVICES = [
   "AI Gateway",
   "Database",
@@ -35,134 +31,235 @@ const SERVICES = [
   "Billing",
 ] as const;
 
+const PLAN_COLOR: Record<string, string> = {
+  free: "#94A3B8",
+  plus: "#7C5CFC",
+  premium: "#6366F1",
+};
+
+const INVITE_COLOR: Record<string, string> = {
+  sent: "#E8A598",
+  accepted: "#5EAE8A",
+  declined: "#94A3B8",
+  revoked: "#E11D48",
+};
+
 export default function AdminDashboard() {
-  const pathname = usePathname();
+  const [metrics, setMetrics] = useState<AdminMetrics | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    void adminClient.metrics().then((result) => {
+      if (!active) return;
+      if (!result.ok || !result.data) {
+        setError(result.message || "The operations counts are unavailable right now.");
+        setMetrics(null);
+        return;
+      }
+      setError(null);
+      setMetrics(result.data);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const severityPoints = metrics?.flagSeverity
+    ? [
+        { label: "Low", value: metrics.flagSeverity.low, color: "#94A3B8" },
+        { label: "Medium", value: metrics.flagSeverity.medium, color: "#D97706" },
+        { label: "High", value: metrics.flagSeverity.high, color: "#E11D48" },
+      ]
+    : null;
 
   return (
-    <AdminShell
-      title="Admin Dashboard"
-      subtitle="HerCompassAI Operations Center"
-    >
+    <AdminShell title="Admin Dashboard" subtitle="HerCompassAI Operations Center">
       <div className="space-y-8">
         <section className="rounded-2xl border border-violet-200/70 bg-linear-to-r from-violet-50 to-indigo-50 p-6">
           <h2 className="text-lg font-bold text-slate-900">
-            Welcome back. Here is what is happening across HerCompassAI.
+            What is happening across HerCompassAI
           </h2>
-          <p className="mt-1 text-sm text-slate-600">
-            Platform metrics are shown as{" "}
-            <span className="font-semibold text-slate-800">—</span> until a
-            metrics endpoint is connected. Nothing here is estimated or faked.
+          <p className="mt-1 max-w-2xl text-sm leading-relaxed text-slate-600">
+            Counts come from accounts, snapshots, partner invitations, and the AI
+            review queue. A dash means that measure is not recorded yet.
           </p>
         </section>
 
-        <section>
-          <h3 className="mb-4 text-sm font-bold uppercase tracking-wider text-slate-500">
-            Platform Overview
-          </h3>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-            <AdminStat label="Active Users" value="—" icon={Users} tone="violet" />
-            <AdminStat label="Snapshots" value="—" icon={Activity} tone="rose" />
-            <AdminStat
-              label="Median TTFV"
-              value="—"
-              icon={TrendingUp}
-              tone="amber"
-            />
-            <AdminStat label="AI Issues" value="—" icon={AlertTriangle} tone="emerald" />
-            <AdminStat
-              label="Partner Connections"
-              value="—"
-              icon={HeartHandshake}
-              tone="sky"
-            />
-          </div>
-        </section>
+        {error && (
+          <p
+            role="alert"
+            className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-800"
+          >
+            {error}
+          </p>
+        )}
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs">
-            <div className="mb-4 flex items-center justify-between gap-3">
-              <h3 className="flex items-center gap-2 text-sm font-bold text-slate-900">
-                <Brain className="h-4 w-4 text-violet-600" />
-                AI Quality Monitor
+        {!metrics && !error && <DashboardSkeleton />}
+
+        {metrics && (
+          <>
+            <section>
+              <h3 className="mb-4 text-sm font-bold uppercase tracking-wider text-slate-500">
+                Platform overview
               </h3>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                SCI Layer
-              </span>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              {[
-                { label: "P0 Issues", value: "—", tone: "text-slate-900" },
-                { label: "P1 Issues", value: "—", tone: "text-slate-900" },
-                { label: "P2 Issues", value: "—", tone: "text-slate-900" },
-                { label: "P3 Issues", value: "—", tone: "text-slate-900" },
-              ].map(({ label, value, tone }) => (
-                <div
-                  key={label}
-                  className="rounded-xl border border-slate-200 bg-slate-50 p-3"
-                >
-                  <p className={`text-xl font-bold ${tone}`}>{value}</p>
-                  <p className="mt-0.5 text-[11px] font-semibold text-slate-500">
-                    {label}
-                  </p>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
+                <AdminStat label="Members" value={metrics.members} icon={Users} tone="violet" />
+                <AdminStat label="Snapshots" value={metrics.snapshots} icon={Activity} tone="rose" />
+                <AdminStat
+                  label="Median time to value"
+                  value="—"
+                  icon={TrendingUp}
+                  tone="amber"
+                />
+                <AdminStat
+                  label="Open AI flags"
+                  value={metrics.openAiFlags}
+                  icon={AlertTriangle}
+                  tone="emerald"
+                />
+                <AdminStat
+                  label="Partner connections"
+                  value={metrics.acceptedPartnerConnections}
+                  icon={HeartHandshake}
+                  tone="sky"
+                />
+              </div>
+              <p className="mt-3 text-xs text-slate-500">
+                Partner connections counts accepted invitations. Median time to value
+                stays blank until that duration is stored.
+              </p>
+            </section>
+
+            <section className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+              <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
+                <h3 className="text-sm font-bold text-slate-900">New member accounts</h3>
+                <p className="mt-1 text-xs text-slate-500">Last 14 days, UTC</p>
+                <div className="mt-4">
+                  <AdminBarChart
+                    empty="Nothing here yet."
+                    points={metrics.signupsByDay.map((row) => ({
+                      label: shortDay(row.day),
+                      value: row.count,
+                      color: "#7C5CFC",
+                    }))}
+                  />
                 </div>
-              ))}
-            </div>
-            <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800">
-              No evaluation run is recorded yet. Severity counts stay empty
-              rather than defaulting to zero, which would read as &ldquo;no problems&rdquo;.
-            </p>
-          </section>
+              </article>
+              <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
+                <h3 className="text-sm font-bold text-slate-900">Members by plan</h3>
+                <p className="mt-1 text-xs text-slate-500">Member accounts only</p>
+                <div className="mt-4">
+                  <AdminDonut
+                    empty="Nothing here yet."
+                    points={metrics.membersByPlan.map((row) => ({
+                      label: PLAN_LABEL[row.plan] ?? row.plan,
+                      value: row.count,
+                      color: PLAN_COLOR[row.plan],
+                    }))}
+                  />
+                </div>
+              </article>
+            </section>
 
-          <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs">
-            <div className="mb-4 flex items-center justify-between gap-3">
-              <h3 className="flex items-center gap-2 text-sm font-bold text-slate-900">
-                <Server className="h-4 w-4 text-violet-600" />
-                System Health
-              </h3>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                Unverified
-              </span>
+            <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
+              <h3 className="text-sm font-bold text-slate-900">Partner invitations</h3>
+              <p className="mt-1 text-xs text-slate-500">
+                Waiting, accepted, declined, and revoked. No shared health detail.
+              </p>
+              <div className="mt-4 w-full min-w-0">
+                <AdminBarChart
+                  empty="Nothing here yet."
+                  points={metrics.invitesByState.map((row) => ({
+                    label: INVITE_LABEL[row.status] ?? row.status,
+                    value: row.count,
+                    color: INVITE_COLOR[row.status],
+                  }))}
+                />
+              </div>
+            </section>
+
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+              <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs">
+                <div className="mb-4 flex items-center justify-between gap-3">
+                  <h3 className="flex items-center gap-2 text-sm font-bold text-slate-900">
+                    <Brain className="h-4 w-4 text-violet-600" />
+                    AI quality
+                  </h3>
+                  <Link href="/admin/ai" className="text-xs font-semibold text-violet-700">
+                    Open queue
+                  </Link>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  {[
+                    { label: "P0", value: "—" },
+                    { label: "P1", value: "—" },
+                    { label: "P2", value: "—" },
+                    { label: "P3", value: "—" },
+                  ].map((item) => (
+                    <div key={item.label} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                      <p className="text-xl font-bold text-slate-900">{item.value}</p>
+                      <p className="mt-0.5 text-[11px] font-semibold text-slate-500">{item.label}</p>
+                    </div>
+                  ))}
+                </div>
+                <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800">
+                  No evaluation run is recorded yet. Priority counts stay empty
+                  rather than defaulting to zero.
+                </p>
+                <div className="mt-4">
+                  {severityPoints ? (
+                    <AdminBarChart empty="Nothing here yet." points={severityPoints} />
+                  ) : (
+                    <p className="rounded-xl bg-slate-50 px-4 py-6 text-center text-sm text-slate-600">
+                      Nothing here yet. No review flags have been recorded.
+                    </p>
+                  )}
+                </div>
+              </section>
+
+              <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs">
+                <div className="mb-4 flex items-center justify-between gap-3">
+                  <h3 className="flex items-center gap-2 text-sm font-bold text-slate-900">
+                    <Server className="h-4 w-4 text-violet-600" />
+                    System health
+                  </h3>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                    Unverified
+                  </span>
+                </div>
+                <ul className="space-y-2">
+                  {SERVICES.map((service) => (
+                    <li
+                      key={service}
+                      className="flex items-center justify-between border-b border-slate-100 py-1.5 last:border-0"
+                    >
+                      <span className="text-sm font-medium text-slate-700">{service}</span>
+                      <span className="text-xs font-semibold text-slate-400">Not checked</span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
             </div>
-            <ul className="space-y-2">
-              {SERVICES.map((service) => (
-                <li
-                  key={service}
-                  className="flex items-center justify-between border-b border-slate-100 py-1.5 last:border-0"
-                >
-                  <span className="text-sm font-medium text-slate-700">
-                    {service}
-                  </span>
-                  <span className="text-xs font-semibold text-slate-400">
-                    Not checked
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </section>
-        </div>
+          </>
+        )}
 
         <section>
           <h3 className="mb-4 text-sm font-bold uppercase tracking-wider text-slate-500">
-            Quick Access
+            Sections
           </h3>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-            {ADMIN_NAV.slice(0, 8).map(({ label, href, icon: Icon }) => (
-              <a
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            {ADMIN_NAV.map(({ label, href, icon: Icon }) => (
+              <Link
                 key={href}
                 href={href}
-                className={`flex items-center gap-3 rounded-2xl border bg-white p-4 shadow-xs transition ${
-                  isAdminNavActive(pathname, href)
-                    ? "border-violet-300 ring-1 ring-violet-200"
-                    : "border-slate-200 hover:border-violet-300"
-                }`}
+                className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs transition hover:border-violet-300"
               >
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-violet-50 text-violet-700">
                   <Icon className="h-4 w-4" />
                 </span>
-                <span className="truncate text-sm font-semibold text-slate-700">
-                  {label}
-                </span>
-              </a>
+                <span className="truncate text-sm font-semibold text-slate-700">{label}</span>
+              </Link>
             ))}
           </div>
         </section>

@@ -18,7 +18,7 @@ export function PartnerLessonPage({ slug }: { slug: string }) {
     { label: query.data?.lesson?.title || "Lesson" },
   );
   if (!query.ready) {
-    return <PartnerState title="Lesson" body="Preparing your information..." crumbs={crumbs} />;
+    return <PartnerState title="Lesson" loading crumbs={crumbs} />;
   }
   if (query.error || !query.data) {
     return (

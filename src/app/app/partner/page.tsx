@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ConnectedPartnerCard } from "@/components/member/ConnectedPartnerCard";
 import { memberClient } from "@/lib/member/memberClient";
 import type { ConnectedPartner } from "@/lib/member/memberTypes";
+import { BlockSkeleton } from "@/components/ui/LoadState";
 
 const SCOPES = [
   { id: "general_support", label: "General support recommendations" },
@@ -162,7 +163,7 @@ export default function PartnerPage() {
   }
 
   if (!ready) {
-    return <p className="text-sm font-semibold text-slate-500">Preparing your information...</p>;
+    return <BlockSkeleton rows={2} />;
   }
 
   return (

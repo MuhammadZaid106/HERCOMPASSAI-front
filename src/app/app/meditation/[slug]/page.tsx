@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { contentClient, type MeditationCard } from "@/lib/member/contentClient";
+import { BlockSkeleton } from "@/components/ui/LoadState";
 
 function clock(totalSeconds: number): string {
   const minutes = Math.floor(totalSeconds / 60);
@@ -65,7 +66,7 @@ export default function MeditationDetailPage() {
   }
 
   if (!session && !missing) {
-    return <p className="text-sm font-semibold text-slate-500">Preparing your information...</p>;
+    return <BlockSkeleton rows={2} />;
   }
 
   if (missing || !session) {

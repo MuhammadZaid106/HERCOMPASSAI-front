@@ -11,12 +11,14 @@ export function PartnerState({
   body,
   action,
   crumbs,
+  loading = false,
 }: {
   title: string;
   kicker?: string;
-  body: string;
+  body?: string;
   action?: { href: string; label: string };
   crumbs?: PartnerCrumbItem[];
+  loading?: boolean;
 }) {
   return (
     <PartnerFrame>
@@ -26,7 +28,15 @@ export function PartnerState({
           <p className="text-xs font-bold uppercase tracking-wider text-violet-700">{kicker}</p>
         )}
         <h1 className={`text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl ${kicker ? "mt-2" : ""}`}>{title}</h1>
-        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-600 sm:text-base">{body}</p>
+        {loading ? (
+          <div className="mt-6 space-y-3" aria-busy="true" aria-live="polite" aria-label="Loading">
+            <div className="h-4 w-full max-w-xl animate-pulse rounded bg-slate-100" />
+            <div className="h-4 w-4/5 max-w-lg animate-pulse rounded bg-slate-100" />
+            <div className="mt-2 h-28 animate-pulse rounded-2xl bg-slate-100" />
+          </div>
+        ) : (
+          body && <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-600 sm:text-base">{body}</p>
+        )}
         {action && (
           <Link
             href={action.href}
