@@ -82,6 +82,14 @@ export default function PlansPage() {
     setReloadKey((key) => key + 1);
   }, []);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const requestedInterval = params.get("interval");
+    if (requestedInterval === "month" || requestedInterval === "year") {
+      setInterval(requestedInterval);
+    }
+  }, []);
+
   // Stripe redirects back here with ?status=success or ?status=cancelled.
   // Read it once, clear it from the URL, and refresh the plan when a payment
   // succeeded because the webhook can land a beat after the redirect. The

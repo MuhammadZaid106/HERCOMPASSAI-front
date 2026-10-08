@@ -35,8 +35,8 @@ export default function PricingSection() {
     {
       name: "Plus",
       badge: "Most Popular",
-      price: annualBilling ? "$9.99" : "$12.99",
-      period: "per month",
+      price: annualBilling ? "$7.99" : "$5.99",
+      period: annualBilling ? "per year" : "per month",
       description: "Complete individual intelligence + full Partner Support & Men's Academy access.",
       features: [
         "Everything in Free, plus:",
@@ -48,15 +48,17 @@ export default function PricingSection() {
         "Direct evidence citation inspection",
       ],
       ctaText: "Get Started with Plus",
-      ctaHref: signedIn ? "/app/plans?plan=plus" : "/register?plan=plus",
+      ctaHref: signedIn
+        ? `/app/plans?plan=plus&interval=${annualBilling ? "year" : "month"}`
+        : "/register?plan=plus",
       plan: "plus",
       popular: true,
     },
     {
       name: "Premium",
       badge: "Couple Intelligence",
-      price: annualBilling ? "$15.99" : "$19.99",
-      period: "per month",
+      price: annualBilling ? "$11.99" : "$9.99",
+      period: annualBilling ? "per year" : "per month",
       description: "Advanced AI pattern forecasting, multi-week plans, and joint couple wellness challenges.",
       features: [
         "Everything in Plus, plus:",
@@ -68,7 +70,9 @@ export default function PricingSection() {
         "Dedicated VIP support",
       ],
       ctaText: "Get Started with Premium",
-      ctaHref: signedIn ? "/app/plans?plan=premium" : "/register?plan=premium",
+      ctaHref: signedIn
+        ? `/app/plans?plan=premium&interval=${annualBilling ? "year" : "month"}`
+        : "/register?plan=premium",
       plan: "premium",
       popular: false,
     },
@@ -113,9 +117,6 @@ export default function PricingSection() {
               }`}
             >
               <span>Annual</span>
-              <span className="rounded-full bg-violet-200/40 px-1.5 py-0.5 text-[9px] sm:text-[10px] text-white font-bold">
-                -20%
-              </span>
             </button>
           </div>
         </div>
