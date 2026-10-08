@@ -27,6 +27,9 @@ export interface ReviewFlag {
   createdAt: string;
   citationIds: string[] | null;
   resultStatus: string | null;
+  safetyStatus: string | null;
+  sciFindingCodes: string[] | null;
+  latencyMs: number | null;
   memberComment: string | null;
 }
 
@@ -70,7 +73,7 @@ export interface AdminMetrics {
   snapshots: number;
   openAiFlags: number;
   acceptedPartnerConnections: number;
-  medianTtfv: null;
+  medianTtfv: string | null;
   signupsByDay: DayCount[];
   membersByPlan: PlanCount[];
   invitesByState: InviteCount[];
@@ -89,9 +92,17 @@ export interface AdminUserRow {
   createdAt: string;
 }
 
+export interface AdminAuditLine {
+  source: "ai" | "partner";
+  label: string;
+  result: string;
+  createdAt: string;
+}
+
 export interface AdminUserDetail extends AdminUserRow {
   consent: "on" | "off" | "unknown";
   supportTickets: number;
+  audit: AdminAuditLine[];
 }
 
 export interface AdminPartnerRow {
@@ -103,6 +114,106 @@ export interface AdminPartnerRow {
   createdAt: string;
 }
 
+export interface AdminPartnerActivity {
+  id: string;
+  action: string;
+  result: string;
+  memberFirstName: string;
+  createdAt: string;
+}
+
+export interface AdminPartnerSupportNote {
+  id: string;
+  userId: string;
+  memberFirstName: string;
+  topic: string;
+  message: string;
+  createdAt: string;
+}
+
+export interface SystemCheck {
+  id: string;
+  label: string;
+  status: "ready" | "attention" | "not_connected" | "unchecked";
+  detail: string;
+}
+
+export interface BetaCohortCard {
+  id: string;
+  name: string;
+  slug: string;
+  invited: number;
+  screened: number;
+  enrolled: number;
+  activated: number;
+  snapshot: number;
+  medianTtfv: string | null;
+}
+
+export interface BetaMemberRow {
+  id: string;
+  cohortId: string;
+  cohortName: string;
+  email: string;
+  stage: "invited" | "screened";
+  enrolled: boolean;
+  activated: boolean;
+  hasSnapshot: boolean;
+}
+
+export interface AdminContentPiece {
+  id: string;
+  kind: "recipe" | "workout" | "meditation";
+  slug: string;
+  title: string;
+  status: "draft" | "in_review" | "published" | "archived";
+  body: Record<string, unknown>;
+  updatedAt: string;
+}
+
+export interface ProductNote {
+  id: string;
+  memberFirstName: string;
+  topic: string;
+  message: string;
+  createdAt: string;
+  cohortName: string | null;
+  theme: string | null;
+  severity: "low" | "medium" | "high" | null;
+  decision: "open" | "accepted" | "parked" | null;
+  resolution: string;
+}
+
+export interface AdminAuditRow {
+  id: string;
+  source: "ai" | "partner";
+  label: string;
+  result: string;
+  detail: string;
+  memberFirstName: string;
+  createdAt: string;
+}
+
+export interface AdminSupportRow {
+  id: string;
+  memberFirstName: string;
+  topic: string;
+  message: string;
+  createdAt: string;
+}
+
+export interface AdminEvidenceRow {
+  evidenceId: string;
+  citationId: string;
+  sourceName: string;
+  publisher: string;
+  sourceCategory: string;
+  publicationDate: string;
+  status: string;
+  version: string;
+  clinicianReview: "pending" | "signed";
+  retired: boolean;
+}
 export interface AdminPlanCard {
   id: "free" | "plus" | "premium";
   label: string;
@@ -148,16 +259,20 @@ async function request<T>(
 }
 
 export const adminClient = {
-  metrics(): Promise<AdminResult<AdminMetrics>> {
-    return request<AdminMetrics>("/api/admin/metrics");
+  metrics(days = 14): Promise<AdminResult<AdminMetrics>> {
+    return request<AdminMetrics>(`/api/admin/metrics?days=${days}`);
   },
 
   searchUsers(
     q: string,
     page = 1,
+    filters: { plan?: string; role?: string; account?: string } = {},
   ): Promise<AdminResult<{ users: AdminUserRow[]; total: number; page: number; pageSize: number }>> {
     const query = new URLSearchParams();
     if (q.trim()) query.set("q", q.trim());
+    if (filters.plan) query.set("plan", filters.plan);
+    if (filters.role) query.set("role", filters.role);
+    if (filters.account) query.set("account", filters.account);
     query.set("page", String(page));
     return request(`/api/admin/users?${query.toString()}`);
   },
@@ -166,12 +281,134 @@ export const adminClient = {
     return request(`/api/admin/users/${encodeURIComponent(id)}`);
   },
 
-  partners(): Promise<AdminResult<{ invitesByState: InviteCount[]; invites: AdminPartnerRow[] }>> {
+  partners(): Promise<
+    AdminResult<{
+      invitesByState: InviteCount[];
+      invites: AdminPartnerRow[];
+      activity: AdminPartnerActivity[];
+      supportNotes: AdminPartnerSupportNote[];
+    }>
+  > {
     return request("/api/admin/partners");
   },
 
   plans(): Promise<AdminResult<{ billingConnected: false; plans: AdminPlanCard[] }>> {
     return request("/api/admin/plans");
+  },
+
+  system(probeGateway = false): Promise<AdminResult<{ checks: SystemCheck[] }>> {
+    const suffix = probeGateway ? "?probe=gateway" : "";
+    return request(`/api/admin/system${suffix}`);
+  },
+
+  beta(cohort = ""): Promise<
+    AdminResult<{ cap: number; cohorts: BetaCohortCard[]; members: BetaMemberRow[] }>
+  > {
+    const query = new URLSearchParams();
+    if (cohort) query.set("cohort", cohort);
+    const suffix = query.toString() ? `?${query.toString()}` : "";
+    return request(`/api/admin/beta${suffix}`);
+  },
+
+  addBetaMember(cohortId: string, email: string) {
+    return request<{ added: boolean }>("/api/admin/beta/members", {
+      method: "POST",
+      body: JSON.stringify({ cohortId, email }),
+    });
+  },
+
+  setBetaStage(id: string, stage: "invited" | "screened") {
+    return request(`/api/admin/beta/members/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify({ stage }),
+    });
+  },
+
+  content(kind = ""): Promise<AdminResult<{ pieces: AdminContentPiece[] }>> {
+    const query = new URLSearchParams();
+    if (kind) query.set("kind", kind);
+    const suffix = query.toString() ? `?${query.toString()}` : "";
+    return request(`/api/admin/content${suffix}`);
+  },
+
+  createContent(body: Record<string, unknown>) {
+    return request<{ piece: AdminContentPiece }>("/api/admin/content", {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+  },
+
+  updateContent(id: string, body: Record<string, unknown>) {
+    return request<{ piece: AdminContentPiece }>(`/api/admin/content/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(body),
+    });
+  },
+
+  productNotes(page = 1): Promise<
+    AdminResult<{ notes: ProductNote[]; total: number; page: number; pageSize: number }>
+  > {
+    return request(`/api/admin/product-notes?page=${page}`);
+  },
+
+  saveProductNote(
+    id: string,
+    body: { theme: string; severity: string; decision: string; resolution: string },
+  ) {
+    return request(`/api/admin/product-notes/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(body),
+    });
+  },
+
+  settings(): Promise<
+    AdminResult<{ foundingCap: number; billingConnected: false; mailConfigured: boolean }>
+  > {
+    return request("/api/admin/settings");
+  },
+
+  saveSettings(foundingCap: number) {
+    return request<{ foundingCap: number }>("/api/admin/settings", {
+      method: "PATCH",
+      body: JSON.stringify({ foundingCap }),
+    });
+  },
+
+  setEvidenceStatus(evidenceId: string, status: "active" | "retired") {
+    return request(`/api/admin/evidence/${encodeURIComponent(evidenceId)}`, {
+      method: "PATCH",
+      body: JSON.stringify({ status }),
+    });
+  },
+
+  audit(page = 1): Promise<
+    AdminResult<{
+      rows: AdminAuditRow[];
+      total: number;
+      page: number;
+      pageSize: number;
+      resultsByStatus: Array<{ status: string; count: number }>;
+    }>
+  > {
+    return request(`/api/admin/audit?page=${page}`);
+  },
+
+  support(
+    page = 1,
+    userId?: string,
+  ): Promise<AdminResult<{ rows: AdminSupportRow[]; total: number; page: number; pageSize: number }>> {
+    const query = new URLSearchParams({ page: String(page) });
+    if (userId) query.set("userId", userId);
+    return request(`/api/admin/support?${query.toString()}`);
+  },
+
+  evidence(q = ""): Promise<
+    AdminResult<{ records: AdminEvidenceRow[]; clinicianReview: string }>
+  > {
+    const query = new URLSearchParams();
+    if (q.trim()) query.set("q", q.trim());
+    const suffix = query.toString() ? `?${query.toString()}` : "";
+    return request(`/api/admin/evidence${suffix}`);
   },
 
   /**

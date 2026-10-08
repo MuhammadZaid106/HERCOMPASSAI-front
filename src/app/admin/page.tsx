@@ -17,19 +17,9 @@ import {
   AdminStat,
 } from "@/components/admin/AdminShell";
 import { AdminBarChart, AdminDonut } from "@/components/admin/AdminCharts";
-import { adminClient, type AdminMetrics } from "@/lib/admin/adminClient";
+import { adminClient, type AdminMetrics, type SystemCheck } from "@/lib/admin/adminClient";
 import { INVITE_LABEL, PLAN_LABEL, shortDay } from "@/lib/admin/labels";
 import { DashboardSkeleton } from "@/components/ui/LoadState";
-
-const SERVICES = [
-  "AI Gateway",
-  "Database",
-  "Authentication",
-  "Evidence Service",
-  "Analytics",
-  "Notifications",
-  "Billing",
-] as const;
 
 const PLAN_COLOR: Record<string, string> = {
   free: "#94A3B8",
@@ -46,6 +36,7 @@ const INVITE_COLOR: Record<string, string> = {
 
 export default function AdminDashboard() {
   const [metrics, setMetrics] = useState<AdminMetrics | null>(null);
+  const [checks, setChecks] = useState<SystemCheck[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -59,6 +50,17 @@ export default function AdminDashboard() {
       }
       setError(null);
       setMetrics(result.data);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    void adminClient.system(false).then((result) => {
+      if (!active) return;
+      if (result.ok && result.data) setChecks(result.data.checks);
     });
     return () => {
       active = false;
@@ -108,7 +110,7 @@ export default function AdminDashboard() {
                 <AdminStat label="Snapshots" value={metrics.snapshots} icon={Activity} tone="rose" />
                 <AdminStat
                   label="Median time to value"
-                  value="—"
+                  value={metrics.medianTtfv ?? "—"}
                   icon={TrendingUp}
                   tone="amber"
                 />
@@ -127,7 +129,7 @@ export default function AdminDashboard() {
               </div>
               <p className="mt-3 text-xs text-slate-500">
                 Partner connections counts accepted invitations. Median time to value
-                stays blank until that duration is stored.
+                is the middle time from a new account to its saved snapshot.
               </p>
             </section>
 
@@ -225,20 +227,23 @@ export default function AdminDashboard() {
                     System health
                   </h3>
                   <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                    Unverified
+                    Live
                   </span>
                 </div>
                 <ul className="space-y-2">
-                  {SERVICES.map((service) => (
+                  {(checks ?? []).map((check) => (
                     <li
-                      key={service}
-                      className="flex items-center justify-between border-b border-slate-100 py-1.5 last:border-0"
+                      key={check.id}
+                      className="flex items-center justify-between gap-3 border-b border-slate-100 py-1.5 last:border-0"
                     >
-                      <span className="text-sm font-medium text-slate-700">{service}</span>
-                      <span className="text-xs font-semibold text-slate-400">Not checked</span>
+                      <span className="text-sm font-medium text-slate-700">{check.label}</span>
+                      <span className="text-right text-xs font-semibold text-slate-500">{check.detail}</span>
                     </li>
                   ))}
                 </ul>
+                <Link href="/admin/system" className="mt-4 inline-block text-xs font-semibold text-violet-700">
+                  Open system health
+                </Link>
               </section>
             </div>
           </>
