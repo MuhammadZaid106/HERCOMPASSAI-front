@@ -15,6 +15,7 @@ import { useAuth } from "@/lib/auth/AuthContext";
 import { homeRouteForRole, isStaff } from "@/lib/auth/routeGuards";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { AdminSafetyPanel } from "@/components/admin/AdminSafetyPanel";
+import { AdminProductNotes } from "@/components/admin/AdminProductNotes";
 import {
   adminClient,
   type AdminResult,
@@ -62,10 +63,12 @@ export function AdminReviewQueue({
   title,
   subtitle,
   safetyIntro = false,
+  productNotes = false,
 }: {
   title: string;
   subtitle: string;
   safetyIntro?: boolean;
+  productNotes?: boolean;
 }) {
   const { user, loading } = useAuth();
   const router = useRouter();
@@ -441,6 +444,7 @@ export function AdminReviewQueue({
             ))}
           </ul>
         )}
+        {productNotes && <AdminProductNotes />}
       </div>
     </AdminShell>
   );

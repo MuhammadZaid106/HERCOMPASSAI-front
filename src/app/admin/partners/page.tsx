@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { AdminBarChart } from "@/components/admin/AdminCharts";
 import { AdminShell } from "@/components/admin/AdminShell";
-import { adminClient, type AdminPartnerActivity, type AdminPartnerRow, type InviteCount } from "@/lib/admin/adminClient";
+import { adminClient, type AdminPartnerActivity, type AdminPartnerRow, type AdminPartnerSupportNote, type InviteCount } from "@/lib/admin/adminClient";
 import { INVITE_LABEL, SCOPE_LABEL, shortDate } from "@/lib/admin/labels";
 import { ChartSkeleton } from "@/components/ui/LoadState";
 
@@ -18,6 +18,7 @@ export default function AdminPartnersPage() {
   const [counts, setCounts] = useState<InviteCount[] | null>(null);
   const [invites, setInvites] = useState<AdminPartnerRow[] | null>(null);
   const [activity, setActivity] = useState<AdminPartnerActivity[] | null>(null);
+  const [supportNotes, setSupportNotes] = useState<AdminPartnerSupportNote[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -32,6 +33,7 @@ export default function AdminPartnersPage() {
       setCounts(result.data.invitesByState);
       setInvites(result.data.invites);
       setActivity(result.data.activity);
+      setSupportNotes(result.data.supportNotes);
     });
     return () => {
       active = false;
@@ -126,6 +128,31 @@ export default function AdminPartnersPage() {
                     <span className="text-slate-500">
                       {row.result} · {shortDate(row.createdAt)}
                     </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        )}
+        {supportNotes && (
+          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
+            <h3 className="text-sm font-bold text-slate-900">Support notes</h3>
+            <p className="mt-1 text-xs text-slate-500">
+              Notes from people on an invitation. Health logs stay off this list.
+            </p>
+            {supportNotes.length === 0 ? (
+              <p className="mt-4 text-sm text-slate-600">Nothing here yet.</p>
+            ) : (
+              <ul className="mt-4 divide-y divide-slate-100">
+                {supportNotes.map((note) => (
+                  <li key={note.id} className="py-3 text-sm">
+                    <a href={`/admin/support?userId=${note.userId}`} className="font-semibold text-violet-800">
+                      {note.memberFirstName}
+                    </a>
+                    <p className="mt-1 text-slate-700">{note.message}</p>
+                    <p className="mt-1 text-xs text-slate-500">
+                      {note.topic} · {shortDate(note.createdAt)}
+                    </p>
                   </li>
                 ))}
               </ul>

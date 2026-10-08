@@ -59,6 +59,11 @@ export default function AdminAnalyticsPage() {
             <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
               <AdminStat label="Members" value={metrics.members} icon={Users} />
               <AdminStat label="Snapshots" value={metrics.snapshots} icon={Timer} />
+              <AdminStat
+                label="Median time to value"
+                value={metrics.medianTtfv ?? "—"}
+                icon={Timer}
+              />
               <AdminStat label="Open AI flags" value={metrics.openAiFlags} icon={Users} />
               <AdminStat
                 label="Partner connections"

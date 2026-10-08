@@ -23,6 +23,7 @@ export default function AdminUsersPage() {
   const [query, setQuery] = useState("");
   const [plan, setPlan] = useState("");
   const [role, setRole] = useState("");
+  const [account, setAccount] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
   const [users, setUsers] = useState<AdminUserRow[] | null>(null);
@@ -38,6 +39,7 @@ export default function AdminUsersPage() {
       .searchUsers(query, page, {
         plan: plan || undefined,
         role: role || undefined,
+        account: account || undefined,
       })
       .then((result) => {
       if (!active) return;
@@ -54,7 +56,7 @@ export default function AdminUsersPage() {
     return () => {
       active = false;
     };
-  }, [query, page, plan, role]);
+  }, [query, page, plan, role, account]);
 
   useEffect(() => {
     if (!selectedId) return;
@@ -143,6 +145,19 @@ export default function AdminUsersPage() {
             <option value="admin">Admin</option>
             <option value="developer">Developer</option>
           </select>
+          <select
+            aria-label="Account status"
+            value={account}
+            onChange={(event) => {
+              setPage(1);
+              setAccount(event.target.value);
+            }}
+            className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900"
+          >
+            <option value="">All statuses</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="unconfirmed">Unconfirmed</option>
+          </select>
           <button
             type="submit"
             className="h-11 rounded-xl bg-violet-600 px-5 text-sm font-semibold text-white"
@@ -156,7 +171,7 @@ export default function AdminUsersPage() {
         {users && (
           <p className="text-xs text-slate-500">
             Showing {rangeStart}–{rangeEnd} of {total}{" "}
-            {query || plan || role ? "matches" : "accounts"}.
+            {query || plan || role || account ? "matches" : "accounts"}.
           </p>
         )}
 

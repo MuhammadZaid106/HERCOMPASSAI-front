@@ -12,6 +12,7 @@ export default function AdminEvidencePage() {
   const [query, setQuery] = useState("");
   const [records, setRecords] = useState<AdminEvidenceRow[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [refresh, setRefresh] = useState(0);
 
   useEffect(() => {
     let active = true;
@@ -28,7 +29,7 @@ export default function AdminEvidencePage() {
     return () => {
       active = false;
     };
-  }, [query]);
+  }, [query, refresh]);
 
   return (
     <AdminShell title="Evidence" subtitle="Approved sources used to ground guidance">
@@ -102,7 +103,28 @@ export default function AdminEvidencePage() {
                       {record.clinicianReview === "signed" ? "Signed" : "Pending a named reviewer"}
                     </dd>
                   </div>
+                  <div>
+                    <dt className="font-semibold">Retrieval</dt>
+                    <dd className="mt-0.5 text-slate-800">{record.retired ? "Retired" : "Active"}</dd>
+                  </div>
                 </dl>
+                <button
+                  type="button"
+                  className="mt-3 h-10 rounded-xl border border-slate-300 px-3 text-xs font-semibold text-slate-700"
+                  onClick={() => {
+                    void adminClient
+                      .setEvidenceStatus(record.evidenceId, record.retired ? "active" : "retired")
+                      .then((result) => {
+                        if (!result.ok) {
+                          setError(result.message || "That status was not saved.");
+                          return;
+                        }
+                        setRefresh((value) => value + 1);
+                      });
+                  }}
+                >
+                  {record.retired ? "Restore" : "Retire"}
+                </button>
               </li>
             ))}
           </ul>

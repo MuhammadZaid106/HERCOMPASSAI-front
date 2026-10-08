@@ -7,6 +7,7 @@ export default function AdminFeedbackPage() {
     <AdminReviewQueue
       title="AI Feedback Queue"
       subtitle="Member concerns and quality signals"
+      productNotes
     />
   );
 }
