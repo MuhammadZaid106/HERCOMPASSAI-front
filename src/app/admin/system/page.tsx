@@ -36,9 +36,9 @@ export default function AdminSystemPage() {
     <AdminShell title="System health" subtitle="What answered just now">
       <div className="space-y-5">
         <p className="max-w-2xl text-sm leading-relaxed text-slate-600">
-          The gateway row is a live probe. Billing stays not connected until a
-          provider exists. Mail is reported as configured or not. This page does
-          not send a message.
+          The gateway row is a live probe. Billing is Ready when Stripe keys are
+          present on this server — it does not call Stripe&apos;s network. Mail is
+          reported as configured or not. This page does not send a message.
         </p>
         {error && (
           <p role="alert" className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">

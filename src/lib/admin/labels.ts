@@ -30,6 +30,15 @@ export const ACCOUNT_LABEL: Record<string, string> = {
   unconfirmed: "Email not confirmed",
 };
 
+export const SUBSCRIPTION_LABEL: Record<string, string> = {
+  none: "No subscription",
+  active: "Active",
+  trialing: "Trialing",
+  past_due: "Past due",
+  canceled: "Canceled",
+  other: "Other",
+};
+
 export function shortDay(isoDay: string): string {
   const date = new Date(`${isoDay}T00:00:00.000Z`);
   return new Intl.DateTimeFormat("en", {

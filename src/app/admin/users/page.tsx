@@ -15,6 +15,7 @@ import {
   INVITE_LABEL,
   PLAN_LABEL,
   ROLE_LABEL,
+  SUBSCRIPTION_LABEL,
   shortDate,
 } from "@/lib/admin/labels";
 
@@ -24,6 +25,7 @@ export default function AdminUsersPage() {
   const [plan, setPlan] = useState("");
   const [role, setRole] = useState("");
   const [account, setAccount] = useState("");
+  const [subscription, setSubscription] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
   const [users, setUsers] = useState<AdminUserRow[] | null>(null);
@@ -40,6 +42,7 @@ export default function AdminUsersPage() {
         plan: plan || undefined,
         role: role || undefined,
         account: account || undefined,
+        subscription: subscription || undefined,
       })
       .then((result) => {
       if (!active) return;
@@ -56,7 +59,7 @@ export default function AdminUsersPage() {
     return () => {
       active = false;
     };
-  }, [query, page, plan, role, account]);
+  }, [query, page, plan, role, account, subscription]);
 
   useEffect(() => {
     if (!selectedId) return;
@@ -158,6 +161,23 @@ export default function AdminUsersPage() {
             <option value="confirmed">Confirmed</option>
             <option value="unconfirmed">Unconfirmed</option>
           </select>
+          <select
+            aria-label="Subscription status"
+            value={subscription}
+            onChange={(event) => {
+              setPage(1);
+              setSubscription(event.target.value);
+            }}
+            className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900"
+          >
+            <option value="">All subscriptions</option>
+            <option value="none">No subscription</option>
+            <option value="active">Active</option>
+            <option value="trialing">Trialing</option>
+            <option value="past_due">Past due</option>
+            <option value="canceled">Canceled</option>
+            <option value="other">Other</option>
+          </select>
           <button
             type="submit"
             className="h-11 rounded-xl bg-violet-600 px-5 text-sm font-semibold text-white"
@@ -171,7 +191,7 @@ export default function AdminUsersPage() {
         {users && (
           <p className="text-xs text-slate-500">
             Showing {rangeStart}–{rangeEnd} of {total}{" "}
-            {query || plan || role || account ? "matches" : "accounts"}.
+            {query || plan || role || account || subscription ? "matches" : "accounts"}.
           </p>
         )}
 
@@ -304,6 +324,14 @@ export default function AdminUsersPage() {
                 <Field label="Role" value={ROLE_LABEL[detail.role]} />
                 <Field label="Plan" value={PLAN_LABEL[detail.plan]} />
                 <Field label="Account" value={ACCOUNT_LABEL[detail.accountStatus]} />
+                <Field
+                  label="Subscription"
+                  value={SUBSCRIPTION_LABEL[detail.subscriptionStatus] ?? detail.subscriptionStatus}
+                />
+                <Field
+                  label="Stripe customer"
+                  value={detail.hasStripeCustomer ? "Yes" : "No"}
+                />
                 <Field label="Snapshot" value={detail.hasSnapshot ? "Yes" : "No"} />
                 <Field label="Partner" value={INVITE_LABEL[detail.partnerState]} />
                 <Field

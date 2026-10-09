@@ -99,10 +99,20 @@ export interface AdminAuditLine {
   createdAt: string;
 }
 
+export type SubscriptionStatus =
+  | "none"
+  | "active"
+  | "trialing"
+  | "past_due"
+  | "canceled"
+  | "other";
+
 export interface AdminUserDetail extends AdminUserRow {
   consent: "on" | "off" | "unknown";
   supportTickets: number;
   audit: AdminAuditLine[];
+  subscriptionStatus: SubscriptionStatus;
+  hasStripeCustomer: boolean;
 }
 
 export interface AdminPartnerRow {
@@ -222,6 +232,19 @@ export interface AdminPlanCard {
   included: string[];
 }
 
+export interface SubscriptionStatusCount {
+  status: SubscriptionStatus;
+  count: number;
+}
+
+export interface AdminPlansPayload {
+  billingConnected: boolean;
+  plans: AdminPlanCard[];
+  subscriptionByStatus: SubscriptionStatusCount[];
+  stripeCustomers: number;
+  pastDue: number;
+}
+
 export interface CommunityReviewNote {
   id: string;
   topic: string;
@@ -266,13 +289,14 @@ export const adminClient = {
   searchUsers(
     q: string,
     page = 1,
-    filters: { plan?: string; role?: string; account?: string } = {},
+    filters: { plan?: string; role?: string; account?: string; subscription?: string } = {},
   ): Promise<AdminResult<{ users: AdminUserRow[]; total: number; page: number; pageSize: number }>> {
     const query = new URLSearchParams();
     if (q.trim()) query.set("q", q.trim());
     if (filters.plan) query.set("plan", filters.plan);
     if (filters.role) query.set("role", filters.role);
     if (filters.account) query.set("account", filters.account);
+    if (filters.subscription) query.set("subscription", filters.subscription);
     query.set("page", String(page));
     return request(`/api/admin/users?${query.toString()}`);
   },
@@ -292,7 +316,7 @@ export const adminClient = {
     return request("/api/admin/partners");
   },
 
-  plans(): Promise<AdminResult<{ billingConnected: false; plans: AdminPlanCard[] }>> {
+  plans(): Promise<AdminResult<AdminPlansPayload>> {
     return request("/api/admin/plans");
   },
 
@@ -362,7 +386,7 @@ export const adminClient = {
   },
 
   settings(): Promise<
-    AdminResult<{ foundingCap: number; billingConnected: false; mailConfigured: boolean }>
+    AdminResult<{ foundingCap: number; billingConnected: boolean; mailConfigured: boolean }>
   > {
     return request("/api/admin/settings");
   },
