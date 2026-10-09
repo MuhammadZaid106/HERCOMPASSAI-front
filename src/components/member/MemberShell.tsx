@@ -45,7 +45,10 @@ const ALL_SIDEBAR_LINKS = [
 ];
 
 function getSidebarLinks(role: string | undefined | null) {
-  return ALL_SIDEBAR_LINKS.filter((link) => link.href !== "/app/ai-lab");
+  // Community stays in ALL_SIDEBAR_LINKS so it can be shown again later.
+  return ALL_SIDEBAR_LINKS.filter(
+    (link) => link.href !== "/app/ai-lab" && link.href !== "/app/community",
+  );
 }
 
 /**
