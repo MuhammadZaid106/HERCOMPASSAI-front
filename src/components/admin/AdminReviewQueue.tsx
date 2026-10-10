@@ -351,6 +351,46 @@ export function AdminReviewQueue({
                   </blockquote>
                 )}
 
+                {flag.hasReviewCase ? (
+                  <div className="mt-3 grid gap-3 lg:grid-cols-2">
+                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                      <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                        Input excerpt
+                      </p>
+                      <pre className="mt-2 max-h-40 overflow-auto whitespace-pre-wrap font-mono text-[11px] leading-relaxed text-slate-700">
+                        {flag.inputExcerpt?.trim() || "Empty excerpt."}
+                      </pre>
+                    </div>
+                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                      <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                        Output excerpt
+                      </p>
+                      <pre className="mt-2 max-h-40 overflow-auto whitespace-pre-wrap font-mono text-[11px] leading-relaxed text-slate-700">
+                        {flag.outputExcerpt?.trim() || "Empty excerpt."}
+                      </pre>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="mt-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600">
+                    Not retained for this event.
+                  </p>
+                )}
+
+                {(flag.lastRetestAt || flag.lastRetestNotes) && (
+                  <p className="mt-3 text-xs text-slate-600">
+                    Last retest
+                    {flag.lastRetestAt
+                      ? ` ${new Date(flag.lastRetestAt).toLocaleString()}`
+                      : ""}
+                    {flag.lastRetestPassed == null
+                      ? ""
+                      : flag.lastRetestPassed
+                        ? " · passed"
+                        : " · failed"}
+                    {flag.lastRetestNotes ? ` — ${flag.lastRetestNotes}` : ""}
+                  </p>
+                )}
+
                 <dl className="mt-3 grid gap-x-6 gap-y-1 text-[11px] text-slate-500 sm:grid-cols-2">
                   <div className="flex gap-2">
                     <dt className="font-semibold">request</dt>
@@ -399,39 +439,67 @@ export function AdminReviewQueue({
                   </p>
                 )}
 
-                {flag.reviewStatus === "open" || flag.reviewStatus === "in_review" ? (
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {flag.reviewStatus === "open" && (
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {flag.hasReviewCase && (
+                    <button
+                      type="button"
+                      disabled={busyId === flag.id}
+                      onClick={() => {
+                        setBusyId(flag.id);
+                        setRowError(null);
+                        void adminClient.retestFlag(flag.id).then((result) => {
+                          setBusyId(null);
+                          if (!result.ok) {
+                            setRowError({
+                              id: flag.id,
+                              message: result.message || "Retest could not run.",
+                            });
+                            return;
+                          }
+                          void load(filter);
+                        });
+                      }}
+                      className="inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-violet-200 bg-violet-50 px-3 text-xs font-semibold text-violet-800 transition hover:bg-violet-100 disabled:opacity-60"
+                    >
+                      <RefreshCw className="h-3.5 w-3.5" />
+                      Retest
+                    </button>
+                  )}
+                  {(flag.reviewStatus === "open" || flag.reviewStatus === "in_review") && (
+                    <>
+                      {flag.reviewStatus === "open" && (
+                        <button
+                          type="button"
+                          disabled={busyId === flag.id}
+                          onClick={() => void transition(flag, "in_review")}
+                          className="inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60"
+                        >
+                          <Eye className="h-3.5 w-3.5" />
+                          Take it
+                        </button>
+                      )}
                       <button
                         type="button"
                         disabled={busyId === flag.id}
-                        onClick={() => void transition(flag, "in_review")}
-                        className="inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60"
+                        onClick={() => void transition(flag, "resolved")}
+                        className="inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 text-xs font-semibold text-emerald-800 transition hover:bg-emerald-100 disabled:opacity-60"
                       >
-                        <Eye className="h-3.5 w-3.5" />
-                        Take it
+                        <Check className="h-3.5 w-3.5" />
+                        Resolved
                       </button>
-                    )}
-                    <button
-                      type="button"
-                      disabled={busyId === flag.id}
-                      onClick={() => void transition(flag, "resolved")}
-                      className="inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 text-xs font-semibold text-emerald-800 transition hover:bg-emerald-100 disabled:opacity-60"
-                    >
-                      <Check className="h-3.5 w-3.5" />
-                      Resolved
-                    </button>
-                    <button
-                      type="button"
-                      disabled={busyId === flag.id}
-                      onClick={() => void transition(flag, "dismissed")}
-                      className="inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 disabled:opacity-60"
-                    >
-                      <X className="h-3.5 w-3.5" />
-                      Dismiss
-                    </button>
-                  </div>
-                ) : (
+                      <button
+                        type="button"
+                        disabled={busyId === flag.id}
+                        onClick={() => void transition(flag, "dismissed")}
+                        className="inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 disabled:opacity-60"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                        Dismiss
+                      </button>
+                    </>
+                  )}
+                </div>
+                {flag.reviewStatus !== "open" && flag.reviewStatus !== "in_review" && (
                   <p className="mt-3 text-xs text-slate-500">
                     Closed by {flag.reviewedBy ?? "staff"}
                     {flag.reviewedAt

@@ -75,6 +75,8 @@ export default function AdminDashboard() {
       ]
     : null;
 
+  const scorecard = metrics?.scorecard;
+
   return (
     <AdminShell title="Admin Dashboard" subtitle="HerCompassAI Operations Center">
       <div className="space-y-8">
@@ -194,21 +196,57 @@ export default function AdminDashboard() {
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   {[
-                    { label: "P0", value: "—" },
-                    { label: "P1", value: "—" },
-                    { label: "P2", value: "—" },
-                    { label: "P3", value: "—" },
+                    { label: "P0", value: scorecard?.p0 ?? null },
+                    { label: "P1", value: scorecard?.p1 ?? null },
+                    { label: "P2", value: scorecard?.p2 ?? null },
+                    { label: "P3", value: scorecard?.p3 ?? null },
                   ].map((item) => (
                     <div key={item.label} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-                      <p className="text-xl font-bold text-slate-900">{item.value}</p>
+                      <p className="text-xl font-bold text-slate-900">
+                        {item.value == null ? "—" : item.value}
+                      </p>
                       <p className="mt-0.5 text-[11px] font-semibold text-slate-500">{item.label}</p>
                     </div>
                   ))}
                 </div>
-                <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800">
-                  No evaluation run is recorded yet. Priority counts stay empty
-                  rather than defaulting to zero.
-                </p>
+                <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                    <p className="text-xl font-bold text-slate-900">
+                      {scorecard?.goldCasePassRate == null ? "—" : scorecard.goldCasePassRate}
+                    </p>
+                    <p className="mt-0.5 text-[11px] font-semibold text-slate-500">
+                      Gold-case pass rate
+                    </p>
+                  </div>
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                    <p className="text-xl font-bold text-slate-900">
+                      {scorecard?.citationIssues == null ? "—" : scorecard.citationIssues}
+                    </p>
+                    <p className="mt-0.5 text-[11px] font-semibold text-slate-500">
+                      Citation issues
+                    </p>
+                  </div>
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                    <p className="text-xl font-bold text-slate-900">
+                      {scorecard?.nonDiagnosticViolations == null
+                        ? "—"
+                        : scorecard.nonDiagnosticViolations}
+                    </p>
+                    <p className="mt-0.5 text-[11px] font-semibold text-slate-500">
+                      Non-diagnostic violations
+                    </p>
+                  </div>
+                </div>
+                {scorecard?.latestRunAt == null ? (
+                  <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800">
+                    No evaluation run is recorded yet. Priority counts stay empty
+                    rather than defaulting to zero.
+                  </p>
+                ) : (
+                  <p className="mt-4 text-xs text-slate-500">
+                    Latest evaluation run: {String(scorecard.latestRunAt)}
+                  </p>
+                )}
                 <div className="mt-4">
                   {severityPoints ? (
                     <AdminBarChart empty="Nothing here yet." points={severityPoints} />
