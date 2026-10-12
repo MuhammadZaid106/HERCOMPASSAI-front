@@ -113,6 +113,66 @@ export default function AdminAnalyticsPage() {
                 </div>
               </article>
             </section>
+            <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
+              <h3 className="text-sm font-bold text-slate-900">Funnel intervals</h3>
+              <p className="mt-1 text-xs text-slate-500">
+                Median time between first-write stamps. A dash means that pair has no
+                completed samples yet. Overall time to value (signup → first saved
+                snapshot) stays in the card above.
+              </p>
+              <ul className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                {(metrics.funnelIntervals ?? []).map((row) => (
+                  <li
+                    key={row.id}
+                    className="rounded-xl border border-slate-100 bg-slate-50/80 px-4 py-3"
+                  >
+                    <p className="text-xs font-medium text-slate-500">{row.label}</p>
+                    <p className="mt-1 text-lg font-bold tabular-nums text-slate-900">
+                      {row.median ?? "—"}
+                    </p>
+                    <p className="mt-0.5 text-xs text-slate-500">
+                      {row.sampleSize === 0
+                        ? "No samples yet"
+                        : row.sampleSize === 1
+                          ? "1 member"
+                          : `${row.sampleSize} members`}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            </section>
+            <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
+              <h3 className="text-sm font-bold text-slate-900">Product events</h3>
+              <p className="mt-1 text-xs text-slate-500">
+                Counts from the event stream only — zeros mean nothing was recorded in that window.
+              </p>
+              <div className="mt-4 overflow-x-auto">
+                <table className="w-full min-w-[28rem] text-left text-sm">
+                  <thead>
+                    <tr className="border-b border-slate-200 text-xs uppercase tracking-wide text-slate-500">
+                      <th className="py-2 pr-4 font-semibold">Event</th>
+                      <th className="py-2 pr-4 font-semibold">Last 14 days</th>
+                      <th className="py-2 font-semibold">Last 30 days</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(metrics.productEvents?.last14Days ?? []).map((row) => {
+                      const count30 =
+                        metrics.productEvents.last30Days.find(
+                          (item) => item.eventName === row.eventName,
+                        )?.count ?? 0;
+                      return (
+                        <tr key={row.eventName} className="border-b border-slate-100 last:border-0">
+                          <td className="py-2.5 pr-4 font-medium text-slate-900">{row.eventName}</td>
+                          <td className="py-2.5 pr-4 tabular-nums text-slate-700">{row.count}</td>
+                          <td className="py-2.5 tabular-nums text-slate-700">{count30}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </section>
           </>
         )}
       </div>

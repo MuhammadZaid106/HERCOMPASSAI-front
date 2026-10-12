@@ -41,7 +41,7 @@ const SECTIONS = [
   { id: "privacy", label: "Privacy" },
   { id: "notifications", label: "Notifications" },
   { id: "plan", label: "Plan" },
-  { id: "data", label: "Delete account" },
+  { id: "data", label: "Your data" },
 ] as const;
 
 const NOTIFICATION_CHOICES = [
@@ -77,7 +77,7 @@ const DATA_HANDLING = [
   },
   {
     title: "Your controls",
-    body: "Change consent here, or delete the account at the end of this page. A download of your logs is not available yet.",
+    body: "Change consent here, download a copy of your data, or delete the account at the end of this page.",
   },
 ];
 
@@ -120,6 +120,9 @@ export default function SettingsPage() {
   const [savedPrefs, setSavedPrefs] = useState<NotificationPreferences | null>(null);
   const [prefSave, setPrefSave] = useState<SaveState>(null);
   const [isSavingPrefs, setIsSavingPrefs] = useState(false);
+
+  const [exportBusy, setExportBusy] = useState(false);
+  const [exportSave, setExportSave] = useState<SaveState>(null);
 
   const [deleteEmail, setDeleteEmail] = useState("");
   const [deleteSave, setDeleteSave] = useState<SaveState>(null);
@@ -265,6 +268,22 @@ export default function SettingsPage() {
       setPrefSave({ ok: true, note: "Saved." });
       // Turning a category off hides its history, which changes the bell badge.
       emitNotificationsChanged();
+    });
+  };
+
+  const downloadExport = (): void => {
+    setExportBusy(true);
+    setExportSave(null);
+    void memberClient.downloadAccountExport().then((result) => {
+      setExportBusy(false);
+      if (!result.success) {
+        setExportSave({ ok: false, note: result.message });
+        return;
+      }
+      setExportSave({
+        ok: true,
+        note: `Download started (${result.filename}).`,
+      });
     });
   };
 
@@ -581,13 +600,33 @@ export default function SettingsPage() {
 
           <SettingsSection
             id="data"
-            title="Delete account"
-            description="Permanent, and it cannot be undone."
+            title="Your data"
+            description="Download a copy of what this account holds, or remove the account entirely."
           >
-            <div className="grid gap-4 sm:max-w-xl">
+            <div className="grid gap-4 border-b border-slate-200 pb-5 sm:max-w-xl">
               <p className="text-sm text-slate-600">
-                This removes the account and the logs stored with it. Type the email on this
-                account to confirm.
+                Download a JSON file with your profile, Snapshot answers, check-in history,
+                consents, and support messages. It never includes another person&apos;s health
+                logs or partner digest content.
+              </p>
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={downloadExport}
+                  disabled={exportBusy}
+                  className={secondaryButton}
+                >
+                  {exportBusy ? "Preparing…" : "Download my data"}
+                </button>
+                <SaveNote state={exportSave} />
+              </div>
+            </div>
+
+            <div className="grid gap-4 pt-5 sm:max-w-xl">
+              <h3 className="text-sm font-semibold text-slate-900">Delete account</h3>
+              <p className="text-sm text-slate-600">
+                Permanent, and it cannot be undone. This removes the account and the logs
+                stored with it. Type the email on this account to confirm.
               </p>
               <Field label={`Confirm with ${data.profile.email}`}>
                 <input

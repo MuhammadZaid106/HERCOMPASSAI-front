@@ -229,6 +229,53 @@ export const authClient = {
     return res.json().catch(() => ({ success: false, message: "Network error" }));
   },
 
+  async verifyEmail(token: string): Promise<ApiResponse<{ verified?: boolean; alreadyVerified?: boolean }>> {
+    const res = await fetch(`${API_BASE}/api/auth/verify-email`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token }),
+    });
+    return res.json().catch(() => ({ success: false, message: "Network error" }));
+  },
+
+  async resendVerification(): Promise<ApiResponse<{ mailed?: boolean; alreadyVerified?: boolean }>> {
+    return authClient
+      .authenticatedFetch(`${API_BASE}/api/auth/resend-verification`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      })
+      .then((res) =>
+        res.json().catch(() => ({ success: false, message: "Network error" })),
+      );
+  },
+
+  async requestEmailChange(
+    newEmail: string,
+    currentPassword: string,
+  ): Promise<ApiResponse<{ pendingEmail?: string; mailed?: boolean }>> {
+    return authClient
+      .authenticatedFetch(`${API_BASE}/api/auth/request-email-change`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ newEmail, currentPassword }),
+      })
+      .then((res) =>
+        res.json().catch(() => ({ success: false, message: "Network error" })),
+      );
+  },
+
+  async confirmEmailChange(
+    token: string,
+  ): Promise<ApiResponse<{ email?: string; verified?: boolean }>> {
+    const res = await fetch(`${API_BASE}/api/auth/confirm-email-change`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token }),
+    });
+    return res.json().catch(() => ({ success: false, message: "Network error" }));
+  },
+
   async getMe(): Promise<ApiResponse<{ user: AuthUser }>> {
     const tokens = authClient.getStoredTokens();
     if (!tokens?.accessToken) {

@@ -15,8 +15,84 @@ import {
   Zap,
 } from "lucide-react";
 import { trackingClient } from "@/lib/tracking/trackingClient";
+import type {
+  TrackingEntryType,
+  TrackingListEntry,
+  TrackingSummaryData,
+} from "@/lib/tracking/trackingTypes";
 
 type Tab = "symptoms" | "mood" | "sleep" | "energy" | "lifestyle";
+
+type RecentRow = {
+  type: TrackingEntryType;
+  id: string;
+  entryDate: string;
+  summary: string;
+};
+
+const TYPE_LABEL: Record<TrackingEntryType, string> = {
+  symptoms: "Symptoms",
+  mood: "Mood",
+  sleep: "Sleep",
+  energy: "Energy",
+  lifestyle: "Lifestyle",
+};
+
+function formatEntryDate(value: string): string {
+  const date = new Date(`${value}T12:00:00`);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function summarizeEntry(type: TrackingEntryType, entry: TrackingListEntry): string {
+  if (type === "symptoms") {
+    const list = Array.isArray(entry.symptoms) ? entry.symptoms : [];
+    return list.length === 0
+      ? "No symptoms selected"
+      : list.length <= 2
+        ? list.join(", ")
+        : `${list.slice(0, 2).join(", ")} +${list.length - 2}`;
+  }
+  if (type === "mood") {
+    return `Mood level ${String(entry.moodLevel ?? "—")}`;
+  }
+  if (type === "sleep") {
+    return `Sleep: ${String(entry.quality ?? "—").replaceAll("_", " ")}`;
+  }
+  if (type === "energy") {
+    return `Energy level ${String(entry.energyLevel ?? "—")}`;
+  }
+  return "Lifestyle check-in";
+}
+
+function rowsFromSummary(data: TrackingSummaryData): RecentRow[] {
+  const packs: Array<{ type: TrackingEntryType; entries: TrackingListEntry[] }> = [
+    { type: "symptoms", entries: data.entries.symptoms },
+    { type: "mood", entries: data.entries.moods },
+    { type: "sleep", entries: data.entries.sleep },
+    { type: "energy", entries: data.entries.energy },
+    { type: "lifestyle", entries: data.entries.lifestyle },
+  ];
+  const rows: RecentRow[] = [];
+  for (const pack of packs) {
+    for (const entry of pack.entries) {
+      if (!entry.id || !entry.entryDate) continue;
+      rows.push({
+        type: pack.type,
+        id: entry.id,
+        entryDate: entry.entryDate,
+        summary: summarizeEntry(pack.type, entry),
+      });
+    }
+  }
+  return rows
+    .sort((a, b) => b.entryDate.localeCompare(a.entryDate))
+    .slice(0, 12);
+}
 
 const tabs: Array<{ id: Tab; label: string; icon: typeof Activity }> = [
   { id: "symptoms", label: "Symptoms", icon: Activity },
@@ -92,12 +168,28 @@ export default function TrackPage() {
   const [relaxation, setRelaxation] = useState(false);
   const [social, setSocial] = useState(3);
   const [routine, setRoutine] = useState(3);
+  const [recent, setRecent] = useState<RecentRow[] | null>(null);
+  const [recentError, setRecentError] = useState<string | null>(null);
+  const [removingId, setRemovingId] = useState<string | null>(null);
+
+  const loadRecent = (): void => {
+    void trackingClient.getSummary("7d").then((result) => {
+      if (!result.success || !result.data) {
+        setRecentError(result.message || "We couldn't load recent logs.");
+        setRecent([]);
+        return;
+      }
+      setRecentError(null);
+      setRecent(rowsFromSummary(result.data));
+    });
+  };
 
   useEffect(() => {
     const requested = new URLSearchParams(window.location.search).get("tab");
     if (isTrackTab(requested)) {
       setTab(requested);
     }
+    loadRecent();
   }, []);
 
   const openTab = (id: Tab) => {
@@ -159,6 +251,7 @@ export default function TrackPage() {
     }
 
     setSavedTabs((current) => (current.includes(tab) ? current : [...current, tab]));
+    loadRecent();
     const upcoming = nextTab(tab);
     if (upcoming) {
       openTab(upcoming);
@@ -166,6 +259,20 @@ export default function TrackPage() {
     }
     setFinished(true);
     setStatus("Today’s check-in is saved.");
+  };
+
+  const removeEntry = (row: RecentRow): void => {
+    setRemovingId(row.id);
+    void trackingClient.deleteEntry(row.type, row.id).then((result) => {
+      setRemovingId(null);
+      if (!result.success) {
+        setRecentError(result.message || "We couldn't remove that entry.");
+        return;
+      }
+      setRecent((current) =>
+        (current ?? []).filter((item) => !(item.id === row.id && item.type === row.type)),
+      );
+    });
   };
 
   const stepIndex = tabs.findIndex((item) => item.id === tab);
@@ -472,6 +579,51 @@ export default function TrackPage() {
             </p>
           )}
         </div>
+      </section>
+
+      <section className="rounded-3xl border border-slate-200/90 bg-white p-4 shadow-sm sm:p-6">
+        <h2 className="text-sm font-extrabold text-slate-900">Recent logs</h2>
+        <p className="mt-1 text-xs leading-relaxed text-slate-500">
+          Last 7 days. Remove an entry if you logged it by mistake — progress and
+          trends update from what remains.
+        </p>
+        {recentError && (
+          <p role="alert" className="mt-3 text-sm text-rose-700">
+            {recentError}
+          </p>
+        )}
+        {recent === null ? (
+          <p className="mt-4 text-sm text-slate-500">Loading recent logs…</p>
+        ) : recent.length === 0 ? (
+          <p className="mt-4 text-sm text-slate-500">No logs in the last 7 days yet.</p>
+        ) : (
+          <ul className="mt-4 divide-y divide-slate-100">
+            {recent.map((row) => (
+              <li
+                key={`${row.type}-${row.id}`}
+                className="flex flex-wrap items-center justify-between gap-3 py-3"
+              >
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-slate-900">
+                    {TYPE_LABEL[row.type]}
+                    <span className="ml-2 font-normal text-slate-500">
+                      {formatEntryDate(row.entryDate)}
+                    </span>
+                  </p>
+                  <p className="mt-0.5 truncate text-xs text-slate-600">{row.summary}</p>
+                </div>
+                <button
+                  type="button"
+                  disabled={removingId === row.id}
+                  onClick={() => removeEntry(row)}
+                  className="shrink-0 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:border-rose-200 hover:bg-rose-50 hover:text-rose-800 disabled:opacity-50"
+                >
+                  {removingId === row.id ? "Removing…" : "Remove"}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
     </div>
   );

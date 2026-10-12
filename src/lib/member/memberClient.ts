@@ -96,14 +96,54 @@ export const memberClient = {
     return request<MemberAccountData>("/api/member/account");
   },
   /**
-   * Name only. The backend does not accept an email change here — see the
-   * controller for why that needs a confirmation flow first.
+   * Name only. Email changes use `authClient.requestEmailChange` + confirm link.
    */
   updateProfile(name: string): Promise<ApiResult<MemberProfileUpdate>> {
     return request<MemberProfileUpdate>("/api/member/account/profile", {
       method: "PUT",
       body: JSON.stringify({ name }),
     });
+  },
+
+  /**
+   * Downloads a JSON file of this member's own account data.
+   * Returns a failure message when the response is not a file.
+   */
+  async downloadAccountExport(): Promise<
+    | { success: true; filename: string }
+    | { success: false; message: string }
+  > {
+    try {
+      const response = await authClient.authenticatedFetch(
+        `${API_BASE}/api/member/account/export`,
+      );
+      if (!response.ok) {
+        const json = (await response.json().catch(() => null)) as {
+          message?: string;
+        } | null;
+        return {
+          success: false,
+          message: json?.message || "We couldn't prepare your download.",
+        };
+      }
+      const blob = await response.blob();
+      const disposition = response.headers.get("Content-Disposition") ?? "";
+      const match = /filename="([^"]+)"/.exec(disposition);
+      const filename =
+        match?.[1] ?? `hercompass-export-${new Date().toISOString().slice(0, 10)}.json`;
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = filename;
+      anchor.click();
+      URL.revokeObjectURL(url);
+      return { success: true, filename };
+    } catch {
+      return {
+        success: false,
+        message: "We couldn't reach HerCompass just now. Your information is safe.",
+      };
+    }
   },
   updateAccountPreferences(dailyCheckIn: boolean): Promise<ApiResult<{ dailyCheckIn: boolean }>> {
     return request<{ dailyCheckIn: boolean }>("/api/member/account/preferences", {
