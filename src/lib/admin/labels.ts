@@ -39,6 +39,32 @@ export const SUBSCRIPTION_LABEL: Record<string, string> = {
   other: "Other",
 };
 
+export const CONTENT_KIND_LABEL: Record<string, string> = {
+  recipe: "Recipe",
+  workout: "Workout",
+  meditation: "Meditation",
+  article: "Article",
+  mens_academy: "Men's Academy",
+  partner_content: "Partner content",
+  evidence_explanation: "Evidence explanation",
+  educational: "Educational",
+};
+
+export const EVIDENCE_LIFECYCLE_LABEL: Record<string, string> = {
+  submitted: "Submitted",
+  reviewed: "Reviewed",
+  approved: "Approved",
+  active: "Active",
+  review_due: "Review due",
+  retired: "Retired",
+};
+
+export const TRIAL_ELIGIBILITY_LABEL: Record<string, string> = {
+  none: "None",
+  invite_only: "Invite only",
+  all_free: "All free members",
+};
+
 export function shortDay(isoDay: string): string {
   const date = new Date(`${isoDay}T00:00:00.000Z`);
   return new Intl.DateTimeFormat("en", {

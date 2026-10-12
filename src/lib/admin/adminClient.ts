@@ -8,6 +8,26 @@ import { authClient } from "@/lib/auth/authClient";
  * wrong.
  */
 
+export type ContentKind =
+  | "recipe"
+  | "workout"
+  | "meditation"
+  | "article"
+  | "mens_academy"
+  | "partner_content"
+  | "evidence_explanation"
+  | "educational";
+
+export type EvidenceLifecycleStatus =
+  | "submitted"
+  | "reviewed"
+  | "approved"
+  | "active"
+  | "review_due"
+  | "retired";
+
+export type TrialEligibility = "none" | "invite_only" | "all_free";
+
 export interface ReviewFlag {
   id: string;
   requestId: string;
@@ -31,6 +51,12 @@ export interface ReviewFlag {
   sciFindingCodes: string[] | null;
   latencyMs: number | null;
   memberComment: string | null;
+  hasReviewCase: boolean;
+  inputExcerpt: string | null;
+  outputExcerpt: string | null;
+  lastRetestAt: string | null;
+  lastRetestPassed: boolean | null;
+  lastRetestNotes: string | null;
 }
 
 export interface ReviewSummary {
@@ -68,6 +94,17 @@ export interface InviteCount {
   count: number;
 }
 
+export interface AdminScorecard {
+  p0: number | string | null;
+  p1: number | string | null;
+  p2: number | string | null;
+  p3: number | string | null;
+  goldCasePassRate: number | string | null;
+  citationIssues: number | string | null;
+  nonDiagnosticViolations: number | string | null;
+  latestRunAt: number | string | null;
+}
+
 export interface AdminMetrics {
   members: number;
   snapshots: number;
@@ -78,6 +115,7 @@ export interface AdminMetrics {
   membersByPlan: PlanCount[];
   invitesByState: InviteCount[];
   flagSeverity: { low: number; medium: number; high: number } | null;
+  scorecard: AdminScorecard;
 }
 
 export interface AdminUserRow {
@@ -173,7 +211,7 @@ export interface BetaMemberRow {
 
 export interface AdminContentPiece {
   id: string;
-  kind: "recipe" | "workout" | "meditation";
+  kind: ContentKind;
   slug: string;
   title: string;
   status: "draft" | "in_review" | "published" | "archived";
@@ -223,7 +261,23 @@ export interface AdminEvidenceRow {
   version: string;
   clinicianReview: "pending" | "signed";
   retired: boolean;
+  lifecycleStatus: EvidenceLifecycleStatus;
+  clinicianReviewerName: string;
 }
+
+export interface AdminEvidenceSubmission {
+  evidenceId: string;
+  sourceName: string;
+  organization: string;
+  topic: string;
+  publicationDate: string;
+  status: string;
+  clinicianReviewerName: string;
+  version: string;
+  summary: string;
+  updatedAt: string;
+}
+
 export interface AdminPlanCard {
   id: "free" | "plus" | "premium";
   label: string;
@@ -237,12 +291,77 @@ export interface SubscriptionStatusCount {
   count: number;
 }
 
+export interface BillingEventRow {
+  id: string;
+  type: string;
+  status: string;
+  plan: string | null;
+  amountCents: number | null;
+  currency: string | null;
+  summary: string;
+  memberFirstName: string;
+  occurredAt: string;
+}
+
+export interface FailedPaymentRow {
+  id: string;
+  summary: string;
+  memberFirstName: string;
+  occurredAt: string;
+  status: string;
+}
+
+export interface TrialRow {
+  userId: string;
+  memberFirstName: string;
+  email: string;
+  plan: string;
+  trialEndsAt: string | null;
+}
+
+export interface GrandfatheredRow {
+  id: string;
+  userId: string;
+  memberFirstName: string;
+  email: string;
+  label: string;
+  note: string;
+}
+
+export interface AdminBillingDesk {
+  recentEvents: BillingEventRow[];
+  failedPayments: FailedPaymentRow[];
+  trials: TrialRow[];
+  grandfathered: GrandfatheredRow[];
+  promotionsNote: string;
+}
+
 export interface AdminPlansPayload {
   billingConnected: boolean;
   plans: AdminPlanCard[];
   subscriptionByStatus: SubscriptionStatusCount[];
   stripeCustomers: number;
   pastDue: number;
+  billingDesk: AdminBillingDesk;
+}
+
+export interface AdminProductSettings {
+  foundingCap: number;
+  billingConnected: boolean;
+  mailConfigured: boolean;
+  trialDurationDays: number;
+  trialEligibility: TrialEligibility;
+  trialPlan: "premium";
+  plusPriceLabelMonthly: string;
+  plusPriceLabelAnnual: string;
+  premiumPriceLabelMonthly: string;
+  premiumPriceLabelAnnual: string;
+  stripePriceIds: {
+    plusMonthly: boolean;
+    plusAnnual: boolean;
+    premiumMonthly: boolean;
+    premiumAnnual: boolean;
+  };
 }
 
 export interface CommunityReviewNote {
@@ -253,6 +372,17 @@ export interface CommunityReviewNote {
   firstName: string;
   createdAt: string;
   reviewedAt: string | null;
+}
+
+export interface EvidenceSubmitBody {
+  evidenceId: string;
+  sourceName: string;
+  organization: string;
+  topic: string;
+  publicationDate?: string;
+  urlOrIdentifier?: string;
+  evidenceCategory?: string;
+  summary?: string;
 }
 
 const API_BASE =
@@ -385,23 +515,69 @@ export const adminClient = {
     });
   },
 
-  settings(): Promise<
-    AdminResult<{ foundingCap: number; billingConnected: boolean; mailConfigured: boolean }>
-  > {
-    return request("/api/admin/settings");
+  settings(): Promise<AdminResult<AdminProductSettings>> {
+    return request<AdminProductSettings>("/api/admin/settings");
   },
 
-  saveSettings(foundingCap: number) {
-    return request<{ foundingCap: number }>("/api/admin/settings", {
+  saveSettings(body: AdminProductSettings) {
+    return request<AdminProductSettings>("/api/admin/settings", {
       method: "PATCH",
-      body: JSON.stringify({ foundingCap }),
+      body: JSON.stringify({
+        foundingCap: body.foundingCap,
+        trialDurationDays: body.trialDurationDays,
+        trialEligibility: body.trialEligibility,
+        plusPriceLabelMonthly: body.plusPriceLabelMonthly,
+        plusPriceLabelAnnual: body.plusPriceLabelAnnual,
+        premiumPriceLabelMonthly: body.premiumPriceLabelMonthly,
+        premiumPriceLabelAnnual: body.premiumPriceLabelAnnual,
+      }),
     });
   },
 
-  setEvidenceStatus(evidenceId: string, status: "active" | "retired") {
+  setEvidenceStatus(
+    evidenceId: string,
+    status: EvidenceLifecycleStatus,
+    options: { note?: string; clinicianReviewerName?: string } = {},
+  ) {
     return request(`/api/admin/evidence/${encodeURIComponent(evidenceId)}`, {
       method: "PATCH",
-      body: JSON.stringify({ status }),
+      body: JSON.stringify({
+        status,
+        note: options.note ?? "",
+        clinicianReviewerName: options.clinicianReviewerName ?? "",
+      }),
+    });
+  },
+
+  submitEvidence(body: EvidenceSubmitBody) {
+    return request<{ evidenceId: string }>("/api/admin/evidence", {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+  },
+
+  runEvaluation() {
+    return request<{ runId: string; summary: AdminScorecard }>("/api/admin/evaluation/run", {
+      method: "POST",
+      body: JSON.stringify({}),
+    });
+  },
+
+  scorecard() {
+    return request<{ summary: AdminScorecard }>("/api/admin/scorecard");
+  },
+
+  retestFlag(id: string) {
+    return request<{ ok: boolean; passed: boolean | null; notes: string }>(
+      `/api/admin/ai-flags/${encodeURIComponent(id)}/retest`,
+      { method: "POST", body: JSON.stringify({}) },
+    );
+  },
+
+  saveGrandfathered(body: { userId: string; label: string; note?: string }) {
+    return request<{ id: string }>("/api/admin/grandfathered", {
+      method: "POST",
+      body: JSON.stringify(body),
     });
   },
 
@@ -427,7 +603,11 @@ export const adminClient = {
   },
 
   evidence(q = ""): Promise<
-    AdminResult<{ records: AdminEvidenceRow[]; clinicianReview: string }>
+    AdminResult<{
+      records: AdminEvidenceRow[];
+      submissions: AdminEvidenceSubmission[];
+      clinicianReview: string;
+    }>
   > {
     const query = new URLSearchParams();
     if (q.trim()) query.set("q", q.trim());
