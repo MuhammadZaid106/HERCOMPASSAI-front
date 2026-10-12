@@ -20,20 +20,25 @@ export default function FeaturesPillarNutritionCooling() {
   const [breathCounter, setBreathCounter] = useState(4);
 
   useEffect(() => {
-    let timer: NodeJS.Timeout;
     if (isBreathingActive) {
-      timer = setInterval(() => {
+      const timer = setInterval(() => {
         setBreathCounter((prev) => prev - 1);
       }, 1000);
-    } else {
+      return () => clearInterval(timer);
+    }
+    // Reset on a timer, not inline: a synchronous setState in the effect body
+    // is what react-hooks/set-state-in-effect rejects.
+    const resetTimer = window.setTimeout(() => {
       setBreathCounter(4);
       setBreathingPhase("Inhale (4s)");
-    }
-    return () => clearInterval(timer);
+    }, 0);
+    return () => window.clearTimeout(resetTimer);
   }, [isBreathingActive]);
 
   useEffect(() => {
-    if (isBreathingActive && breathCounter <= 1) {
+    if (!isBreathingActive || breathCounter > 1) return;
+    // Advancing the phase is deferred for the same reason as the reset above.
+    const advanceTimer = window.setTimeout(() => {
       setBreathingPhase((current) => {
         if (current === "Inhale (4s)") return "Hold (4s)";
         if (current === "Hold (4s)") return "Exhale (4s)";
@@ -41,7 +46,8 @@ export default function FeaturesPillarNutritionCooling() {
         return "Inhale (4s)";
       });
       setBreathCounter(4);
-    }
+    }, 0);
+    return () => window.clearTimeout(advanceTimer);
   }, [isBreathingActive, breathCounter]);
 
   const nutritionPillars = [

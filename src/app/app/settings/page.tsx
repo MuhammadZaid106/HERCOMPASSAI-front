@@ -480,6 +480,12 @@ export default function SettingsPage() {
                   </div>
                 ))}
               </dl>
+              <Link
+                href="/app/privacy-center"
+                className={`mt-3 inline-flex min-h-10 items-center justify-center rounded-lg border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50`}
+              >
+                Open the Privacy Center
+              </Link>
             </div>
           </SettingsSection>
 
@@ -570,12 +576,20 @@ export default function SettingsPage() {
               label={data.profile.planLabel}
               description="Renewal dates appear when billing is connected. This page does not change your plan."
             >
-              <Link
-                href="/app/plans"
-                className="inline-flex min-h-10 items-center justify-center rounded-lg border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-              >
-                Compare plans
-              </Link>
+              <div className="flex flex-wrap gap-2">
+                <Link
+                  href="/app/plans"
+                  className="inline-flex min-h-10 items-center justify-center rounded-lg border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                >
+                  Compare plans
+                </Link>
+                <Link
+                  href="/app/account/billing"
+                  className="inline-flex min-h-10 items-center justify-center rounded-lg border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                >
+                  Billing &amp; invoices
+                </Link>
+              </div>
             </SettingRow>
           </SettingsSection>
 

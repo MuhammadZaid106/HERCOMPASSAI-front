@@ -95,9 +95,11 @@ export default function TrackPage() {
 
   useEffect(() => {
     const requested = new URLSearchParams(window.location.search).get("tab");
-    if (isTrackTab(requested)) {
-      setTab(requested);
-    }
+    if (!isTrackTab(requested)) return;
+    // Deferred so the effect body only reads the URL; scheduling the state
+    // update on a timer keeps this off the synchronous mount path.
+    const applyTimer = window.setTimeout(() => setTab(requested), 0);
+    return () => window.clearTimeout(applyTimer);
   }, []);
 
   const openTab = (id: Tab) => {

@@ -33,6 +33,10 @@ export interface ExploreItem {
   evidence: ExploreEvidence[];
   /** Shown in For You when no Snapshot focus matches a topic. */
   starter: boolean;
+  /** Extra educational sections rendered under "What you can try". */
+  sections?: Array<{ heading: string; body: string }>;
+  /** Suggested next actions, shown as chips on the detail page. */
+  actions?: Array<{ label: string; href: string }>;
 }
 
 export const exploreItems: ExploreItem[] = [
@@ -54,6 +58,20 @@ export const exploreItems: ExploreItem[] = [
         source: "NIH",
         note: "Public guidance that sleep and daytime energy are worth noticing together.",
       },
+    ],
+    sections: [
+      {
+        heading: "What usually shifts",
+        body: "Falling asleep, staying asleep, or waking early can all change in midlife. Writing the night down makes the pattern easier to compare across weeks.",
+      },
+      {
+        heading: "What a log is for",
+        body: "A check-in mark is a record, not a diagnosis. Bring a pattern that bothers you to a clinician rather than answering it from an app.",
+      },
+    ],
+    actions: [
+      { label: "Log sleep", href: "/app/track?tab=sleep" },
+      { label: "Open Snapshot", href: "/app/snapshot" },
     ],
     starter: true,
   },
@@ -105,6 +123,20 @@ export const exploreItems: ExploreItem[] = [
         source: "Harvard Health",
         note: "General nutrition education. This is not a prescribed meal plan.",
       },
+    ],
+    sections: [
+      {
+        heading: "Why regular meals help you look",
+        body: "A steady routine keeps the day predictable. Pair the log with an actual recipe from the Recipes library if that is helpful.",
+      },
+      {
+        heading: "Keep it small",
+        body: "One plate, one day. Small steps are still progress, and they are the kind you can compare next week.",
+      },
+    ],
+    actions: [
+      { label: "Open a recipe", href: "/app/recipes/high-protein-breakfast-bowl" },
+      { label: "Open lifestyle", href: "/app/track?tab=lifestyle" },
     ],
     starter: false,
   },

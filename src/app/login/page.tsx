@@ -33,7 +33,13 @@ function LoginContent() {
   const { login } = useAuth();
   const searchParams = useSearchParams();
   const returnTo = searchParams.get("from");
-  const safeReturn = returnTo?.startsWith("/partner/invite") ? returnTo : null;
+  // Only same-origin destinations we actually support are honoured, so a
+  // crafted ?from= cannot bounce a fresh login to an attacker's page.
+  const safeReturn =
+    returnTo &&
+    (returnTo.startsWith("/partner/invite") || returnTo.startsWith("/app/partner"))
+      ? returnTo
+      : null;
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmittingForm, setIsSubmittingForm] = useState(false);
   const [authSuccess, setAuthSuccess] = useState<string | null>(null);

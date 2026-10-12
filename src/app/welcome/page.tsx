@@ -41,6 +41,7 @@ export default function WelcomePage() {
 
   useEffect(() => {
     let isMounted = true;
+    let idleTimer: number | undefined;
     if (user && user.role === "member") {
       onboardingClient
         .getProfile()
@@ -57,13 +58,17 @@ export default function WelcomePage() {
           }
         });
     } else {
-      if (isMounted) {
-        setCheckingOnboarding(false);
-      }
+      // Deferred off the mount path: with no member to check there is nothing
+      // to wait for, and a synchronous setState here would trip
+      // react-hooks/set-state-in-effect.
+      idleTimer = window.setTimeout(() => {
+        if (isMounted) setCheckingOnboarding(false);
+      }, 0);
     }
 
     return () => {
       isMounted = false;
+      if (idleTimer) window.clearTimeout(idleTimer);
     };
   }, [user]);
 

@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ShieldCheck } from "lucide-react";
@@ -34,7 +34,7 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Quick Links — side-by-side on mobile via nested grid */}
+          {/* Quick Links â€” side-by-side on mobile via nested grid */}
           <div className="grid grid-cols-2 gap-8 md:contents">
             {/* Platform */}
             <div className="md:col-span-2 space-y-3">
@@ -42,21 +42,25 @@ export default function Footer() {
               <ul className="space-y-2 text-xs">
                 <li><Link href="/features" className="hover:text-white transition-colors">Features</Link></li>
                 <li><Link href="/how-it-works" className="hover:text-white transition-colors">How It Works</Link></li>
-                <li><Link href="/features#evidence" className="hover:text-white transition-colors">Evidence Base</Link></li>
-                <li><Link href="/#pricing" className="hover:text-white transition-colors">Pricing Plans</Link></li>
+                <li><Link href="/evidence" className="hover:text-white transition-colors">Evidence Base</Link></li>
+                <li><Link href="/pricing" className="hover:text-white transition-colors">Pricing Plans</Link></li>
+                <li><Link href="/onboarding" className="hover:text-white transition-colors">5-Min Snapshot</Link></li>
                 <li><Link href="/login" className="hover:text-white transition-colors">Sign In</Link></li>
                 <li><Link href="/register" className="hover:text-white transition-colors text-violet-400 font-semibold">Create Account</Link></li>
               </ul>
             </div>
 
-            {/* Relationship Support */}
+            {/* Partners & Company */}
             <div className="md:col-span-2 space-y-3">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-white">Couples</h4>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-white">Partners &amp; Company</h4>
               <ul className="space-y-2 text-xs">
-                <li><Link href="/partner" className="hover:text-white transition-colors">Partner Digest</Link></li>
-                <li><Link href="/partner#academy" className="hover:text-white transition-colors">Men&apos;s Academy</Link></li>
-                <li><Link href="/partner#privacy" className="hover:text-white transition-colors">Consent Model</Link></li>
-                <li><Link href="/onboarding" className="hover:text-white transition-colors">5-Min Snapshot</Link></li>
+                <li><Link href="/partner-support" className="hover:text-white transition-colors">Partner Support</Link></li>
+                <li><Link href="/mens-academy" className="hover:text-white transition-colors">Men&apos;s Academy</Link></li>
+                <li><Link href="/about" className="hover:text-white transition-colors">About</Link></li>
+                <li><Link href="/faq" className="hover:text-white transition-colors">FAQ</Link></li>
+                <li><Link href="/contact" className="hover:text-white transition-colors">Contact</Link></li>
+                <li><Link href="/security" className="hover:text-white transition-colors">Security &amp; Data</Link></li>
+                <li><Link href="/privacy-center" className="hover:text-white transition-colors">Privacy Center</Link></li>
               </ul>
             </div>
           </div>
@@ -76,7 +80,7 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <p className="text-center sm:text-left">© {new Date().getFullYear()} HerCompassAI Inc. All rights reserved.</p>
+          <p className="text-center sm:text-left">Â© {new Date().getFullYear()} HerCompassAI Inc. All rights reserved.</p>
           {/* Wraps, and each target is padded to the 44px minimum. Three links plus a
               mailto address did not fit one 320px row, so they overflowed horizontally
               and the legal links below the fold became unreachable on a phone. */}

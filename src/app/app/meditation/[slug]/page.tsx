@@ -4,13 +4,11 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { contentClient, type MeditationCard } from "@/lib/member/contentClient";
+import { meditationCategoryLabel } from "@/lib/member/menuLabels";
+import EntitlementGate from "@/components/library/EntitlementGate";
+import SaveToast from "@/components/library/SaveToast";
+import StepTimer, { type StepTimerStep } from "@/components/library/StepTimer";
 import { BlockSkeleton } from "@/components/ui/LoadState";
-
-function clock(totalSeconds: number): string {
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
-  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
-}
 
 export default function MeditationDetailPage() {
   const params = useParams<{ slug: string }>();
@@ -18,8 +16,7 @@ export default function MeditationDetailPage() {
   const [missing, setMissing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [note, setNote] = useState<string | null>(null);
-  const [running, setRunning] = useState(false);
-  const [secondsLeft, setSecondsLeft] = useState(0);
+  const [gating, setGating] = useState(false);
 
   useEffect(() => {
     void contentClient.getMeditation(params.slug).then((result) => {
@@ -29,40 +26,20 @@ export default function MeditationDetailPage() {
         return;
       }
       setSession(result.data);
-      setSecondsLeft(result.data.minutes * 60);
     });
   }, [params.slug]);
 
-  useEffect(() => {
-    if (!running) return;
-    const timer = window.setInterval(() => {
-      setSecondsLeft((current) => {
-        if (current <= 1) {
-          setRunning(false);
-          return 0;
-        }
-        return current - 1;
-      });
-    }, 1000);
-    return () => window.clearInterval(timer);
-  }, [running]);
-
   async function update(next: { saved: boolean; started: boolean }) {
     if (!session) return;
+    setGating(true);
     const result = await contentClient.saveMeditation(session.slug, next);
+    setGating(false);
     if (!result.success || !result.data) {
       setNote(result.message || "We couldn't save that. Your information is safe.");
       return;
     }
     setSession(result.data);
     setNote(next.started ? "Session started." : next.saved ? "Session saved." : "Updated.");
-  }
-
-  function start() {
-    if (!session?.steps) return;
-    setSecondsLeft(session.minutes * 60);
-    setRunning(true);
-    void update({ saved: session.saved, started: true });
   }
 
   if (!session && !missing) {
@@ -81,13 +58,24 @@ export default function MeditationDetailPage() {
     );
   }
 
+  const gated = !session.included || !session.steps;
+  const steps: StepTimerStep[] = session.steps
+    ? session.steps.map((step, index) => ({
+        label: step,
+        seconds: Math.max(Math.round((session.minutes * 60) / session.steps!.length), 10),
+        detail: index === 0 ? session.focus : undefined,
+      }))
+    : [];
+
   return (
     <article className="mx-auto max-w-3xl space-y-6 animate-fadeIn">
       <header>
         <Link href="/app/meditation" className="text-sm font-bold text-violet-700">
-          ← Meditation
+          Back to meditation
         </Link>
-        <p className="mt-4 text-xs font-bold uppercase tracking-wider text-violet-700">A short pause</p>
+        <p className="mt-4 text-xs font-bold uppercase tracking-wider text-violet-700">
+          A short pause · {meditationCategoryLabel(session)}
+        </p>
         <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">{session.title}</h1>
       </header>
 
@@ -106,45 +94,45 @@ export default function MeditationDetailPage() {
         </p>
       </section>
 
-      {session.included && session.steps ? (
+      {gated ? (
+        <EntitlementGate
+          description={
+            session.plusMessage ?? "The practice steps and the timer stay with Plus and Premium."
+          }
+        />
+      ) : (
         <>
-          <section className="rounded-3xl border border-slate-200 bg-white p-5 sm:p-6">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <h2 className="text-lg font-extrabold text-slate-900">Follow these steps</h2>
-              <p className="text-2xl font-extrabold tabular-nums text-violet-700">{clock(secondsLeft)}</p>
-            </div>
-            <ol className="mt-4 list-decimal space-y-2 pl-5 text-sm leading-relaxed text-slate-700">
-              {session.steps.map((step) => (
-                <li key={step}>{step}</li>
-              ))}
-            </ol>
-          </section>
+          <StepTimer
+            steps={steps}
+            autoStart={session.started}
+            onComplete={() => setNote("Session finished. Well done.")}
+          />
           <div className="flex flex-col gap-2 sm:flex-row">
             <button
               type="button"
-              onClick={start}
-              className="min-h-11 rounded-full bg-violet-600 px-5 text-sm font-bold text-white"
+              onClick={() => void update({ saved: session.saved, started: true })}
+              disabled={gating}
+              className="min-h-11 rounded-full bg-violet-600 px-5 text-sm font-bold text-white transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {running ? "Restart" : session.started ? "Start again" : "Start"}
+              {session.started ? "Started" : "Start Session"}
             </button>
             <button
               type="button"
               onClick={() => void update({ saved: !session.saved, started: session.started })}
-              className="min-h-11 rounded-full border border-slate-300 px-5 text-sm font-bold text-slate-800"
+              disabled={gating}
+              className="min-h-11 rounded-full border border-slate-300 px-5 text-sm font-bold text-slate-800 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {session.saved ? "Saved" : "Save"}
             </button>
           </div>
         </>
-      ) : (
-        <section className="rounded-3xl border border-violet-200 bg-violet-50 p-5 sm:p-6">
-          <h2 className="text-lg font-extrabold text-slate-900">Go deeper with HerCompass Plus</h2>
-          <p className="mt-2 text-sm leading-relaxed text-slate-700">
-            This practice is part of Plus and Premium. The steps and the timer stay with those plans.
-          </p>
-        </section>
       )}
-      {note && <p className="text-sm text-slate-600">{note}</p>}
+
+      <p className="text-xs leading-relaxed text-slate-500">
+        This is educational context. It does not diagnose, prescribe, or replace care from a clinician.
+      </p>
+
+      {note && <SaveToast key={note} message={note} />}
     </article>
   );
 }
