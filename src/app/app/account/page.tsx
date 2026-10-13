@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth/AuthContext";
+import { authClient } from "@/lib/auth/authClient";
 import { memberClient } from "@/lib/member/memberClient";
 import type { MemberAccountData } from "@/lib/member/memberTypes";
 import {
@@ -187,7 +188,7 @@ export default function AccountPage() {
 
             <Detail
               label="Email address"
-              hint="Changing the address requires confirming the new address by email, which is not connected yet. Contact support to change it."
+              hint="We send a confirmation link to the new address. Your current password is required, and the change finishes only after that link is opened."
             >
               <p className="break-words">{data.profile.email}</p>
               <p
@@ -197,6 +198,11 @@ export default function AccountPage() {
               >
                 {data.profile.emailVerified ? "Verified" : "Not verified yet"}
               </p>
+              {!data.profile.emailVerified ? (
+                <EmailVerifyActions />
+              ) : (
+                <EmailChangeForm currentEmail={data.profile.email} />
+              )}
             </Detail>
 
             <Detail label="Snapshot">
@@ -238,6 +244,130 @@ export default function AccountPage() {
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+function EmailVerifyActions() {
+  const { refreshUser } = useAuth();
+  const [busy, setBusy] = useState(false);
+  const [note, setNote] = useState<string | null>(null);
+
+  return (
+    <div className="mt-3 space-y-3">
+      <div className="flex flex-wrap gap-2">
+        <button
+          type="button"
+          disabled={busy}
+          className={secondaryButton}
+          onClick={() => {
+            setBusy(true);
+            setNote(null);
+            void authClient.resendVerification().then(async (result) => {
+              setBusy(false);
+              setNote(result.message || (result.success ? "Check your inbox." : "Could not send."));
+              if (result.success && result.data?.alreadyVerified) {
+                await refreshUser();
+              }
+            });
+          }}
+        >
+          {busy ? "Sending…" : "Resend confirmation email"}
+        </button>
+        <Link href="/verify-email" className={primaryButton}>
+          Open email confirmation
+        </Link>
+      </div>
+      <p className="text-xs text-slate-500">
+        Confirm this address before you can change it. After you get the email, use the
+        button in the message — or open confirmation here if you already have the link.
+      </p>
+      {note && <p className="text-xs text-slate-600">{note}</p>}
+    </div>
+  );
+}
+
+function EmailChangeForm({ currentEmail }: { currentEmail: string }) {
+  const [open, setOpen] = useState(false);
+  const [newEmail, setNewEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [note, setNote] = useState<SaveState>(null);
+
+  if (!open) {
+    return (
+      <div className="mt-3">
+        <button type="button" className={secondaryButton} onClick={() => setOpen(true)}>
+          Change email
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-3 space-y-3 sm:max-w-sm">
+      <input
+        type="email"
+        value={newEmail}
+        onChange={(event) => setNewEmail(event.target.value)}
+        placeholder="New email address"
+        autoComplete="email"
+        aria-label="New email address"
+        className={inputClass}
+      />
+      <input
+        type="password"
+        value={password}
+        onChange={(event) => setPassword(event.target.value)}
+        placeholder="Current password"
+        autoComplete="current-password"
+        aria-label="Current password"
+        className={inputClass}
+      />
+      <div className="flex flex-wrap gap-2">
+        <button
+          type="button"
+          disabled={busy || !newEmail.trim() || !password}
+          className={primaryButton}
+          onClick={() => {
+            if (newEmail.trim().toLowerCase() === currentEmail.toLowerCase()) {
+              setNote({ ok: false, note: "That is already your email address." });
+              return;
+            }
+            setBusy(true);
+            setNote(null);
+            void authClient.requestEmailChange(newEmail.trim(), password).then((result) => {
+              setBusy(false);
+              if (!result.success) {
+                setNote({ ok: false, note: result.message || "Could not start the change." });
+                return;
+              }
+              setPassword("");
+              setNote({
+                ok: true,
+                note:
+                  result.message ||
+                  `Check ${result.data?.pendingEmail ?? "the new inbox"} for the confirmation link.`,
+              });
+            });
+          }}
+        >
+          {busy ? "Sending…" : "Send confirmation"}
+        </button>
+        <button
+          type="button"
+          className={secondaryButton}
+          onClick={() => {
+            setOpen(false);
+            setNewEmail("");
+            setPassword("");
+            setNote(null);
+          }}
+        >
+          Cancel
+        </button>
+      </div>
+      <SaveNote state={note} />
     </div>
   );
 }

@@ -105,6 +105,18 @@ export interface AdminScorecard {
   latestRunAt: number | string | null;
 }
 
+export interface ProductEventCount {
+  eventName: string;
+  count: number;
+}
+
+export interface FunnelIntervalCard {
+  id: string;
+  label: string;
+  median: string | null;
+  sampleSize: number;
+}
+
 export interface AdminMetrics {
   members: number;
   snapshots: number;
@@ -115,6 +127,11 @@ export interface AdminMetrics {
   membersByPlan: PlanCount[];
   invitesByState: InviteCount[];
   flagSeverity: { low: number; medium: number; high: number } | null;
+  productEvents: {
+    last14Days: ProductEventCount[];
+    last30Days: ProductEventCount[];
+  };
+  funnelIntervals: FunnelIntervalCard[];
   scorecard: AdminScorecard;
 }
 

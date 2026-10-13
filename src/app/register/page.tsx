@@ -80,10 +80,13 @@ function RegisterContent() {
         if (accountRole) {
           document.cookie = `hercompass_user_role=${accountRole}; path=/; max-age=604800; SameSite=Lax`;
         }
-        setAuthSuccess(`Welcome to HerCompass, ${userName}! Opening your wellness space...`);
+        const verifyHint = res.data?.user.emailVerified
+          ? ""
+          : " Check your inbox to confirm your email when you can.";
+        setAuthSuccess(`Welcome to HerCompass, ${userName}! Opening your wellness space...${verifyHint}`);
         setTimeout(() => {
           window.location.href = values.role === "partner" ? "/partner" : homeRouteForRole(accountRole);
-        }, 500);
+        }, 900);
       } catch (err: unknown) {
         setAuthError("Failed to connect to registration server. Please try again.");
         setIsSubmittingForm(false);
