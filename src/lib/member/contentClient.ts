@@ -38,6 +38,24 @@ export interface MeditationCard {
   plusMessage: string | null;
 }
 
+export interface ExploreEvidence {
+  source: string;
+  note: string;
+}
+
+export interface ExploreCard {
+  slug: string;
+  title: string;
+  category: string;
+  minutes: number;
+  why: string;
+  tryThis: string;
+  tryHref: string;
+  tryLabel: string;
+  evidence: ExploreEvidence[];
+  starter: boolean;
+}
+
 interface ApiResult<T> {
   success: boolean;
   message: string;
@@ -66,4 +84,6 @@ export const contentClient = {
   getMeditation: (slug: string) => request<MeditationCard>(`/api/member/meditation/${slug}`),
   saveMeditation: (slug: string, body: { saved: boolean; started: boolean }) =>
     request<MeditationCard>(`/api/member/meditation/${slug}`, { method: "PUT", body: JSON.stringify(body) }),
+  listExploreItems: () => request<{ items: ExploreCard[] }>("/api/member/explore"),
+  getExploreItem: (slug: string) => request<ExploreCard>(`/api/member/explore/${slug}`),
 };

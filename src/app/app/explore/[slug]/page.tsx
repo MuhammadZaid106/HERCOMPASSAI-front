@@ -4,34 +4,75 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { memberClient } from "@/lib/member/memberClient";
-import { exploreCategories, exploreItem } from "@/lib/explore/catalog";
+import { contentClient, type ExploreCard } from "@/lib/member/contentClient";
+import { exploreCategories, exploreItem as staticExploreItem } from "@/lib/explore/catalog";
+
+function buildCategoryLabel(id: string): string {
+  return exploreCategories.find((c) => c.id === id)?.label ?? id;
+}
+
+function SkeletonDetail() {
+  return (
+    <article className="mx-auto max-w-3xl space-y-6 animate-pulse">
+      <div className="h-4 w-24 rounded bg-slate-200" />
+      <div className="mt-4 h-3 w-20 rounded bg-violet-200" />
+      <div className="mt-2 h-8 w-2/3 rounded bg-slate-200" />
+      <div className="mt-2 h-3 w-32 rounded bg-slate-200" />
+      <div className="rounded-3xl border border-slate-200 bg-white p-5 space-y-2">
+        <div className="h-5 w-40 rounded bg-slate-200" />
+        <div className="h-3 w-full rounded bg-slate-100" />
+        <div className="h-3 w-5/6 rounded bg-slate-100" />
+      </div>
+    </article>
+  );
+}
 
 export default function ExploreDetailPage() {
   const params = useParams<{ slug: string }>();
-  const item = exploreItem(params.slug);
+  const slug = params.slug;
+
+  const [item, setItem] = useState<ExploreCard | null | undefined>(undefined); // undefined = loading
   const [saved, setSaved] = useState(false);
   const [completed, setCompleted] = useState(false);
   const [note, setNote] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!item) return;
+    if (!slug) return;
     let active = true;
+
+    // Fetch from API, fall back to static catalog
+    void contentClient.getExploreItem(slug).then((result) => {
+      if (!active) return;
+      if (result.success && result.data) {
+        setItem(result.data);
+      } else {
+        // Graceful fallback to local static catalog
+        const fallback = staticExploreItem(slug);
+        setItem(fallback ?? null);
+      }
+    });
+
+    // Load user's explore progress for this item
     void memberClient.getExploreProgress().then((result) => {
       if (!active || !result.success || !result.data) return;
-      const match = result.data.items.find((entry) => entry.slug === item.slug);
+      const match = result.data.items.find((entry) => entry.slug === slug);
       if (!match) return;
       setSaved(match.saved);
       setCompleted(match.completed);
     });
+
     return () => {
       active = false;
     };
-  }, [item]);
-  const categoryLabel = exploreCategories.find(
-    (entry) => entry.id === item?.category,
-  )?.label;
+  }, [slug]);
 
-  if (!item) {
+  // Still loading
+  if (item === undefined) {
+    return <SkeletonDetail />;
+  }
+
+  // Not found (null)
+  if (item === null) {
     return (
       <div className="rounded-3xl border border-slate-200 bg-white p-6">
         <h1 className="text-xl font-extrabold text-slate-900">
@@ -43,6 +84,8 @@ export default function ExploreDetailPage() {
       </div>
     );
   }
+
+  const categoryLabel = buildCategoryLabel(item.category);
 
   return (
     <article className="mx-auto max-w-3xl space-y-6 animate-fadeIn">
