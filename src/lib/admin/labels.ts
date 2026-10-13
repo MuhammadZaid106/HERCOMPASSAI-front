@@ -46,6 +46,9 @@ export const CONTENT_KIND_LABEL: Record<string, string> = {
   article: "Article",
   mens_academy: "Men's Academy",
   partner_content: "Partner content",
+  partner_activity: "Partner activity",
+  couple_challenge: "Couple challenge",
+  explore: "Explore article",
   evidence_explanation: "Evidence explanation",
   educational: "Educational",
 };

@@ -1,93 +1,129 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Headphones,
   Play,
   Pause,
-  BookOpen,
-  CheckCircle2,
   Clock,
   Sparkles,
   Volume2,
-  ListMusic,
-  Share2,
 } from "lucide-react";
+import type { AcademyListItem } from "@/lib/partner/partnerClient";
 
-interface Episode {
-  id: string;
-  trackNumber: string;
+// Extend AcademyListItem locally with rich fields that the API returns
+interface EpisodeDisplay extends Partial<AcademyListItem> {
+  slug: string;
   title: string;
+  category: "basics" | "daily-life" | "relationship" | "workplace" | "sleep-intimacy" | string;
+  trackNumber: string;
   duration: string;
-  category: string;
   description: string;
   takeaway: string;
   listenContext: string;
+  summary: string;
+  read: boolean;
 }
 
-const EPISODES: Episode[] = [
+// Static fallback episodes — shown while loading or if API is unreachable
+const FALLBACK_EPISODES: EpisodeDisplay[] = [
   {
-    id: "ep-01",
+    slug: "menopause-basics",
     trackNumber: "01",
-    title: "The Thermostat Myth: Why She Isn't Just 'Hot'",
-    duration: "3:12",
-    category: "Biological Foundations",
-    description:
-      "A hot flash is not a feeling of warmth—it is a sudden malfunction of the hypothalamus triggering an emergency fight-or-flight thermoregulatory dump.",
-    takeaway:
-      "Understand why opening a window or asking 'Are you hot?' misses the biological reality.",
+    title: "Menopause basics",
+    category: "basics",
+    duration: "3:00",
+    description: "A short orientation for someone supporting a partner.",
+    takeaway: "Your role is practical support. Her care choices stay with her and her clinician.",
     listenContext: "Great for morning coffee or commute.",
+    summary: "A short orientation for someone supporting a partner.",
+    read: false,
   },
   {
-    id: "ep-04",
+    slug: "what-may-be-changing",
+    trackNumber: "02",
+    title: "What may be changing",
+    category: "basics",
+    duration: "3:00",
+    description: "How to talk about change without guessing a cause.",
+    takeaway: "Ask what would help today instead of deciding what she is feeling.",
+    listenContext: "Listen before a conversation.",
+    summary: "How to talk about change without guessing a cause.",
+    read: false,
+  },
+  {
+    slug: "mood",
+    trackNumber: "03",
+    title: "Mood",
+    category: "daily-life",
+    duration: "3:00",
+    description: "Stay beside her without treating a hard day as a diagnosis.",
+    takeaway: "Patience and a simple question are enough to start.",
+    listenContext: "Recommended before evening household wind-down.",
+    summary: "Stay beside her without treating a hard day as a diagnosis.",
+    read: false,
+  },
+  {
+    slug: "communication",
     trackNumber: "04",
-    title: "Why 'Cheer Up' Triggers an Alarm Response",
-    duration: "3:40",
-    category: "Communication Pointers",
-    description:
-      "Estrogen drops reduce serotonin receptor density. Mood lability during perimenopause is chemical, not personal resentment toward you.",
-    takeaway:
-      "Replace 'Cheer up' or 'Don't worry' with nervous system validating statements that quiet the amygdala.",
-    listenContext: "Listen before evening household wind-down.",
-  },
-  {
-    id: "ep-08",
-    trackNumber: "08",
-    title: "Bedtime Co-Regulation & The 67°F Protocol",
-    duration: "2:55",
-    category: "Sleep & Intimacy",
-    description:
-      "How dual-zone bedding and a pre-cooled bedroom restore 90 minutes of restorative deep sleep for both partners.",
-    takeaway:
-      "Simple bedroom adjustments that prevent 3:00 AM awakenings and bedtime anxiety.",
-    listenContext: "Practical weekend routine upgrade.",
-  },
-  {
-    id: "ep-12",
-    trackNumber: "12",
-    title: "Executive Fog: Protecting Her Career Bandwidth",
-    duration: "3:25",
-    category: "Workplace Support",
-    description:
-      "Prefrontal glucose hypometabolism can cause terrifying moments of word-retrieval loss in high-performing women. How to be her anchor.",
-    takeaway:
-      "How to reduce cognitive load at home so she can excel in the boardroom without exhaustion.",
+    title: "Communication",
+    category: "relationship",
+    duration: "3:00",
+    description: "One question that leaves the answer with her.",
+    takeaway: 'Try: "How can I support you this week?" Then wait.',
     listenContext: "Recommended for couples with demanding careers.",
+    summary: "One question that leaves the answer with her.",
+    read: false,
   },
 ];
 
-export default function PartnerAcademyHub() {
-  const [activeEpisode, setActiveEpisode] = useState<Episode>(EPISODES[0]);
-  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+function SkeletonTrack() {
+  return (
+    <div className="animate-pulse w-full p-3.5 rounded-2xl border border-slate-200 flex items-center gap-3">
+      <div className="h-8 w-8 rounded-xl bg-slate-200 shrink-0" />
+      <div className="flex-1 space-y-1.5">
+        <div className="h-3 w-3/4 rounded bg-slate-200" />
+        <div className="h-2.5 w-1/2 rounded bg-slate-100" />
+      </div>
+    </div>
+  );
+}
 
-  const togglePlay = () => {
-    setIsPlaying(!isPlaying);
-  };
+export default function PartnerAcademyHub() {
+  const [episodes, setEpisodes] = useState<EpisodeDisplay[]>(FALLBACK_EPISODES);
+  const [activeEpisode, setActiveEpisode] = useState<EpisodeDisplay>(FALLBACK_EPISODES[0]);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [totalCount, setTotalCount] = useState(16);
+
+  useEffect(() => {
+    let active = true;
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "http://localhost:5000";
+    fetch(`${apiUrl}/api/public/academy/episodes`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!active) return;
+        const fetched = data?.data?.episodes as EpisodeDisplay[] | undefined;
+        if (fetched && fetched.length > 0) {
+          setEpisodes(fetched);
+          setActiveEpisode(fetched[0]);
+          setTotalCount(Math.max(fetched.length, 16));
+        }
+        setLoading(false);
+      })
+      .catch(() => {
+        if (!active) return;
+        setLoading(false);
+      });
+    return () => { active = false; };
+  }, []);
+
+  const togglePlay = () => setIsPlaying((p) => !p);
 
   return (
     <section id="academy" className="py-12 sm:py-16 lg:py-24 bg-white border-b border-slate-200/80">
       <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
-        
+
         {/* Section Header */}
         <div className="max-w-3xl">
           <div className="inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-indigo-50 px-3.5 py-1 text-xs font-semibold text-indigo-700 mb-3">
@@ -105,19 +141,19 @@ export default function PartnerAcademyHub() {
 
         {/* 2-Column Showcase */}
         <div className="mt-8 sm:mt-12 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-start">
-          
+
           {/* Left Column: Interactive Audio Player */}
           <div className="lg:col-span-6 space-y-4">
             <div className="rounded-3xl border border-slate-800 bg-slate-950 p-5 sm:p-7 text-white shadow-2xl relative overflow-hidden">
               <div className="absolute top-0 right-0 -mt-10 -mr-10 h-48 w-48 rounded-full bg-teal-500/10 blur-3xl pointer-events-none" />
-              
+
               {/* Player Top Meta */}
               <div className="flex items-center justify-between text-xs text-slate-400 pb-4 border-b border-slate-800">
                 <span className="flex items-center gap-1.5 text-teal-400 font-bold uppercase tracking-wider text-[10px]">
                   <Volume2 className="h-3.5 w-3.5" />
                   <span>The Men&apos;s Academy Audio Player</span>
                 </span>
-                <span>Track {activeEpisode.trackNumber} of 16</span>
+                <span>Track {activeEpisode.trackNumber ?? "—"} of {totalCount}</span>
               </div>
 
               {/* Active Track Info */}
@@ -129,7 +165,7 @@ export default function PartnerAcademyHub() {
                   {activeEpisode.title}
                 </h3>
                 <p className="text-xs text-slate-300 leading-relaxed pt-1">
-                  {activeEpisode.description}
+                  {activeEpisode.description ?? activeEpisode.summary}
                 </p>
               </div>
 
@@ -144,7 +180,7 @@ export default function PartnerAcademyHub() {
                 </div>
                 <div className="flex items-center justify-between text-[10px] text-slate-400 font-mono">
                   <span>{isPlaying ? "01:14" : "00:32"}</span>
-                  <span>{activeEpisode.duration}</span>
+                  <span>{activeEpisode.duration ?? "3:00"}</span>
                 </div>
               </div>
 
@@ -167,21 +203,22 @@ export default function PartnerAcademyHub() {
                 </div>
 
                 <span className="text-[11px] text-slate-400 font-medium bg-slate-900 border border-slate-800 px-2.5 py-1 rounded-lg">
-                  {activeEpisode.listenContext}
+                  {activeEpisode.listenContext ?? "Great for commute."}
                 </span>
               </div>
 
               {/* Takeaway Box */}
-              <div className="mt-6 p-4 rounded-2xl bg-slate-900/90 border border-slate-800 text-xs space-y-1">
-                <div className="flex items-center gap-1.5 text-teal-300 font-bold text-[11px]">
-                  <Sparkles className="h-3 w-3" />
-                  <span>Key Actionable Takeaway for Partner</span>
+              {(activeEpisode.takeaway ?? activeEpisode.summary) && (
+                <div className="mt-6 p-4 rounded-2xl bg-slate-900/90 border border-slate-800 text-xs space-y-1">
+                  <div className="flex items-center gap-1.5 text-teal-300 font-bold text-[11px]">
+                    <Sparkles className="h-3 w-3" />
+                    <span>Key Actionable Takeaway for Partner</span>
+                  </div>
+                  <p className="text-slate-300 leading-relaxed">
+                    {activeEpisode.takeaway ?? activeEpisode.summary}
+                  </p>
                 </div>
-                <p className="text-slate-300 leading-relaxed">
-                  {activeEpisode.takeaway}
-                </p>
-              </div>
-
+              )}
             </div>
           </div>
 
@@ -192,55 +229,57 @@ export default function PartnerAcademyHub() {
                 Course Syllabus (Select a Track to Preview)
               </span>
               <span className="text-xs font-semibold text-teal-700 bg-teal-50 px-2 py-0.5 rounded-md">
-                16 Lessons Total
+                {totalCount} Lessons Total
               </span>
             </div>
 
             <div className="space-y-2.5">
-              {EPISODES.map((ep) => {
-                const isSelected = ep.id === activeEpisode.id;
-                return (
-                  <button
-                    key={ep.id}
-                    onClick={() => {
-                      setActiveEpisode(ep);
-                      setIsPlaying(true);
-                    }}
-                    className={`w-full text-left p-3.5 sm:p-4 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
-                      isSelected
-                        ? "bg-slate-50 border-teal-600 shadow-sm"
-                        : "bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50/50"
-                    }`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className={`h-8 w-8 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 ${
-                        isSelected ? "bg-teal-600 text-white" : "bg-slate-100 text-slate-600"
-                      }`}>
-                        {ep.trackNumber}
-                      </div>
-                      <div>
-                        <div className="text-xs sm:text-sm font-bold text-slate-900 leading-snug">
-                          {ep.title}
+              {loading
+                ? Array.from({ length: 4 }).map((_, i) => <SkeletonTrack key={i} />)
+                : episodes.map((ep) => {
+                    const isSelected = ep.slug === activeEpisode.slug;
+                    return (
+                      <button
+                        key={ep.slug}
+                        onClick={() => {
+                          setActiveEpisode(ep);
+                          setIsPlaying(true);
+                        }}
+                        className={`w-full text-left p-3.5 sm:p-4 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
+                          isSelected
+                            ? "bg-slate-50 border-teal-600 shadow-sm"
+                            : "bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50/50"
+                        }`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className={`h-8 w-8 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 ${
+                            isSelected ? "bg-teal-600 text-white" : "bg-slate-100 text-slate-600"
+                          }`}>
+                            {ep.trackNumber ?? "—"}
+                          </div>
+                          <div>
+                            <div className="text-xs sm:text-sm font-bold text-slate-900 leading-snug">
+                              {ep.title}
+                            </div>
+                            <div className="flex items-center gap-2 mt-1 text-[11px] text-slate-500">
+                              <span>{ep.category}</span>
+                              <span>•</span>
+                              <span className="flex items-center gap-1">
+                                <Clock className="h-3 w-3" />
+                                <span>{ep.duration ?? "3:00"}</span>
+                              </span>
+                            </div>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2 mt-1 text-[11px] text-slate-500">
-                          <span>{ep.category}</span>
-                          <span>•</span>
-                          <span className="flex items-center gap-1">
-                            <Clock className="h-3 w-3" />
-                            <span>{ep.duration}</span>
-                          </span>
-                        </div>
-                      </div>
-                    </div>
 
-                    <div className={`h-7 w-7 rounded-xl border flex items-center justify-center shrink-0 ${
-                      isSelected ? "border-teal-600 bg-teal-50 text-teal-700" : "border-slate-200 text-slate-400"
-                    }`}>
-                      <Play className="h-3 w-3 fill-current ml-0.5" />
-                    </div>
-                  </button>
-                );
-              })}
+                        <div className={`h-7 w-7 rounded-xl border flex items-center justify-center shrink-0 ${
+                          isSelected ? "border-teal-600 bg-teal-50 text-teal-700" : "border-slate-200 text-slate-400"
+                        }`}>
+                          <Play className="h-3 w-3 fill-current ml-0.5" />
+                        </div>
+                      </button>
+                    );
+                  })}
             </div>
 
             <div className="pt-2 text-center sm:text-left">
@@ -248,7 +287,6 @@ export default function PartnerAcademyHub() {
                 New episodes added monthly covering HRT discussions, relationship intimacy, and sleep hygiene.
               </span>
             </div>
-
           </div>
 
         </div>

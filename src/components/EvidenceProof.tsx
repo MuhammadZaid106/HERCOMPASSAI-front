@@ -1,33 +1,66 @@
-import React from "react";
-import { ShieldCheck, BookOpenCheck, Stethoscope, Award, HeartPulse } from "lucide-react";
+"use client";
+
+import React, { useEffect, useState } from "react";
+import { ShieldCheck, BookOpenCheck, Stethoscope, Award, HeartPulse, Sparkles } from "lucide-react";
+
+interface AuthorityItem {
+  name: string;
+  full: string;
+  desc: string;
+  icon: typeof Award;
+}
+
+const DEFAULT_AUTHORITIES: AuthorityItem[] = [
+  {
+    name: "NAMS",
+    full: "The Menopause Society",
+    desc: "Clinical guidelines for vasomotor symptoms & lifestyle adaptation",
+    icon: Award,
+  },
+  {
+    name: "ACOG",
+    full: "American College of Obstetricians & Gynecologists",
+    desc: "Standard protocols for perimenopausal movement & well-being",
+    icon: Stethoscope,
+  },
+  {
+    name: "WHO Guidelines",
+    full: "World Health Organization",
+    desc: "Global evidence-grounded nutrition & endocrine balance frameworks",
+    icon: HeartPulse,
+  },
+  {
+    name: "Harvard Health",
+    full: "School of Public Health",
+    desc: "Peer-reviewed micro-nutrient and sleep hygiene literature",
+    icon: BookOpenCheck,
+  },
+];
 
 export default function EvidenceProof() {
-  const authorities = [
-    {
-      name: "NAMS",
-      full: "The Menopause Society",
-      desc: "Clinical guidelines for vasomotor symptoms & lifestyle adaptation",
-      icon: Award,
-    },
-    {
-      name: "ACOG",
-      full: "American College of Obstetricians & Gynecologists",
-      desc: "Standard protocols for perimenopausal movement & well-being",
-      icon: Stethoscope,
-    },
-    {
-      name: "WHO Guidelines",
-      full: "World Health Organization",
-      desc: "Global evidence-grounded nutrition & endocrine balance frameworks",
-      icon: HeartPulse,
-    },
-    {
-      name: "Harvard Health",
-      full: "School of Public Health",
-      desc: "Peer-reviewed micro-nutrient and sleep hygiene literature",
-      icon: BookOpenCheck,
-    },
-  ];
+  const [authorities] = useState<AuthorityItem[]>(DEFAULT_AUTHORITIES);
+  const [evidenceCount, setEvidenceCount] = useState<number | null>(null);
+  const [topicCount, setTopicCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "http://localhost:5000";
+    fetch(`${apiUrl}/api/public/evidence/summary`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!active || !data?.data) return;
+        const total = data.data.totalApprovedRecords;
+        const topics = data.data.topicAreas?.length;
+        if (typeof total === "number") setEvidenceCount(total);
+        if (typeof topics === "number") setTopicCount(topics);
+      })
+      .catch(() => {
+        // graceful silent fallback
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   return (
     <section id="evidence" className="py-14 border-y border-slate-200/80 bg-white">
@@ -37,6 +70,12 @@ export default function EvidenceProof() {
             <div className="flex items-center gap-2 text-violet-700 text-xs font-bold uppercase tracking-wider">
               <ShieldCheck className="h-4 w-4" />
               <span>Grounded In Clinical Science, Not Fads</span>
+              {evidenceCount && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-violet-100 px-2 py-0.5 text-[11px] font-bold text-violet-800">
+                  <Sparkles className="h-3 w-3" />
+                  {evidenceCount} Verified Guidelines {topicCount ? `· ${topicCount} Focus Areas` : ""}
+                </span>
+              )}
             </div>
             <h2 className="text-2xl font-bold tracking-tight text-slate-900 mt-1">
               Referencing World-Class Medical & Behavioral Evidence
