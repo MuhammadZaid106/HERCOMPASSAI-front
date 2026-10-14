@@ -96,6 +96,8 @@ export interface ExploreCard {
   tryLabel: string;
   evidence: ExploreEvidence[];
   starter: boolean;
+  sections?: Array<{ heading: string; body: string }>;
+  actions?: Array<{ label: string; href: string }>;
 }
 
 interface ApiResult<T> {
