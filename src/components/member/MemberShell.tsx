@@ -19,7 +19,9 @@ import {
   Search,
   Settings,
   Sparkles,
+  Dumbbell,
   Flower2,
+  UtensilsCrossed,
   MessagesSquare,
   UserRound,
   X,
@@ -39,6 +41,8 @@ const ALL_SIDEBAR_LINKS = [
   { href: "/app/ai-lab", label: "AI Lab", icon: FlaskConical },
   { href: "/app/plans", label: "Plans", icon: Compass },
   { href: "/app/explore", label: "Explore", icon: Search },
+  { href: "/app/recipes", label: "Recipes", icon: UtensilsCrossed },
+  { href: "/app/workouts", label: "Workouts", icon: Dumbbell },
   { href: "/app/meditation", label: "Meditation", icon: Flower2 },
   { href: "/app/community", label: "Community", icon: MessagesSquare },
   { href: "/app/partner", label: "Partner", icon: HeartHandshake },
@@ -66,6 +70,8 @@ const mobileLinks = [
   { href: "/app/track", label: "Track", icon: Activity },
   { href: "/app/insights", label: "Insights", icon: LineChart },
   { href: "/app/explore", label: "Explore", icon: Search },
+  { href: "/app/recipes", label: "Recipes", icon: UtensilsCrossed },
+  { href: "/app/workouts", label: "Workouts", icon: Dumbbell },
 ];
 
 function isActive(pathname: string, href: string): boolean {

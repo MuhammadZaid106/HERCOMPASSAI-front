@@ -133,6 +133,19 @@ export default function ExploreDetailPage() {
         >
           {item.tryLabel}
         </Link>
+        {item.actions && item.actions.length > 0 && (
+          <div className="mt-4 flex flex-wrap gap-2">
+            {item.actions.map((action) => (
+              <Link
+                key={action.href}
+                href={action.href}
+                className="inline-flex min-h-10 items-center rounded-full border border-slate-300 px-4 text-sm font-bold text-slate-700 transition hover:bg-slate-50"
+              >
+                {action.label}
+              </Link>
+            ))}
+          </div>
+        )}
         <div className="mt-4 flex flex-col gap-3 sm:flex-row">
           <button
             type="button"
@@ -177,6 +190,17 @@ export default function ExploreDetailPage() {
         </div>
         {note && <p className="mt-3 text-sm text-slate-600">{note}</p>}
       </section>
+
+      {item.sections && item.sections.length > 0 && (
+        <section className="space-y-4">
+          {item.sections.map((section) => (
+            <div key={section.heading} className="rounded-3xl border border-slate-200 bg-white p-5 sm:p-6">
+              <h2 className="text-lg font-extrabold text-slate-900">{section.heading}</h2>
+              <p className="mt-2 text-sm leading-relaxed text-slate-600">{section.body}</p>
+            </div>
+          ))}
+        </section>
+      )}
 
       <section>
         <h2 className="text-lg font-extrabold text-slate-900">Evidence</h2>

@@ -6,6 +6,7 @@
  * - /snapshot    — must have completed onboarding
  * - /app         — must be an authenticated member
  * - /admin       — must be authenticated (role check done in page-level guard)
+ * - /account, /upgrade, /trial — member billing pages (must be an authenticated member; role check below)
  * - /partner/consent, /partner/permissions, /partner/settings, /partner/account, /partner/activities, /partner/academy, /partner/digest, /partner/support, /partner/conversation — signed-in partner pages. The public /partner page and /partner/invite stay open.
  *
  * Strategy:
@@ -30,6 +31,9 @@ const PROTECTED_ROUTES = [
   "/snapshot",
   "/app",
   "/admin",
+  "/account",
+  "/upgrade",
+  "/trial",
   "/partner/consent",
   "/partner/permissions",
   "/partner/settings",
@@ -90,6 +94,21 @@ export function proxy(request: NextRequest) {
     }
     if (userRole === "admin" || userRole === "developer") {
       return NextResponse.redirect(new URL("/admin", request.url));
+    }
+  }
+
+  // Billing (/account, /upgrade, /trial) is a member area; partners and staff
+  // belong in their own homes. UX only — `hercompass_user_role` is a
+  // client-writable cookie, so the real enforcement is requireAuth on the
+  // billing API (and the page-level guard in MemberShell).
+  if (
+    isAuthenticated &&
+    (pathname.startsWith("/account") ||
+      pathname.startsWith("/upgrade") ||
+      pathname.startsWith("/trial"))
+  ) {
+    if (userRole && userRole !== "member") {
+      return NextResponse.redirect(new URL(homeRouteForRole(userRole), request.url));
     }
   }
 

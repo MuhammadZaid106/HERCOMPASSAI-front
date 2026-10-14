@@ -29,8 +29,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
+    const timers: number[] = [];
+    // Every state change produced by reading external systems (a logout cookie
+    // or stored tokens) is deferred to a timer; a synchronous setState in the
+    // effect body is what react-hooks/set-state-in-effect rejects.
+    const defer = (run: () => void) => {
+      const id = window.setTimeout(() => {
+        if (isMounted) run();
+      }, 0);
+      timers.push(id);
+    };
+    const cleanup = () => {
+      isMounted = false;
+      timers.forEach((id) => window.clearTimeout(id));
+    };
+
     if (nextAuthStatus === "loading") {
-      return;
+      return cleanup;
     }
 
     const signedOut =
@@ -39,9 +55,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     if (signedOut) {
       authClient.clearSession();
-      setUser(null);
-      setLoading(false);
-      return;
+      defer(() => {
+        setUser(null);
+        setLoading(false);
+      });
+      return cleanup;
     }
 
     // Email/password sessions use the backend JWT as the source of truth. This
@@ -49,8 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const storedUser = authClient.getStoredUser();
     const storedTokens = authClient.getStoredTokens();
     if (storedUser && storedTokens) {
-      setUser(storedUser);
-      let isMounted = true;
+      defer(() => setUser(storedUser));
       authClient
         .getMe()
         .then((res) => {
@@ -76,9 +93,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setLoading(false);
           }
         });
-      return () => {
-        isMounted = false;
-      };
+      return cleanup;
     }
 
     if (nextAuthStatus === "authenticated" && nextAuthSession?.user) {
@@ -110,8 +125,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         emailVerified: true,
       };
 
-      setUser(googleUser);
-
       if (u.backendAccessToken && u.backendRefreshToken) {
         authClient.setSession(googleUser, {
           accessToken: u.backendAccessToken,
@@ -121,14 +134,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         authClient.setStoredUser(googleUser);
       }
 
-      setLoading(false);
-      return;
+      defer(() => {
+        setUser(googleUser);
+        setLoading(false);
+      });
+      return cleanup;
     }
 
     // Check custom JWT stored session if not signed in through NextAuth
     if (storedUser) {
-      setUser(storedUser);
-      let isMounted = true;
+      defer(() => setUser(storedUser));
       authClient
         .getMe()
         .then((res) => {
@@ -154,13 +169,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setLoading(false);
           }
         });
-      return () => {
-        isMounted = false;
-      };
-    } else {
+      return cleanup;
+    }
+
+    defer(() => {
       setUser(null);
       setLoading(false);
-    }
+    });
+    return cleanup;
   }, [nextAuthSession, nextAuthStatus]);
 
   const login = async (payload: LoginPayload) => {

@@ -2,14 +2,50 @@ import { authClient } from "@/lib/auth/authClient";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "http://localhost:5000";
 
+export interface RecipeMacros {
+  proteinG: number;
+  carbsG: number;
+  fatG: number;
+  caloriesKcal: number;
+}
+
+export interface ContentEvidence {
+  source: string;
+  note: string;
+}
+
+export type RecipeCategory = "breakfast" | "lunch" | "dinner" | "snacks";
+
 export interface RecipeCard {
   slug: string;
   title: string;
   why: string;
   ingredients: string[];
   nutrition: string;
+  category: RecipeCategory;
+  prepMinutes: number;
+  servings: number;
+  difficulty: string;
+  instructions: string[];
+  macroSummary: RecipeMacros | null;
+  included: boolean;
+  evidence: ContentEvidence[];
   saved: boolean;
   onPlan: boolean;
+}
+
+export type WorkoutCategory =
+  | "low-impact"
+  | "flexibility"
+  | "strength"
+  | "cardio"
+  | "breathing";
+
+export interface WorkoutExercise {
+  title: string;
+  detail: string;
+  reps: string;
+  seconds?: number;
 }
 
 export interface WorkoutCard {
@@ -18,6 +54,12 @@ export interface WorkoutCard {
   focus: string;
   difficulty: string;
   why: string;
+  category: WorkoutCategory;
+  durationMinutes: number;
+  focusAreas: string[];
+  included: boolean;
+  exercises: WorkoutExercise[];
+  evidence: ContentEvidence[];
   saved: boolean;
   started: boolean;
 }

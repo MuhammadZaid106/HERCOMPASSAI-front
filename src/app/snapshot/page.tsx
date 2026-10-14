@@ -36,6 +36,7 @@ import {
   recoveryHref,
 } from "@/lib/ai/aiErrors";
 import { useAuth } from "@/lib/auth/AuthContext";
+import SnapshotSafetyDisclosure from "@/components/snapshot/SnapshotSafetyDisclosure";
 
 /** A score the backend did not calculate shows as a dash, never as a blank. */
 function Score({ value }: { value: number | string | null | undefined }) {
@@ -551,6 +552,8 @@ export default function SnapshotPage() {
                     Source: {obs.evidenceNote}
                   </p>
                 )}
+
+                <SnapshotSafetyDisclosure />
               </div>
             ))}
           </div>
@@ -748,6 +751,15 @@ export default function SnapshotPage() {
             <span>Explore Partner Support & Men&apos;s Academy</span>
           </Link>
         </div>
+
+        <Link
+          href="/trial"
+          className="mt-4 inline-flex w-full items-center justify-center gap-2 text-center text-xs font-semibold text-violet-700 transition hover:text-violet-900 lg:w-auto"
+        >
+          <Sparkles className="h-3.5 w-3.5 shrink-0 text-violet-600" />
+          <span>Ready to go deeper? Start a free 14-day Premium trial</span>
+          <ArrowRight className="h-3.5 w-3.5 shrink-0" />
+        </Link>
       </div>
     </div>
   );

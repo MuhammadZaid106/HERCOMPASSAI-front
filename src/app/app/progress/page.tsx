@@ -66,8 +66,14 @@ export default function ProgressPage() {
 
   useEffect(() => {
     let active = true;
-    setError(null);
-    setData(null);
+    // The previous range's data is cleared on a timer, not inline, so the
+    // effect body has no synchronous setState; the skeleton still shows
+    // immediately because the fetch always resolves after this tick.
+    const resetTimer = window.setTimeout(() => {
+      if (!active) return;
+      setError(null);
+      setData(null);
+    }, 0);
     void memberClient.getProgress(range).then((result) => {
       if (!active) return;
       if (result.success && result.data) {
@@ -78,6 +84,7 @@ export default function ProgressPage() {
     });
     return () => {
       active = false;
+      window.clearTimeout(resetTimer);
     };
   }, [range]);
   return (

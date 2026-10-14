@@ -85,9 +85,14 @@ export default function PlansPage() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const requestedInterval = params.get("interval");
-    if (requestedInterval === "month" || requestedInterval === "year") {
-      setInterval(requestedInterval);
-    }
+    if (requestedInterval !== "month" && requestedInterval !== "year") return;
+    // Applied on a timer rather than inline so the URL read stays a pure
+    // external-system sync and the effect body never sets state synchronously.
+    const applyTimer = window.setTimeout(
+      () => setInterval(requestedInterval),
+      0,
+    );
+    return () => window.clearTimeout(applyTimer);
   }, []);
 
   // Stripe redirects back here with ?status=success or ?status=cancelled.

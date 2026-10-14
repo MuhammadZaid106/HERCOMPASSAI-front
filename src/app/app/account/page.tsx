@@ -225,8 +225,14 @@ export default function AccountPage() {
             <Link href="/app/plans" className={linkClass}>
               Plans
             </Link>
+            <Link href="/app/account/billing" className={linkClass}>
+              Billing
+            </Link>
             <Link href="/app/support" className={linkClass}>
               Support
+            </Link>
+            <Link href="/app/privacy-center" className={linkClass}>
+              Privacy Center
             </Link>
           </div>
 

@@ -14,7 +14,9 @@ export default function Navbar() {
   const { user } = useAuth();
   const isFeaturesActive = pathname === "/features";
   const isHowItWorksActive = pathname === "/how-it-works";
-  const isPartnerActive = pathname === "/partner";
+  const isEvidenceActive = pathname === "/evidence";
+  const isPartnerSupportActive = pathname === "/partner-support";
+  const isPricingActive = pathname === "/pricing";
   const primaryHref = !user
     ? "/onboarding"
     : user.role === "member"
@@ -82,29 +84,43 @@ export default function Navbar() {
             )}
           </Link>
           <Link
-            href={isFeaturesActive ? "/features#evidence" : isHowItWorksActive ? "/how-it-works#architecture" : isPartnerActive ? "/partner#privacy" : "/#evidence"}
-            className="text-sm font-medium text-slate-600 hover:text-violet-600 transition-colors whitespace-nowrap"
+            href="/evidence"
+            className={`text-sm font-medium transition-colors whitespace-nowrap relative ${
+              isEvidenceActive
+                ? "text-violet-600 font-semibold"
+                : "text-slate-600 hover:text-violet-600"
+            }`}
           >
             Evidence Base
+            {isEvidenceActive && (
+              <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-violet-600 rounded-full" />
+            )}
           </Link>
           <Link
-            href="/partner"
+            href="/partner-support"
             className={`text-sm font-medium transition-colors whitespace-nowrap relative ${
-              isPartnerActive
+              isPartnerSupportActive
                 ? "text-violet-600 font-semibold"
                 : "text-slate-600 hover:text-violet-600"
             }`}
           >
             Partner Support
-            {isPartnerActive && (
+            {isPartnerSupportActive && (
               <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-violet-600 rounded-full" />
             )}
           </Link>
           <Link
-            href="/#pricing"
-            className="text-sm font-medium text-slate-600 hover:text-violet-600 transition-colors whitespace-nowrap"
+            href="/pricing"
+            className={`text-sm font-medium transition-colors whitespace-nowrap relative ${
+              isPricingActive
+                ? "text-violet-600 font-semibold"
+                : "text-slate-600 hover:text-violet-600"
+            }`}
           >
             Pricing
+            {isPricingActive && (
+              <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-violet-600 rounded-full" />
+            )}
           </Link>
         </nav>
 
@@ -193,27 +209,35 @@ export default function Navbar() {
               How It Works
             </Link>
             <Link
-              href={isFeaturesActive ? "/features#evidence" : isHowItWorksActive ? "/how-it-works#architecture" : isPartnerActive ? "/partner#privacy" : "/#evidence"}
-              onClick={() => setMobileMenuOpen(false)}
-              className="rounded-lg px-3 py-2 text-sm sm:text-base font-medium text-slate-700 hover:bg-violet-50 hover:text-violet-600"
-            >
-              Evidence Base
-            </Link>
-            <Link
-              href="/partner"
+              href="/evidence"
               onClick={() => setMobileMenuOpen(false)}
               className={`rounded-lg px-3 py-2 text-sm sm:text-base font-medium transition-colors ${
-                isPartnerActive
+                isEvidenceActive
                   ? "bg-violet-50 text-violet-700 font-semibold"
                   : "text-slate-700 hover:bg-violet-50 hover:text-violet-600"
               }`}
             >
-              Partner Support (CPS)
+              Evidence Base
             </Link>
             <Link
-              href="/#pricing"
+              href="/partner-support"
               onClick={() => setMobileMenuOpen(false)}
-              className="rounded-lg px-3 py-2 text-sm sm:text-base font-medium text-slate-700 hover:bg-violet-50 hover:text-violet-600"
+              className={`rounded-lg px-3 py-2 text-sm sm:text-base font-medium transition-colors ${
+                isPartnerSupportActive
+                  ? "bg-violet-50 text-violet-700 font-semibold"
+                  : "text-slate-700 hover:bg-violet-50 hover:text-violet-600"
+              }`}
+            >
+              Partner Support
+            </Link>
+            <Link
+              href="/pricing"
+              onClick={() => setMobileMenuOpen(false)}
+              className={`rounded-lg px-3 py-2 text-sm sm:text-base font-medium transition-colors ${
+                isPricingActive
+                  ? "bg-violet-50 text-violet-700 font-semibold"
+                  : "text-slate-700 hover:bg-violet-50 hover:text-violet-600"
+              }`}
             >
               Pricing
             </Link>

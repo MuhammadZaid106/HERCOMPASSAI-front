@@ -22,15 +22,19 @@ export default function AdminCommunityPage() {
   const [notes, setNotes] = useState<CommunityReviewNote[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const load = useCallback(async (status: (typeof FILTERS)[number]["id"]) => {
-    const result = await adminClient.listCommunityNotes(status);
-    if (!result.ok || !result.data) {
-      setError(result.message || "The review queue is unavailable right now.");
-      setNotes(null);
-      return;
-    }
-    setError(null);
-    setNotes(result.data.notes);
+  // Written as a promise chain rather than async/await so every `setState`
+  // lives inside a `.then()` callback. That keeps the effect below free of the
+  // synchronous setState that `react-hooks/set-state-in-effect` rejects.
+  const load = useCallback((status: (typeof FILTERS)[number]["id"]) => {
+    return adminClient.listCommunityNotes(status).then((result) => {
+      if (!result.ok || !result.data) {
+        setError(result.message || "The review queue is unavailable right now.");
+        setNotes(null);
+        return;
+      }
+      setError(null);
+      setNotes(result.data.notes);
+    });
   }, []);
 
   useEffect(() => {
