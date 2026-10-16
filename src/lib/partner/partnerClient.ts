@@ -12,6 +12,14 @@ export interface ActivityItem {
   sourceName: string | null;
 }
 
+export interface CoupleChallenge {
+  id: string;
+  title: string;
+  category: string;
+  description: string;
+  benefit: string;
+}
+
 export interface AcademyListItem {
   slug: string;
   category: string;
@@ -55,6 +63,7 @@ async function getJson<T>(path: string): Promise<{ ok: true; data: T } | { ok: f
 
 export const partnerClient = {
   activities: () => getJson<{ memberFirstName: string; activities: ActivityItem[] }>("/api/partner/activities"),
+  challenges: () => getJson<{ challenges: CoupleChallenge[] }>("/api/partner/challenges"),
   academy: () => getJson<{ included: boolean; plusMessage?: string; lessons: AcademyListItem[] }>("/api/partner/academy"),
   lesson: (slug: string) => getJson<{ included: boolean; plusMessage?: string; lesson?: AcademyLessonDetail }>(`/api/partner/academy/${slug}`),
   markLessonRead: async (slug: string) => {

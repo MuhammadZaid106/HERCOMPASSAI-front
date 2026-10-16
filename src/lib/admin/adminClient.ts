@@ -15,6 +15,9 @@ export type ContentKind =
   | "article"
   | "mens_academy"
   | "partner_content"
+  | "partner_activity"
+  | "couple_challenge"
+  | "explore"
   | "evidence_explanation"
   | "educational";
 
