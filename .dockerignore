@@ -1,0 +1,15 @@
+node_modules
+.next
+coverage
+
+.env
+.env.local
+.env.*.local
+
+.git
+.gitignore
+Dockerfile
+.dockerignore
+*.log
+.DS_Store
+tsconfig.tsbuildinfo

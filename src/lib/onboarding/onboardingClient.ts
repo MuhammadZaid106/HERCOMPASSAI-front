@@ -227,6 +227,26 @@ export const onboardingClient = {
   async getSnapshot(options: { refresh?: boolean } = {}): Promise<SnapshotResult> {
     const tokens = authClient.getStoredTokens();
     if (!tokens?.accessToken) {
+      // Check for one-time free guest snapshot preview
+      if (typeof window !== "undefined") {
+        try {
+          const guestRaw = localStorage.getItem("hercompass_guest_snapshot_data");
+          if (guestRaw) {
+            const parsed = JSON.parse(guestRaw);
+            return {
+              snapshot: parsed as PersonalSnapshotData,
+              generated: true,
+              requestId: "guest-one-time-snapshot",
+              status: 200,
+              reason: null,
+              message: "One-Time Free Personal Menopause Snapshot",
+            };
+          }
+        } catch (e) {
+          console.warn("Could not parse guest snapshot data", e);
+        }
+      }
+
       return {
         snapshot: null,
         generated: false,
