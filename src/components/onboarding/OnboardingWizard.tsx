@@ -1,8 +1,11 @@
-﻿"use client";
+"use client";
+
+import { buildGuestSnapshot } from "@/lib/onboarding/guestSnapshotEngine";
+
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Compass, Lock, ArrowRight, HeartHandshake, ShieldAlert } from "lucide-react";
+import { Compass, Lock, ArrowRight, HeartHandshake, ShieldAlert, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { OnboardingProgressHeader } from "./OnboardingProgressHeader";
 import { Step1Welcome } from "./Step1Welcome";
@@ -44,18 +47,23 @@ export function OnboardingWizard() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isGuestOneTimeUsed, setIsGuestOneTimeUsed] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && !isAuthenticated && !user) {
+      const used = localStorage.getItem("hercompass_guest_snapshot_used") === "true";
+      setIsGuestOneTimeUsed(used);
+    }
+  }, [isAuthenticated, user]);
 
   // Auth + Role guard - declared BEFORE all early returns (Rules of Hooks)
+  // Unauthenticated guests are welcomed to take the snapshot assessment!
   useEffect(() => {
     if (authLoading) return;
-    if (!isAuthenticated) {
-      router.replace("/login?from=/onboarding&reason=auth_required");
-      return;
-    }
     if (user && user.role !== "member") {
       router.replace(homeRouteForRole(user.role));
     }
-  }, [authLoading, isAuthenticated, user, router]);
+  }, [authLoading, user, router]);
 
   // Loading state while auth resolves
   if (authLoading) {
@@ -74,46 +82,8 @@ export function OnboardingWizard() {
     );
   }
 
-  // Not authenticated
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-[#FBFBF9] flex items-center justify-center px-4">
-        <div className="max-w-md w-full rounded-3xl border border-slate-200/90 bg-white p-8 shadow-xl space-y-6 text-center animate-fadeIn">
-          <div className="flex justify-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-violet-50 border border-violet-200 text-violet-600">
-              <Lock className="h-7 w-7" />
-            </div>
-          </div>
-          <div className="space-y-2">
-            <h1 className="text-xl font-extrabold text-slate-900">Sign In to Continue</h1>
-            <p className="text-sm text-slate-600 leading-relaxed">
-              Your Personal Menopause Snapshot is tied to your account so your
-              progress and insights are securely saved. Please sign in or create
-              a free account to begin.
-            </p>
-          </div>
-          <div className="flex flex-col gap-3">
-            <Link
-              href="/login?from=/onboarding"
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-linear-to-r from-violet-600 to-indigo-600 px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-violet-500/25 transition hover:opacity-95 active:scale-95"
-            >
-              <span>Sign In to My Account</span>
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link
-              href="/register?from=/onboarding"
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-6 py-3.5 text-sm font-bold text-slate-700 shadow-sm transition hover:bg-slate-50 active:scale-95"
-            >
-              Create Free Account
-            </Link>
-          </div>
-          <p className="text-[11px] text-slate-400">
-            Free forever. No credit card required. Your data stays private.
-          </p>
-        </div>
-      </div>
-    );
-  }
+
+  // Unauthenticated guests proceed directly to answer questions
 
   // Partner guard - onboarding is ONLY for member accounts
   if (user && user.role === "partner") {
@@ -214,9 +184,29 @@ export function OnboardingWizard() {
     setIsSubmitting(true);
     setErrorMessage(null);
 
+    // If user is not authenticated, calculate the one-time free guest snapshot and save locally
+    if (!isAuthenticated || !user) {
+      try {
+        if (typeof window !== "undefined") {
+          const guestSnapshot = buildGuestSnapshot(values);
+          localStorage.setItem("hercompass_guest_snapshot_data", JSON.stringify(guestSnapshot));
+          localStorage.setItem("hercompass_guest_snapshot_used", "true");
+          sessionStorage.setItem("hercompass_guest_assessment", JSON.stringify(values));
+        }
+      } catch (e) {
+        console.warn("Could not save guest snapshot data", e);
+      }
+      setIsSubmitting(false);
+      setCurrentStep(10);
+      return;
+    }
+
     try {
       const result = await onboardingClient.submitAssessment(values);
       if (!result.success && result.message.includes("Authentication required")) {
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("hercompass_guest_assessment", JSON.stringify(values));
+        }
         setCurrentStep(10);
         return;
       }
@@ -298,7 +288,8 @@ export function OnboardingWizard() {
             {currentStep === 10 && (
               <Step10Generating
                 onComplete={() => {
-                  router.push("/app/snapshot");
+                  // Direct both guests and members directly to view their Snapshot!
+                  router.push("/snapshot");
                 }}
               />
             )}

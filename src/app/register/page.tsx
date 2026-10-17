@@ -1,5 +1,9 @@
 "use client";
 
+import { onboardingClient } from "@/lib/onboarding/onboardingClient";
+import { memberClient } from "@/lib/member/memberClient";
+
+
 import React, { Suspense, useState, useMemo } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -83,9 +87,32 @@ function RegisterContent() {
         const verifyHint = res.data?.user.emailVerified
           ? ""
           : " Check your inbox to confirm your email when you can.";
+        
+        // If the user completed the guest assessment, sync it now to their new account and unlock trial
+        if (typeof window !== "undefined") {
+          try {
+            const guestRaw = sessionStorage.getItem("hercompass_guest_assessment");
+            if (guestRaw) {
+              const guestVals = JSON.parse(guestRaw);
+              await onboardingClient.submitAssessment(guestVals);
+              sessionStorage.removeItem("hercompass_guest_assessment");
+            }
+            const trialParam = searchParams.get("trial");
+            if (trialParam === "premium" || guestRaw) {
+              await memberClient.startTrial();
+            }
+          } catch (syncErr) {
+            console.warn("Guest onboarding or trial sync non-blocking error:", syncErr);
+          }
+        }
+
         setAuthSuccess(`Welcome to HerCompass, ${userName}! Opening your wellness space...${verifyHint}`);
+        const returnTo = searchParams.get("from") || searchParams.get("redirect");
+        const destination = returnTo && returnTo.startsWith("/")
+          ? returnTo
+          : (values.role === "partner" ? "/partner" : homeRouteForRole(accountRole));
         setTimeout(() => {
-          window.location.href = values.role === "partner" ? "/partner" : homeRouteForRole(accountRole);
+          window.location.href = destination;
         }, 900);
       } catch (err: unknown) {
         setAuthError("Failed to connect to registration server. Please try again.");

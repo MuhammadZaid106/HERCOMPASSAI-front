@@ -89,6 +89,12 @@ export const memberClient = {
       { method: "POST" },
     );
   },
+  startTrial(): Promise<ApiResult<{ plan: string; subscriptionStatus: string; trialEndsAt: string; daysRemaining: number }>> {
+    return request("/api/member/trial/start", { method: "POST" });
+  },
+  getTrialStatus(): Promise<ApiResult<{ plan: string; subscriptionStatus: string; isTrialActive: boolean; trialEndsAt: string | null; daysRemaining: number; eligibleForTrial: boolean }>> {
+    return request("/api/member/trial/status");
+  },
   getSubscription(): Promise<ApiResult<MemberSubscriptionData>> {
     return request<MemberSubscriptionData>("/api/member/subscription");
   },

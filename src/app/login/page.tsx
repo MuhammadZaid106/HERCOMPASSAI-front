@@ -1,5 +1,9 @@
 "use client";
 
+import { onboardingClient } from "@/lib/onboarding/onboardingClient";
+import { memberClient } from "@/lib/member/memberClient";
+
+
 import React, { useState, Suspense } from "react";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
@@ -37,7 +41,12 @@ function LoginContent() {
   // crafted ?from= cannot bounce a fresh login to an attacker's page.
   const safeReturn =
     returnTo &&
-    (returnTo.startsWith("/partner/invite") || returnTo.startsWith("/app/partner"))
+    (returnTo.startsWith("/partner/invite") ||
+     returnTo.startsWith("/app/partner") ||
+     returnTo.startsWith("/trial") ||
+     returnTo.startsWith("/app/snapshot") ||
+     returnTo.startsWith("/snapshot") ||
+     returnTo.startsWith("/onboarding"))
       ? returnTo
       : null;
   const [showPassword, setShowPassword] = useState(false);
@@ -74,6 +83,21 @@ function LoginContent() {
         }
         if (userRole) {
           document.cookie = `hercompass_user_role=${userRole}; path=/; max-age=604800; SameSite=Lax`;
+        }
+
+        // If the user completed the guest assessment, sync it now and activate trial
+        if (typeof window !== "undefined") {
+          try {
+            const guestRaw = sessionStorage.getItem("hercompass_guest_assessment");
+            if (guestRaw && userRole === "member") {
+              const guestVals = JSON.parse(guestRaw);
+              await onboardingClient.submitAssessment(guestVals);
+              await memberClient.startTrial();
+              sessionStorage.removeItem("hercompass_guest_assessment");
+            }
+          } catch (syncErr) {
+            console.warn("Guest onboarding sync non-blocking error:", syncErr);
+          }
         }
 
         // Admins go to /admin.
@@ -376,4 +400,3 @@ export default function LoginPage() {
     </Suspense>
   );
 }
-
