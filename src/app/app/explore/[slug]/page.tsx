@@ -41,16 +41,23 @@ export default function ExploreDetailPage() {
     let active = true;
 
     // Fetch from API, fall back to static catalog
-    void contentClient.getExploreItem(slug).then((result) => {
-      if (!active) return;
-      if (result.success && result.data) {
-        setItem(result.data);
-      } else {
-        // Graceful fallback to local static catalog
+    void contentClient
+      .getExploreItem(slug)
+      .then((result) => {
+        if (!active) return;
+        if (result.success && result.data) {
+          setItem(result.data);
+        } else {
+          // Graceful fallback to local static catalog
+          const fallback = staticExploreItem(slug);
+          setItem(fallback ?? null);
+        }
+      })
+      .catch(() => {
+        if (!active) return;
         const fallback = staticExploreItem(slug);
         setItem(fallback ?? null);
-      }
-    });
+      });
 
     // Load user's explore progress for this item
     void memberClient.getExploreProgress().then((result) => {

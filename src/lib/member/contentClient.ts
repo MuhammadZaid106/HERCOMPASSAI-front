@@ -107,11 +107,21 @@ interface ApiResult<T> {
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<ApiResult<T>> {
-  const response = await authClient.authenticatedFetch(`${API_BASE}${path}`, {
-    ...init,
-    headers: { "Content-Type": "application/json", ...init?.headers },
-  });
-  return (await response.json()) as ApiResult<T>;
+  try {
+    const response = await authClient.authenticatedFetch(`${API_BASE}${path}`, {
+      ...init,
+      headers: { "Content-Type": "application/json", ...init?.headers },
+    });
+    return (await response.json().catch(() => ({
+      success: false,
+      message: "Network error",
+    }))) as ApiResult<T>;
+  } catch {
+    return {
+      success: false,
+      message: "We couldn't reach HerCompass just now. Your information is safe.",
+    };
+  }
 }
 
 export const contentClient = {

@@ -70,16 +70,25 @@ export default function ExplorePage() {
     });
 
     // Fetch explore items from API (DB-first, falls back to code catalog on backend)
-    void contentClient.listExploreItems().then((result) => {
-      if (!active) return;
-      if (result.success && result.data?.items?.length) {
-        setApiItems(result.data.items);
-      } else {
-        // If API fails entirely, fall back to static catalog client-side
+    void contentClient
+      .listExploreItems()
+      .then((result) => {
+        if (!active) return;
+        if (result.success && result.data?.items?.length) {
+          setApiItems(result.data.items);
+        } else {
+          // If API fails entirely, fall back to static catalog client-side
+          setApiItems(null);
+        }
+      })
+      .catch(() => {
+        if (!active) return;
         setApiItems(null);
-      }
-      setLoading(false);
-    });
+      })
+      .finally(() => {
+        if (!active) return;
+        setLoading(false);
+      });
 
     return () => {
       active = false;
