@@ -1,6 +1,7 @@
 "use client";
 
 import { onboardingClient } from "@/lib/onboarding/onboardingClient";
+import { GUEST_SNAPSHOT_STORAGE } from "@/lib/onboarding/guestSnapshotEngine";
 import { memberClient } from "@/lib/member/memberClient";
 
 
@@ -57,10 +58,18 @@ function RegisterContent() {
         // No role and no plan: the server owns both. `values.role` is only the
         // persona this person chose, used below to route them to the right
         // onboarding — it is not an account privilege.
+        // The claim token (if any) upgrades the guest account the free Snapshot
+        // was generated for, so their answers and Snapshot are kept.
+        const guestClaimToken =
+          typeof window !== "undefined"
+            ? localStorage.getItem(GUEST_SNAPSHOT_STORAGE.claim) || undefined
+            : undefined;
+
         const res = await register({
           name: values.fullName.trim(),
           email: values.email.trim().toLowerCase(),
           password: values.password,
+          ...(guestClaimToken ? { guestClaimToken } : {}),
         });
 
         if (!res.success) {
@@ -88,14 +97,16 @@ function RegisterContent() {
           ? ""
           : " Check your inbox to confirm your email when you can.";
         
-        // If the user completed the guest assessment, sync it now to their new account and unlock trial
+        // If the user completed the guest assessment, sync it now to their new
+        // account and unlock their trial. When the account was claimed the answers
+        // already live on it, so re-submitting would only append a duplicate
+        // Snapshot version — the trial still starts.
         if (typeof window !== "undefined") {
+          const guestRaw = sessionStorage.getItem(GUEST_SNAPSHOT_STORAGE.assessment);
+          const claimed = res.data?.guestClaimed === true;
           try {
-            const guestRaw = sessionStorage.getItem("hercompass_guest_assessment");
-            if (guestRaw) {
-              const guestVals = JSON.parse(guestRaw);
-              await onboardingClient.submitAssessment(guestVals);
-              sessionStorage.removeItem("hercompass_guest_assessment");
+            if (guestRaw && !claimed) {
+              await onboardingClient.submitAssessment(JSON.parse(guestRaw));
             }
             const trialParam = searchParams.get("trial");
             if (trialParam === "premium" || guestRaw) {
@@ -104,6 +115,10 @@ function RegisterContent() {
           } catch (syncErr) {
             console.warn("Guest onboarding or trial sync non-blocking error:", syncErr);
           }
+          if (claimed) {
+            localStorage.removeItem(GUEST_SNAPSHOT_STORAGE.claim);
+          }
+          sessionStorage.removeItem(GUEST_SNAPSHOT_STORAGE.assessment);
         }
 
         setAuthSuccess(`Welcome to HerCompass, ${userName}! Opening your wellness space...${verifyHint}`);

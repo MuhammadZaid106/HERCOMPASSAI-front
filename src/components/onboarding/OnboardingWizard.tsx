@@ -1,6 +1,9 @@
 "use client";
 
-import { buildGuestSnapshot } from "@/lib/onboarding/guestSnapshotEngine";
+import {
+  requestGuestSnapshot,
+  GUEST_SNAPSHOT_STORAGE,
+} from "@/lib/onboarding/guestSnapshotEngine";
 
 
 import React, { useState, useEffect } from "react";
@@ -48,10 +51,13 @@ export function OnboardingWizard() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isGuestOneTimeUsed, setIsGuestOneTimeUsed] = useState(false);
+  // Set when the server refuses a second free Snapshot, so the wizard can offer
+  // the signup path instead of a bare error.
+  const [guestLimitReached, setGuestLimitReached] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined" && !isAuthenticated && !user) {
-      const used = localStorage.getItem("hercompass_guest_snapshot_used") === "true";
+      const used = localStorage.getItem(GUEST_SNAPSHOT_STORAGE.used) === "true";
       setIsGuestOneTimeUsed(used);
     }
   }, [isAuthenticated, user]);
@@ -184,18 +190,25 @@ export function OnboardingWizard() {
     setIsSubmitting(true);
     setErrorMessage(null);
 
-    // If user is not authenticated, calculate the one-time free guest snapshot and save locally
+    // Unauthenticated visitors get one real Snapshot, produced by the AI Gateway
+    // and enforced server-side. The browser only stores the result.
     if (!isAuthenticated || !user) {
-      try {
-        if (typeof window !== "undefined") {
-          const guestSnapshot = buildGuestSnapshot(values);
-          localStorage.setItem("hercompass_guest_snapshot_data", JSON.stringify(guestSnapshot));
-          localStorage.setItem("hercompass_guest_snapshot_used", "true");
-          sessionStorage.setItem("hercompass_guest_assessment", JSON.stringify(values));
+      const result = await requestGuestSnapshot(values);
+
+      if (!result.ok) {
+        if (result.reason === "guest_limit_reached" || result.reason === "used") {
+          setIsGuestOneTimeUsed(true);
+          setGuestLimitReached(true);
+          setErrorMessage(result.message);
+          setIsSubmitting(false);
+          return;
         }
-      } catch (e) {
-        console.warn("Could not save guest snapshot data", e);
+
+        setErrorMessage(result.message);
+        setIsSubmitting(false);
+        return;
       }
+
       setIsSubmitting(false);
       setCurrentStep(10);
       return;
@@ -243,7 +256,16 @@ export function OnboardingWizard() {
 
           {errorMessage && (
             <div className="mb-4 rounded-xl border border-rose-200 bg-rose-50 p-4 text-xs font-semibold text-rose-700 shadow-sm animate-fadeIn">
-              {errorMessage}
+              <p>{errorMessage}</p>
+              {guestLimitReached && (
+                <Link
+                  href="/register?from=/snapshot&source=guest_snapshot"
+                  className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-linear-to-r from-violet-600 to-indigo-600 px-4 py-2 text-xs font-bold text-white shadow-sm transition hover:from-violet-700 hover:to-indigo-700"
+                >
+                  <span>Create a free account</span>
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              )}
             </div>
           )}
 

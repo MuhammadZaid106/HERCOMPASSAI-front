@@ -26,14 +26,12 @@ import type { NextRequest } from "next/server";
 import { homeRouteForRole } from "./lib/auth/routeGuards";
 
 // Routes that require an authenticated session
+// Note: /onboarding, /snapshot, and /trial are accessible by guests and handle authentication state internally
 const PROTECTED_ROUTES = [
-  "/onboarding",
-  "/snapshot",
   "/app",
   "/admin",
   "/account",
   "/upgrade",
-  "/trial",
   "/partner/consent",
   "/partner/permissions",
   "/partner/settings",

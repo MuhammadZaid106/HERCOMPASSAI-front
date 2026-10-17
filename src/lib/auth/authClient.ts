@@ -29,6 +29,12 @@ export interface RegisterPayload {
   name: string;
   email: string;
   password: string;
+  /**
+   * Optional handoff token from the no-signup Snapshot. When present, the server
+   * upgrades the guest account so the free Snapshot and answers carry over. A
+   * missing or expired token is ignored server-side and the signup proceeds.
+   */
+  guestClaimToken?: string;
 }
 
 export interface LoginPayload {
@@ -47,6 +53,8 @@ export interface AuthSuccessData {
   user: AuthUser;
   accessToken: string;
   refreshToken: string;
+  /** True when a no-signup guest account was upgraded at this signup. */
+  guestClaimed?: boolean;
 }
 
 /**

@@ -65,6 +65,54 @@ export const initialOnboardingValues: OnboardingFormValues = {
   partnerSharingScopes: ["general_support", "communication_guidance", "shared_activities"],
 };
 
+/**
+ * The assessment payload the backend stores.
+ *
+ * Shared by the member submit and the no-signup guest submit so both paths send
+ * the same shape — the guest Snapshot is produced from exactly the answers a
+ * member would have saved, not a reduced subset.
+ */
+export function buildAssessmentPayload(values: OnboardingFormValues) {
+  return {
+    version: values.version || "1.0",
+    consentAccepted: values.consentAccepted,
+    consentVersion: values.consentVersion,
+    consentType: "wellness_personalization",
+    isCompleted: true,
+    age: values.age ? Number(values.age) : null,
+    menopausePhase: values.menopausePhase || null,
+    hormoneTherapyStatus: values.hormoneTherapyStatus || null,
+    primaryGoals: values.primaryGoals,
+    primaryHealthConcerns: values.primaryHealthConcerns,
+    symptomImpact: values.symptomImpact || null,
+    medicalConditions: values.medicalConditions || null,
+    sleepQuality: values.sleepQuality || null,
+    sleepChallenges: values.sleepChallenges,
+    energyLevel: values.energyLevel || null,
+    energyPattern: values.energyPattern || null,
+    dietaryPreferences: values.dietaryPreferences,
+    allergies: values.allergies || null,
+    energyAfterMealRating: values.energyAfterMealRating,
+    activityLevel: values.activityLevel || null,
+    exercisePreferences: values.exercisePreferences,
+    weeklyExerciseMinutes: values.weeklyExerciseMinutes || null,
+    lifestyleFocus: values.lifestyleFocus,
+    moodBaseline: values.moodBaseline,
+    moodOverall: values.moodOverall || null,
+    moodPatterns: values.moodPatterns,
+    emotionalGoals: values.emotionalGoals,
+    meditationFrequency: values.meditationFrequency || null,
+    primaryGoal: values.primaryGoal || null,
+    dailyCheckinOptIn: values.dailyCheckinOptIn,
+    preferredRecommendations: values.preferredRecommendations,
+    partnerSupportInterest: values.partnerSupportInterest || null,
+    partnerSupportNeeds: values.partnerSupportNeeds,
+    partnerEmail: values.partnerEmail || null,
+    partnerConsent: values.partnerConsent,
+    partnerSharingScopes: values.partnerSharingScopes,
+  };
+}
+
 export const onboardingClient = {
   /**
    * Save draft answers to browser localStorage
@@ -117,44 +165,7 @@ export const onboardingClient = {
   async submitAssessment(
     values: OnboardingFormValues
   ): Promise<{ success: boolean; message: string; data?: unknown }> {
-    const payload = {
-      version: values.version || "1.0",
-      consentAccepted: values.consentAccepted,
-      consentVersion: values.consentVersion,
-      consentType: "wellness_personalization",
-      isCompleted: true,
-      age: values.age ? Number(values.age) : null,
-      menopausePhase: values.menopausePhase || null,
-      hormoneTherapyStatus: values.hormoneTherapyStatus || null,
-      primaryGoals: values.primaryGoals,
-      primaryHealthConcerns: values.primaryHealthConcerns,
-      symptomImpact: values.symptomImpact || null,
-      medicalConditions: values.medicalConditions || null,
-      sleepQuality: values.sleepQuality || null,
-      sleepChallenges: values.sleepChallenges,
-      energyLevel: values.energyLevel || null,
-      energyPattern: values.energyPattern || null,
-      dietaryPreferences: values.dietaryPreferences,
-      allergies: values.allergies || null,
-      energyAfterMealRating: values.energyAfterMealRating,
-      activityLevel: values.activityLevel || null,
-      exercisePreferences: values.exercisePreferences,
-      weeklyExerciseMinutes: values.weeklyExerciseMinutes || null,
-      lifestyleFocus: values.lifestyleFocus,
-      moodBaseline: values.moodBaseline,
-      moodOverall: values.moodOverall || null,
-      moodPatterns: values.moodPatterns,
-      emotionalGoals: values.emotionalGoals,
-      meditationFrequency: values.meditationFrequency || null,
-      primaryGoal: values.primaryGoal || null,
-      dailyCheckinOptIn: values.dailyCheckinOptIn,
-      preferredRecommendations: values.preferredRecommendations,
-      partnerSupportInterest: values.partnerSupportInterest || null,
-      partnerSupportNeeds: values.partnerSupportNeeds,
-      partnerEmail: values.partnerEmail || null,
-      partnerConsent: values.partnerConsent,
-      partnerSharingScopes: values.partnerSharingScopes,
-    };
+    const payload = buildAssessmentPayload(values);
 
     try {
       const res = await authClient.authenticatedFetch(`${API_BASE}/api/onboarding`, {
