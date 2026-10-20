@@ -81,7 +81,7 @@ export default function UpgradePage() {
               >
                 <span>Annual Billing</span>
                 <span className="rounded-full bg-rose-100 px-2 py-0.5 text-[10px] font-extrabold text-rose-700">
-                  Save 20%
+                  Save up to 25%
                 </span>
               </button>
             </div>
@@ -105,10 +105,10 @@ export default function UpgradePage() {
                 </div>
                 <div className="mt-4 flex items-baseline gap-1">
                   <span className="text-4xl font-extrabold text-slate-900">
-                    {interval === "year" ? "$99" : "$12"}
+                    {interval === "year" ? "$5.99" : "$7.99"}
                   </span>
                   <span className="text-xs text-slate-500 font-medium">
-                    /{interval === "year" ? "year" : "month"}
+                    /{interval === "year" ? "month (billed $71.88 yearly)" : "month"}
                   </span>
                 </div>
                 <p className="mt-2 text-xs text-slate-600">
@@ -160,10 +160,10 @@ export default function UpgradePage() {
                 <h3 className="text-xl font-bold text-slate-900">HerCompass Premium</h3>
                 <div className="mt-4 flex items-baseline gap-1">
                   <span className="text-4xl font-extrabold text-slate-900">
-                    {interval === "year" ? "$199" : "$24"}
+                    {interval === "year" ? "$9.99" : "$11.99"}
                   </span>
                   <span className="text-xs text-slate-500 font-medium">
-                    /{interval === "year" ? "year" : "month"}
+                    /{interval === "year" ? "month (billed $119.88 yearly)" : "month"}
                   </span>
                 </div>
                 <p className="mt-2 text-xs text-slate-600">

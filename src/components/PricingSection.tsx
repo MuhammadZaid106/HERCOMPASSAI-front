@@ -15,11 +15,12 @@ export default function PricingSection() {
   const tiers = [
     {
       name: "Free Baseline",
-      badge: "Core Access",
+      badge: "No Credit Card Needed",
       price: "$0",
       period: "forever",
       description: "Essential longitudinal symptom tracking and educational access for every woman.",
       features: [
+        "No credit card needed to get started",
         "Personal Menopause Snapshot™ assessment",
         "30-day symptom & mood logging history",
         "Basic deterministic trend engine",
@@ -35,8 +36,8 @@ export default function PricingSection() {
     {
       name: "Plus",
       badge: "Most Popular",
-      price: annualBilling ? "$7.99" : "$5.99",
-      period: annualBilling ? "per year" : "per month",
+      price: annualBilling ? "$5.99" : "$7.99",
+      period: annualBilling ? "per month (billed $71.88 yearly)" : "per month",
       description: "Complete individual intelligence + full Partner Support & Men's Academy access.",
       features: [
         "Everything in Free, plus:",
@@ -57,8 +58,8 @@ export default function PricingSection() {
     {
       name: "Premium",
       badge: "Couple Intelligence",
-      price: annualBilling ? "$11.99" : "$9.99",
-      period: annualBilling ? "per year" : "per month",
+      price: annualBilling ? "$9.99" : "$11.99",
+      period: annualBilling ? "per month (billed $119.88 yearly)" : "per month",
       description: "Advanced AI pattern forecasting, multi-week plans, and joint couple wellness challenges.",
       features: [
         "Everything in Plus, plus:",
@@ -110,13 +111,18 @@ export default function PricingSection() {
             <button
               type="button"
               onClick={() => setAnnualBilling(true)}
-              className={`flex items-center gap-1 rounded-full px-3 sm:px-4 py-1 sm:py-1.5 text-[11px] sm:text-xs font-semibold transition-all whitespace-nowrap ${
+              className={`flex items-center gap-1.5 rounded-full px-3 sm:px-4 py-1 sm:py-1.5 text-[11px] sm:text-xs font-semibold transition-all whitespace-nowrap ${
                 annualBilling
                   ? "bg-violet-600 text-white shadow-sm"
                   : "text-slate-600 hover:text-slate-900"
               }`}
             >
               <span>Annual</span>
+              <span className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold ${
+                annualBilling ? "bg-white/20 text-white" : "bg-emerald-100 text-emerald-700"
+              }`}>
+                Save 25%
+              </span>
             </button>
           </div>
         </div>
@@ -144,7 +150,13 @@ export default function PricingSection() {
                     {tier.name}
                   </h3>
                   {!tier.popular && (
-                    <span className="rounded-full bg-slate-100 px-2 sm:px-3 py-0.5 text-[10px] md:text-[9.5px] lg:text-[11px] font-semibold text-slate-600 whitespace-nowrap">
+                    <span
+                      className={`rounded-full px-2 sm:px-3 py-0.5 text-[10px] md:text-[9.5px] lg:text-[11px] font-semibold whitespace-nowrap ${
+                        tier.plan === null
+                          ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                          : "bg-slate-100 text-slate-600"
+                      }`}
+                    >
                       {tier.badge}
                     </span>
                   )}
@@ -158,6 +170,13 @@ export default function PricingSection() {
                     /{tier.period}
                   </span>
                 </div>
+                {tier.plan === null && (
+                  <p className="mt-1.5 text-[11px] font-semibold text-emerald-600 flex items-center gap-1">
+                    <Check className="h-3 w-3 stroke-[3]" />
+                    <span>No credit card needed</span>
+                  </p>
+                )}
+
                 <p className="mt-2 lg:mt-3 text-xs text-slate-600 leading-relaxed min-h-[32px] md:min-h-[44px] lg:min-h-[36px]">
                   {tier.description}
                 </p>
@@ -191,6 +210,11 @@ export default function PricingSection() {
                   <span className="truncate">{tier.ctaText}</span>
                   <ArrowRight className="h-3.5 w-3.5 lg:h-4 lg:w-4 flex-shrink-0" />
                 </Link>
+                {tier.plan === null && (
+                  <p className="mt-2 text-center text-[11px] text-slate-500 font-medium">
+                    No credit card needed
+                  </p>
+                )}
               </div>
 
             </div>

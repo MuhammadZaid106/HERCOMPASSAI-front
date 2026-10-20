@@ -31,12 +31,13 @@ const PLANS: PlanCard[] = [
   {
     id: "free",
     name: "Free",
-    badge: "Start here",
+    badge: "No credit card needed",
     price: { month: "$0", year: "$0" },
     period: { month: "forever", year: "forever" },
     description:
       "Your initial Personal Snapshot and the essentials for understanding your own patterns.",
     features: [
+      "No credit card needed",
       "Personal Menopause Snapshot™",
       "Basic daily tracking",
       "Standard educational guidance",
@@ -48,8 +49,8 @@ const PLANS: PlanCard[] = [
     id: "plus",
     name: "Plus",
     badge: "Most popular",
-    price: { month: "$5.99", year: "$7.99" },
-    period: { month: "per month", year: "per year" },
+    price: { month: "$7.99", year: "$5.99" },
+    period: { month: "per month", year: "per month (billed $71.88 yearly)" },
     description:
       "Full individual intelligence with deeper pattern awareness and partner support.",
     features: [
@@ -65,8 +66,8 @@ const PLANS: PlanCard[] = [
     id: "premium",
     name: "Premium",
     badge: "Couple intelligence",
-    price: { month: "$9.99", year: "$11.99" },
-    period: { month: "per month", year: "per year" },
+    price: { month: "$11.99", year: "$9.99" },
+    period: { month: "per month", year: "per month (billed $119.88 yearly)" },
     description:
       "Advanced personalization, deeper trend calculations, and the full couple experience.",
     features: [
@@ -269,7 +270,13 @@ export default function PricingPageClient() {
                   <div className="flex items-center justify-between gap-2">
                     <h2 className="text-xl font-bold text-slate-900">{plan.name}</h2>
                     {!plan.popular && (
-                      <span className="rounded-full bg-slate-100 px-3 py-0.5 text-[11px] font-semibold text-slate-600 whitespace-nowrap">
+                      <span
+                        className={`rounded-full px-3 py-0.5 text-[11px] font-semibold whitespace-nowrap ${
+                          plan.id === "free"
+                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                            : "bg-slate-100 text-slate-600"
+                        }`}
+                      >
                         {plan.badge}
                       </span>
                     )}
@@ -283,6 +290,12 @@ export default function PricingPageClient() {
                       /{plan.period[interval]}
                     </span>
                   </div>
+                  {plan.id === "free" && (
+                    <p className="mt-1.5 text-xs font-semibold text-emerald-600 flex items-center gap-1">
+                      <Check className="h-3 w-3 stroke-[3]" />
+                      <span>No credit card needed</span>
+                    </p>
+                  )}
 
                   <p className="mt-3 text-sm text-slate-600 leading-relaxed min-h-[44px]">
                     {plan.description}
@@ -307,17 +320,24 @@ export default function PricingPageClient() {
                     </ul>
                   </div>
 
-                  <Link
-                    href={cta.href}
-                    className={`mt-8 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all ${
-                      plan.popular
-                        ? "bg-violet-600 text-white shadow-md hover:bg-violet-700 hover:shadow-lg"
-                        : "bg-slate-100 text-slate-800 hover:bg-slate-200"
-                    }`}
-                  >
-                    {cta.label}
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
+                  <div className="mt-8">
+                    <Link
+                      href={cta.href}
+                      className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all ${
+                        plan.popular
+                          ? "bg-violet-600 text-white shadow-md hover:bg-violet-700 hover:shadow-lg"
+                          : "bg-slate-100 text-slate-800 hover:bg-slate-200"
+                      }`}
+                    >
+                      {cta.label}
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                    {plan.id === "free" && (
+                      <p className="mt-2 text-center text-xs text-slate-500 font-medium">
+                        No credit card needed
+                      </p>
+                    )}
+                  </div>
                 </div>
               );
             })}

@@ -405,6 +405,11 @@ export default function PlansPage() {
                     {" · price set securely at checkout"}
                   </p>
                 )}
+                {!isPaid && (
+                  <p className="mt-2 text-xs font-semibold text-emerald-600">
+                    No credit card needed · Free forever
+                  </p>
+                )}
                 {cta}
               </li>
             );
