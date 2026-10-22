@@ -51,7 +51,7 @@ export default function AuthLayout({
                 HerCompass<span className="text-violet-600">AI</span>
               </span>
               <span className="hidden sm:inline-block text-[10px] font-semibold uppercase tracking-wider text-slate-400 truncate">
-                Clinical &amp; Relationship Intelligence
+                Relationship Intelligence
               </span>
             </div>
           </Link>

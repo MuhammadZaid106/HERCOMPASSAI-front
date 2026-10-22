@@ -50,7 +50,7 @@ export default function Navbar() {
               HerCompass<span className="text-violet-600">AI</span>
             </span>
             <span className="text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider text-slate-400 whitespace-nowrap">
-              Clinical &amp; Relationship Intelligence
+              Relationship Intelligence
             </span>
           </div>
         </Link>
@@ -275,7 +275,7 @@ export default function Navbar() {
               onClick={() => setMobileMenuOpen(false)}
               className="w-full text-center py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-violet-600 to-indigo-600 rounded-xl shadow-md"
             >
-              {user ? primaryLabel : "Take 5-Min Free Assessment"}
+              {user ? primaryLabel : "Take Free Assessment"}
             </Link>
           </div>
         </div>

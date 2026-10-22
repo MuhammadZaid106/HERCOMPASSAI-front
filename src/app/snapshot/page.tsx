@@ -320,7 +320,7 @@ export default function SnapshotPage() {
                       href="/onboarding"
                       className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-linear-to-r from-violet-600 to-indigo-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-violet-500/20 transition hover:from-violet-700 hover:to-indigo-700"
                     >
-                      <span>Take 5-Min Free Assessment</span>
+                      <span>Take Free Assessment</span>
                       <ArrowRight className="h-4 w-4" />
                     </Link>
                     <Link

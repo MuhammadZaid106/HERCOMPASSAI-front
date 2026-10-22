@@ -39,7 +39,7 @@ export default function FeaturesHero({
         {/* Trust Pill */}
         <div className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full border border-violet-200/80 bg-violet-50/80 px-3 py-1 text-[11px] sm:text-xs font-semibold text-violet-700 shadow-xs mb-4 sm:mb-5 max-w-full">
           <Sparkles className="h-3.5 w-3.5 text-violet-600 shrink-0" />
-          <span className="truncate sm:whitespace-normal">Clinical &amp; Relationship Intelligence Architecture</span>
+          <span className="truncate sm:whitespace-normal">Relationship Intelligence Architecture</span>
         </div>
 
         {/* Main Headline */}

@@ -134,19 +134,19 @@ export default function EvidenceProof() {
                   className="h-full w-full object-cover object-center"
                 />
                 <div className="absolute top-2.5 right-2.5 bg-emerald-600 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow-sm">
-                  Clinician-Ready Export
+                  Clinician-Ready Summary
                 </div>
               </div>
               <h3 className="text-base font-bold text-slate-900">
                 Data Formatted for Your Doctor or Clinic
               </h3>
               <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
-                Take the guesswork out of 10-minute doctor appointments. Export verified longitudinal symptom patterns in standardized clinical language ready for your GP or OB-GYN.
+                Take the guesswork out of 10-minute doctor appointments. Structured longitudinal symptom patterns in standardized clinical language ready for your GP or OB-GYN.
               </p>
             </div>
             <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-violet-700 font-semibold">
               <span>Standardized to BMS &amp; NAMS protocols</span>
-              <span>Export PDF →</span>
+              <span className="flex items-center gap-1">Doctor-Ready Insights →</span>
             </div>
           </div>
         </div>

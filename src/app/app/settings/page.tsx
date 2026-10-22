@@ -77,7 +77,7 @@ const DATA_HANDLING = [
   },
   {
     title: "Your controls",
-    body: "Change consent here, download a copy of your data, or delete the account at the end of this page.",
+    body: "Change consent here or delete the account at the end of this page.",
   },
 ];
 
@@ -121,8 +121,6 @@ export default function SettingsPage() {
   const [prefSave, setPrefSave] = useState<SaveState>(null);
   const [isSavingPrefs, setIsSavingPrefs] = useState(false);
 
-  const [exportBusy, setExportBusy] = useState(false);
-  const [exportSave, setExportSave] = useState<SaveState>(null);
 
   const [deleteEmail, setDeleteEmail] = useState("");
   const [deleteSave, setDeleteSave] = useState<SaveState>(null);
@@ -271,21 +269,6 @@ export default function SettingsPage() {
     });
   };
 
-  const downloadExport = (): void => {
-    setExportBusy(true);
-    setExportSave(null);
-    void memberClient.downloadAccountExport().then((result) => {
-      setExportBusy(false);
-      if (!result.success) {
-        setExportSave({ ok: false, note: result.message });
-        return;
-      }
-      setExportSave({
-        ok: true,
-        note: `Download started (${result.filename}).`,
-      });
-    });
-  };
 
   const deleteAccount = (): void => {
     void memberClient.deleteAccount(deleteEmail).then((result) => {
@@ -614,29 +597,10 @@ export default function SettingsPage() {
 
           <SettingsSection
             id="data"
-            title="Your data"
-            description="Download a copy of what this account holds, or remove the account entirely."
+            title="Account management"
+            description="Permanently manage or remove your account."
           >
-            <div className="grid gap-4 border-b border-slate-200 pb-5 sm:max-w-xl">
-              <p className="text-sm text-slate-600">
-                Download a JSON file with your profile, Snapshot answers, check-in history,
-                consents, and support messages. It never includes another person&apos;s health
-                logs or partner digest content.
-              </p>
-              <div className="flex flex-wrap items-center gap-3">
-                <button
-                  type="button"
-                  onClick={downloadExport}
-                  disabled={exportBusy}
-                  className={secondaryButton}
-                >
-                  {exportBusy ? "Preparing…" : "Download my data"}
-                </button>
-                <SaveNote state={exportSave} />
-              </div>
-            </div>
-
-            <div className="grid gap-4 pt-5 sm:max-w-xl">
+            <div className="grid gap-4 sm:max-w-xl">
               <h3 className="text-sm font-semibold text-slate-900">Delete account</h3>
               <p className="text-sm text-slate-600">
                 Permanent, and it cannot be undone. This removes the account and the logs

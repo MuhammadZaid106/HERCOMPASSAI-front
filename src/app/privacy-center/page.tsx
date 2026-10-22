@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { Shield, Lock, Brain, Users, HeartHandshake, Bot, Database, Clock } from "lucide-react";
@@ -110,7 +110,7 @@ const ACCORDION_ITEMS: PrivacyDisclosureItem[] = [
     children: (
       <ul className="space-y-2">
         {[
-          ["You", "Always. Export or delete at any time in your settings."],
+          ["You", "Always. Manage or delete at any time in your settings."],
           ["The AI Gateway", "Receives anonymised computed scores, not your raw entries."],
           ["Your partner", "Only what you explicitly share via Partner Permissions. Raw logs never leave your account."],
           ["HerCompassAI staff", "Operational access only. Staff see aggregate metrics, not personal health entries."],
@@ -284,14 +284,7 @@ export default function PrivacyCenterPage() {
               title="Data controls"
               subtitle="Actions you can take right now."
             />
-            <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
-              <DataControlCard
-                icon="export"
-                title="Export my data"
-                body="Download a copy of your profile, tracking history, and Snapshot data."
-                href="/app/settings"
-                hrefLabel="Go to Settings"
-              />
+            <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
               <DataControlCard
                 icon="notifications"
                 title="Notification controls"

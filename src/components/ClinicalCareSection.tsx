@@ -17,14 +17,14 @@ export default function ClinicalCareSection() {
   const carePillars = [
     {
       title: "Doctor-Ready Consultation Briefs",
-      badge: "Clinical Export",
+      badge: "Clinical Brief",
       desc: "Never forget your symptoms in a 10-minute appointment. HerCompass compiles your longitudinal sleep, hot flash, and mood data into a 1-page standardized summary tailored for your GP or OB-GYN.",
       image: "/images/landing/consultation-discussion.jpg",
       alt: "Doctor and patient reviewing clinical symptom report",
       points: [
         "Formatted to BMS & NAMS clinical guidelines",
         "Clear 30-day timeline of vasomotor frequency",
-        "Ready-to-share PDF export with zero raw diaries",
+        "Appointment-ready consultation brief with zero raw diaries",
       ],
     },
     {

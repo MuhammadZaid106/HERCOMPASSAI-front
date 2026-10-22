@@ -94,7 +94,7 @@ export default function HeroSection() {
             {/* Top Pill Tag */}
             <div className="inline-flex items-center gap-2 rounded-full border border-violet-200/90 bg-white/90 px-3.5 py-1.5 text-xs font-semibold text-violet-700 shadow-xs mb-5 backdrop-blur-sm">
               <span className="flex h-2 w-2 rounded-full bg-violet-600 animate-pulse" />
-              <span>Clinical Endocrinology &amp; Relationship Intelligence</span>
+              <span>Relationship Intelligence</span>
             </div>
 
             {/* Main Headline */}
@@ -183,7 +183,7 @@ export default function HeroSection() {
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-violet-500/25 transition-all hover:shadow-xl hover:shadow-violet-500/35 hover:-translate-y-0.5 active:translate-y-0"
               >
                 <Sparkles className="h-4 w-4 text-violet-200" />
-                <span>Take 5-Min Free Assessment</span>
+                <span>Take Free Assessment</span>
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link

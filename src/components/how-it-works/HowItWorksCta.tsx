@@ -38,7 +38,7 @@ export default function HowItWorksCta() {
                 href="/onboarding"
                 className="inline-flex items-center justify-center gap-2 rounded-full bg-violet-600 px-5 sm:px-8 py-3 sm:py-3.5 text-xs sm:text-sm font-bold text-white shadow-lg shadow-violet-600/30 hover:bg-violet-500 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap"
               >
-                <span>Take 5-Min Free Assessment</span>
+                <span>Take Free Assessment</span>
                 <ArrowRight className="h-4 w-4 shrink-0" />
               </Link>
 

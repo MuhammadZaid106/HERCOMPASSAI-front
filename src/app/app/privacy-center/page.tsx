@@ -48,7 +48,7 @@ const DISCLOSURES = [
   {
     id: "retention",
     title: "How long we keep it",
-    body: "Your entries stay until you delete the account or ask us to remove them. Deleting the account removes the account and the logs stored with it. A download of your own logs is not available yet.",
+    body: "Your entries stay until you delete the account or ask us to remove them. Deleting the account removes the account and the logs stored with it.",
   },
   {
     id: "controls",
@@ -209,14 +209,7 @@ export default function PrivacyCenterPage() {
               </div>
             </dl>
 
-            <div className="mt-4 grid gap-4 md:grid-cols-3">
-              <DataControlCard
-                icon="export"
-                title="Export your logs"
-                body="A plain-language download of what you entered is on the roadmap. Until then, nothing here is hidden; every entry is visible in the app."
-                href="/app/track"
-                hrefLabel="Review your logs"
-              />
+            <div className="mt-4 grid gap-4 md:grid-cols-2">
               <DataControlCard
                 icon="notifications"
                 title="Manage notifications"
