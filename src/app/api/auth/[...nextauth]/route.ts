@@ -43,8 +43,7 @@ export const authOptions: NextAuthOptions = {
             return true;
           }
 
-          const apiUrl =
-            process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "http://localhost:5000";
+          const apiUrl = process.env.INTERNAL_API_URL || "http://localhost:8001";
           const res = await fetch(`${apiUrl}/api/auth/google`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
