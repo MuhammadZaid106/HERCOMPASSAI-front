@@ -19,9 +19,9 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "HerCompassAI — Navigate Menopause Together | Relationship & Wellness Intelligence",
+  title: "HerCompassAI — Navigate Menopause Together | Relationship Intelligence",
   description:
-    "A relationship-centered menopause wellness platform combining clinician-backed guidance and evidence-based AI to build predictability, connection, and confidence for women and their partners.",
+    "A relationship intelligence platform for menopause combining clinician-backed guidance and evidence-based AI to build predictability, connection, and confidence for women and their partners.",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,

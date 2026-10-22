@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ShieldCheck } from "lucide-react";
@@ -25,7 +25,7 @@ export default function Footer() {
               </span>
             </Link>
             <p className="text-xs text-slate-400 leading-relaxed max-w-sm">
-              A relationship-centered menopause wellness platform uniting clinician-backed guidance,
+              A relationship intelligence platform for menopause uniting clinician-backed guidance,
               longitudinal tracking, and safe AI insights to help women and partners build connection and predictability.
             </p>
             <div className="pt-2 flex items-center gap-2 text-xs text-emerald-400">

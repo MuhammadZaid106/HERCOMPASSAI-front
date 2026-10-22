@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "HerCompassAI — Features & Platform Architecture",
     description:
-      "A relationship-centered menopause wellness platform combining clinician-backed guidance, deterministic calculation, and privacy-first partner empathy.",
+      "A relationship intelligence platform for menopause combining clinician-backed guidance, deterministic calculation, and privacy-first partner empathy.",
     url: "https://hercompassai.com/features",
     siteName: "HerCompassAI",
     type: "website",

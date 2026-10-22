@@ -24,7 +24,7 @@ import {
 export const metadata: Metadata = {
   title: "Evidence Base & Clinical Transparency — HerCompassAI",
   description:
-    "Explore the clinical guidelines, peer-reviewed medical sources, and 6-step evaluation pipeline behind HerCompassAI\'s non-diagnostic personalized wellness platform.",
+    "Explore the clinical guidelines, peer-reviewed medical sources, and 6-step evaluation pipeline behind HerCompassAI\'s non-diagnostic relationship intelligence platform.",
   openGraph: {
     title: "HerCompassAI — Evidence Base & Clinical Sources",
     description:

@@ -107,7 +107,7 @@ export default function HeroSection() {
 
             {/* Sub-headline */}
             <p className="mt-5 text-base sm:text-lg lg:text-xl text-slate-600 leading-relaxed max-w-2xl font-normal">
-              A clinical-grade wellness platform that translates daily hormone signals into{" "}
+              A relationship intelligence platform that translates daily hormone signals into{" "}
               <span className="font-semibold text-slate-800">
                 restorative sleep, cooling routines, and member-controlled partner digests
               </span>
