@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { authClient, type AuthUser } from "@/lib/auth/authClient";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "http://localhost:5000";
+const API_BASE = "";
 
 interface InviteView {
   status: string;

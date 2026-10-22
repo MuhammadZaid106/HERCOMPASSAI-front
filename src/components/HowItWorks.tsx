@@ -9,6 +9,8 @@ export default function HowItWorks() {
       badge: "First 5 Minutes",
       title: "Discover Your Baseline Snapshot",
       desc: "Complete a friendly, 5-minute interactive onboarding covering your symptoms, mood, sleep, and lifestyle. Instantly receive your 8-part Personal Menopause Snapshot™.",
+      image: "/images/landing/care-plan.webp",
+      imageAlt: "Woman reviewing personalized menopause care plan",
       highlights: [
         "Non-diagnostic observational language",
         "Instant clarity on personal patterns",
@@ -22,6 +24,8 @@ export default function HowItWorks() {
       badge: "Under 60s Daily",
       title: "Log Daily & Unlock Predictive Insights",
       desc: "Check in with your daily sleep, mood, energy, and symptoms. Our deterministic engine computes mathematical trends while AI translates them into adaptive nutrition & cooling routines.",
+      image: "/images/landing/symptom-relief.webp",
+      imageAlt: "Daily symptom tracking and hormonal relief telemetry",
       highlights: [
         "Quick tap-to-log interface",
         "Nutrition Radar (e.g. magnesium & phytoestrogens)",
@@ -35,6 +39,8 @@ export default function HowItWorks() {
       badge: "Couple Support (CPS)",
       title: "Consented Digest & Men’s Academy",
       desc: "Invite your partner with strict, member-controlled privacy. Partners receive weekly actionable digests—what to prepare, how to support, and what to avoid—never your raw medical logs.",
+      image: "/images/landing/couple-walk.jpg",
+      imageAlt: "Couple taking an evening cooling walk together",
       highlights: [
         "Revocable, scoped sharing consent",
         "Men’s Academy empathy micro-lessons",
@@ -64,37 +70,49 @@ export default function HowItWorks() {
         </div>
 
         {/* 3 Step Cards Grid — Responsive for mobile, tablet (md), and laptop (lg/xl) */}
-        <div className="mt-10 sm:mt-14 lg:mt-16 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-3.5 lg:gap-8 items-stretch">
+        <div className="mt-10 sm:mt-14 lg:mt-16 grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-4 lg:gap-8 items-stretch">
           {steps.map((item, idx) => {
             const Icon = item.icon;
             return (
               <div
                 key={idx}
-                className="relative flex flex-col justify-between rounded-2xl lg:rounded-3xl border border-slate-200/80 bg-white p-5 sm:p-6 md:p-4.5 lg:p-8 shadow-xs transition-all hover:shadow-xl hover:border-violet-300 hover:-translate-y-1"
+                className="group relative flex flex-col justify-between rounded-2xl lg:rounded-3xl border border-slate-200/80 bg-white p-5 sm:p-6 lg:p-7 shadow-xs transition-all hover:shadow-xl hover:border-violet-300 hover:-translate-y-1 overflow-hidden"
               >
                 <div>
-                  <div className="flex items-center justify-between mb-4 lg:mb-6">
-                    <span className="text-2xl sm:text-3xl font-black text-slate-200 tracking-wider">
-                      {item.step}
-                    </span>
-                    <span className="rounded-full bg-violet-50 px-2.5 py-0.5 md:px-2 md:py-0.5 lg:px-3 lg:py-1 text-[11px] md:text-[10px] lg:text-xs font-bold text-violet-700 border border-violet-100 whitespace-nowrap">
-                      {item.badge}
-                    </span>
+                  {/* Step Image with Subtle Hover Scale */}
+                  <div className="relative h-44 sm:h-48 w-full rounded-xl lg:rounded-2xl overflow-hidden mb-5 bg-slate-100 border border-slate-100">
+                    <img
+                      src={item.image}
+                      alt={item.imageAlt}
+                      className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute top-3 left-3 flex items-center justify-between gap-2">
+                      <span className="rounded-full bg-white/90 backdrop-blur-md px-2.5 py-0.5 text-[11px] font-bold text-slate-900 shadow-sm">
+                        Step {item.step}
+                      </span>
+                    </div>
+                    <div className="absolute top-3 right-3">
+                      <span className="rounded-full bg-violet-600/90 backdrop-blur-md px-2.5 py-0.5 text-[10px] font-bold text-white shadow-sm">
+                        {item.badge}
+                      </span>
+                    </div>
                   </div>
 
-                  <div className={`inline-flex h-10 w-10 md:h-9 md:w-9 lg:h-12 lg:w-12 items-center justify-center rounded-xl lg:rounded-2xl bg-gradient-to-tr ${item.color} text-white shadow-md mb-3.5 lg:mb-5`}>
-                    <Icon className="h-5 w-5 md:h-4.5 md:w-4.5 lg:h-6 lg:w-6 stroke-[2.2]" />
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className={`inline-flex h-9 w-9 lg:h-10 lg:w-10 items-center justify-center rounded-xl bg-gradient-to-tr ${item.color} text-white shadow-md flex-shrink-0`}>
+                      <Icon className="h-4.5 w-4.5 lg:h-5 lg:w-5 stroke-[2.2]" />
+                    </div>
+                    <h3 className="text-base sm:text-lg font-bold text-slate-900 leading-snug">
+                      {item.title}
+                    </h3>
                   </div>
 
-                  <h3 className="text-base sm:text-lg md:text-base lg:text-xl font-bold text-slate-900 mb-2 lg:mb-3 leading-snug">
-                    {item.title}
-                  </h3>
-                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-4 lg:mb-6">
+                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-4">
                     {item.desc}
                   </p>
                 </div>
 
-                <ul className="space-y-2 lg:space-y-2.5 pt-4 lg:pt-6 border-t border-slate-100 text-[11px] lg:text-xs text-slate-700">
+                <ul className="space-y-2 lg:space-y-2.5 pt-4 border-t border-slate-100 text-[11px] lg:text-xs text-slate-700">
                   {item.highlights.map((h, i) => (
                     <li key={i} className="flex items-start gap-2">
                       <div className="flex h-3.5 w-3.5 lg:h-4 lg:w-4 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 flex-shrink-0 mt-0.5">

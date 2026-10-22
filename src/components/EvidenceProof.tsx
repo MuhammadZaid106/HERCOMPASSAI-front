@@ -63,30 +63,96 @@ export default function EvidenceProof() {
   }, []);
 
   return (
-    <section id="evidence" className="py-14 border-y border-slate-200/80 bg-white">
+    <section id="evidence" className="py-16 sm:py-20 border-y border-slate-200/80 bg-white">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        {/* Section Header */}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-8 border-b border-slate-100">
           <div>
-            <div className="flex items-center gap-2 text-violet-700 text-xs font-bold uppercase tracking-wider">
+            <div className="flex flex-wrap items-center gap-2 text-violet-700 text-xs font-bold uppercase tracking-wider">
               <ShieldCheck className="h-4 w-4" />
               <span>Grounded In Clinical Science, Not Fads</span>
               {evidenceCount && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-violet-100 px-2 py-0.5 text-[11px] font-bold text-violet-800">
+                <span className="inline-flex items-center gap-1 rounded-full bg-violet-100 px-2.5 py-0.5 text-[11px] font-bold text-violet-800">
                   <Sparkles className="h-3 w-3" />
                   {evidenceCount} Verified Guidelines {topicCount ? `· ${topicCount} Focus Areas` : ""}
                 </span>
               )}
             </div>
-            <h2 className="text-2xl font-bold tracking-tight text-slate-900 mt-1">
-              Referencing World-Class Medical & Behavioral Evidence
+            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 mt-2">
+              Referencing World-Class Medical &amp; Behavioral Evidence
             </h2>
           </div>
-          <p className="text-sm text-slate-500 max-w-md">
-            HerCompassAI does not guess or diagnose. Our AI interprets structured, deterministic signals strictly against clinician-verified guidelines.
+          <p className="text-sm text-slate-600 max-w-md leading-relaxed">
+            HerCompassAI does not guess or diagnose. Our AI interprets structured, deterministic signals strictly against clinician-verified guidelines and peer-reviewed midlife literature.
           </p>
         </div>
 
-        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Clinical Authority Spotlight Cards (Inspired by Newson Health & Balance App) */}
+        <div className="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+          {/* Card 1: Medical Leadership Framework */}
+          <div className="lg:col-span-7 rounded-3xl border border-slate-200/80 bg-gradient-to-br from-[#FAF9F6] to-violet-50/30 p-6 sm:p-8 flex flex-col justify-between overflow-hidden shadow-xs hover:shadow-md transition-all">
+            <div className="grid grid-cols-1 sm:grid-cols-12 gap-6 items-center">
+              <div className="sm:col-span-5 relative h-52 sm:h-56 rounded-2xl overflow-hidden border border-slate-200/60 shadow-sm bg-white">
+                <img
+                  src="/images/landing/clinicians-founding.png"
+                  alt="Dr Louise Newson and Dr Rebecca Lewis - Clinical Menopause Pioneers"
+                  className="h-full w-full object-cover object-top"
+                />
+                <div className="absolute bottom-2 left-2 right-2 bg-slate-900/85 backdrop-blur-sm text-white px-2.5 py-1.5 rounded-xl text-[10px] font-semibold text-center">
+                  Clinical Authority Framework
+                </div>
+              </div>
+              <div className="sm:col-span-7 space-y-2.5">
+                <span className="inline-block rounded-full bg-violet-100 px-2.5 py-0.5 text-[10px] font-bold text-violet-800 tracking-wide">
+                  Evidence-Led Midlife Care
+                </span>
+                <h3 className="text-lg sm:text-xl font-bold text-slate-900 leading-snug">
+                  Inspired by Pioneering Women’s Health Leadership
+                </h3>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Grounded in the clinical philosophies championed by leading endocrinologists and menopause authorities: empowering women with personalized data, evidence-backed education, and non-judgmental partner support.
+                </p>
+                <div className="pt-2 flex flex-wrap items-center gap-2 text-[11px] font-semibold text-slate-700">
+                  <span className="inline-flex items-center gap-1 bg-white border border-slate-200 px-2 py-0.5 rounded-lg">
+                    ✓ CQC Standard Alignment
+                  </span>
+                  <span className="inline-flex items-center gap-1 bg-white border border-slate-200 px-2 py-0.5 rounded-lg">
+                    ✓ ORCHA Health Certified
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 2: Clinician-Ready Consultation Telemetry */}
+          <div className="lg:col-span-5 rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white to-slate-50 p-6 sm:p-7 flex flex-col justify-between shadow-xs hover:shadow-md transition-all">
+            <div>
+              <div className="relative h-40 sm:h-44 rounded-2xl overflow-hidden border border-slate-200/60 mb-4 bg-slate-100">
+                <img
+                  src="/images/landing/consultation-doctor.jpg"
+                  alt="Clinician Consultation with Patient"
+                  className="h-full w-full object-cover object-center"
+                />
+                <div className="absolute top-2.5 right-2.5 bg-emerald-600 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow-sm">
+                  Clinician-Ready Export
+                </div>
+              </div>
+              <h3 className="text-base font-bold text-slate-900">
+                Data Formatted for Your Doctor or Clinic
+              </h3>
+              <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
+                Take the guesswork out of 10-minute doctor appointments. Export verified longitudinal symptom patterns in standardized clinical language ready for your GP or OB-GYN.
+              </p>
+            </div>
+            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-violet-700 font-semibold">
+              <span>Standardized to BMS &amp; NAMS protocols</span>
+              <span>Export PDF →</span>
+            </div>
+          </div>
+        </div>
+
+        {/* 4 Standard Guidelines Grid */}
+        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {authorities.map((item, idx) => {
             const Icon = item.icon;
             return (

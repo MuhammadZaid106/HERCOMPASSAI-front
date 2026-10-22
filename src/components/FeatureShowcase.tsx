@@ -107,29 +107,36 @@ export default function FeatureShowcase() {
               </div>
 
               <div className="lg:col-span-6">
-                <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 shadow-md">
-                  {/* Card header - stacks on mobile */}
-                  <div className="flex flex-col gap-1.5 pb-3 border-b border-slate-100 sm:flex-row sm:items-center sm:justify-between">
+                <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-md">
+                  {/* Photo Preview alongside Contract */}
+                  <div className="relative h-48 sm:h-52 w-full rounded-xl overflow-hidden mb-4 border border-slate-100 bg-slate-50">
+                    <img
+                      src="/images/landing/app-in-hand.jpg"
+                      alt="HerCompass App Snapshot Interface"
+                      className="h-full w-full object-cover object-center"
+                    />
+                    <div className="absolute top-3 left-3 bg-violet-900/90 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-lg">
+                      HerCompass Telemetry
+                    </div>
+                  </div>
+                  {/* Card header */}
+                  <div className="flex flex-col gap-1.5 pb-2.5 border-b border-slate-100 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-2">
                       <Sparkles className="h-4 w-4 text-violet-600 flex-shrink-0" />
-                      <span className="text-xs font-bold text-slate-900">Snapshot Contract v1.2</span>
+                      <span className="text-xs font-bold text-slate-900">Personal Menopause Snapshot™ Contract</span>
                     </div>
                     <span className="self-start text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
                       ✓ SCI Guardrails: Pass
                     </span>
                   </div>
-                  <div className="mt-3 space-y-2.5 text-xs">
-                    <div className="p-2.5 sm:p-3 bg-violet-50/60 rounded-xl border border-violet-100">
+                  <div className="mt-3 space-y-2 text-xs">
+                    <div className="p-2.5 bg-violet-50/60 rounded-xl border border-violet-100">
                       <span className="font-bold text-violet-900 block mb-0.5">Symptom Observation</span>
                       <p className="text-slate-600 leading-relaxed">&quot;Night sweats and sleep latency reported as moderate impact.&quot;</p>
                     </div>
-                    <div className="p-2.5 sm:p-3 bg-emerald-50/60 rounded-xl border border-emerald-100">
+                    <div className="p-2.5 bg-emerald-50/60 rounded-xl border border-emerald-100">
                       <span className="font-bold text-emerald-900 block mb-0.5">Personalized Recommendation</span>
                       <p className="text-slate-600 leading-relaxed">&quot;Increase evening magnesium intake; discontinue caffeine at 2:00 PM.&quot;</p>
-                    </div>
-                    <div className="p-2.5 sm:p-3 bg-amber-50/60 rounded-xl border border-amber-100">
-                      <span className="font-bold text-amber-900 block mb-0.5">Today&apos;s Next Action</span>
-                      <p className="text-slate-600 leading-relaxed">&quot;10-minute cooling breath meditation 30 minutes before sleep.&quot;</p>
                     </div>
                   </div>
                 </div>
@@ -145,7 +152,7 @@ export default function FeatureShowcase() {
                   Food as Medicine
                 </span>
                 <h3 className="text-2xl sm:text-3xl font-bold text-slate-900 leading-snug">
-                  Adaptive Nutrition Radar & Recipe Curation
+                  Adaptive Nutrition Radar &amp; Recipe Curation
                 </h3>
                 <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
                   Based on your daily logs (such as hot flashes or restless nights), HerCompassAI dynamically
@@ -168,8 +175,18 @@ export default function FeatureShowcase() {
               </div>
 
               <div className="lg:col-span-6">
-                <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 shadow-md space-y-3">
-                  <div className="flex flex-col gap-1 pb-3 border-b border-slate-100 sm:flex-row sm:items-center sm:justify-between">
+                <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-md space-y-3">
+                  <div className="relative h-48 sm:h-52 w-full rounded-xl overflow-hidden border border-slate-100 bg-slate-50">
+                    <img
+                      src="/images/landing/nutrition-wellness.webp"
+                      alt="Nutrient-dense midlife wellness meals"
+                      className="h-full w-full object-cover object-center"
+                    />
+                    <div className="absolute top-3 left-3 bg-emerald-800/90 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-lg">
+                      Clinical Nutrition Guidance
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1 pb-2 border-b border-slate-100 sm:flex-row sm:items-center sm:justify-between">
                     <span className="text-xs font-bold text-slate-900">Today&apos;s Recommended Meal Plan</span>
                     <span className="self-start text-[10px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">WHO &amp; NIH Aligned</span>
                   </div>
@@ -180,15 +197,6 @@ export default function FeatureShowcase() {
                     <div>
                       <h4 className="text-xs sm:text-sm font-bold text-slate-900">Spinach &amp; Lentil Magnesium Bowl</h4>
                       <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5">380mg Magnesium • High fiber • Better sleep</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 p-3 rounded-xl border border-slate-100 bg-slate-50">
-                    <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-violet-100 text-violet-700 font-bold text-[10px] sm:text-xs flex-shrink-0">
-                      Night
-                    </div>
-                    <div>
-                      <h4 className="text-xs sm:text-sm font-bold text-slate-900">Lavender &amp; Chamomile Cooling Infusion</h4>
-                      <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5">Nervous system relaxation • Zero stimulants</p>
                     </div>
                   </div>
                 </div>
@@ -225,8 +233,18 @@ export default function FeatureShowcase() {
               </div>
 
               <div className="lg:col-span-6">
-                <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 shadow-md space-y-3">
-                  <div className="flex flex-col gap-1 pb-3 border-b border-slate-100 sm:flex-row sm:items-center sm:justify-between">
+                <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-md space-y-3">
+                  <div className="relative h-48 sm:h-52 w-full rounded-xl overflow-hidden border border-slate-100 bg-slate-50">
+                    <img
+                      src="/images/landing/care-plan.webp"
+                      alt="Mindful cooling and restorative wellness"
+                      className="h-full w-full object-cover object-center"
+                    />
+                    <div className="absolute top-3 left-3 bg-sky-900/90 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-lg">
+                      Autonomic Cooling Protocols
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1 pb-2 border-b border-slate-100 sm:flex-row sm:items-center sm:justify-between">
                     <span className="text-xs font-bold text-slate-900">Today&apos;s Active Routine</span>
                     <span className="self-start text-[10px] font-semibold text-sky-600 bg-sky-50 px-2 py-0.5 rounded-full border border-sky-100">ACOG Guideline Grounded</span>
                   </div>
@@ -236,10 +254,6 @@ export default function FeatureShowcase() {
                     <p className="text-[10px] sm:text-xs text-slate-600 mt-1 leading-relaxed">
                       Reduces sympathetic nervous system tone and lowers nighttime flush probability.
                     </p>
-                    <div className="mt-2.5 flex items-center justify-between text-[10px] text-slate-500">
-                      <span>Duration: 5 min</span>
-                      <span className="font-semibold text-sky-700 cursor-pointer">Preview Routine →</span>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -275,8 +289,18 @@ export default function FeatureShowcase() {
               </div>
 
               <div className="lg:col-span-6">
-                <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 shadow-md space-y-3">
-                  <div className="flex flex-col gap-1.5 pb-3 border-b border-slate-100 sm:flex-row sm:items-center sm:justify-between">
+                <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-md space-y-3">
+                  <div className="relative h-48 sm:h-52 w-full rounded-xl overflow-hidden border border-slate-100 bg-slate-50">
+                    <img
+                      src="/images/landing/couple-walk.jpg"
+                      alt="Couple walking together in sunset"
+                      className="h-full w-full object-cover object-center"
+                    />
+                    <div className="absolute top-3 left-3 bg-purple-900/90 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-lg">
+                      CPS Co-Regulation
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1.5 pb-2 border-b border-slate-100 sm:flex-row sm:items-center sm:justify-between">
                     <span className="text-xs font-bold text-slate-900">Member Privacy Control Panel</span>
                     <span className="self-start text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100 flex items-center gap-1">
                       <Lock className="h-3 w-3" /> Consented Scope
@@ -284,15 +308,11 @@ export default function FeatureShowcase() {
                   </div>
                   
                   <div className="space-y-2 text-xs">
-                    <div className="flex items-center justify-between p-2.5 sm:p-3 rounded-xl border border-slate-100 bg-slate-50">
+                    <div className="flex items-center justify-between p-2 rounded-xl border border-slate-100 bg-slate-50">
                       <span className="font-semibold text-slate-700">Share Weekly Digest Summary</span>
                       <span className="font-bold text-emerald-600">Enabled</span>
                     </div>
-                    <div className="flex items-center justify-between p-2.5 sm:p-3 rounded-xl border border-slate-100 bg-slate-50">
-                      <span className="font-semibold text-slate-700">Share Suggested Joint Meals</span>
-                      <span className="font-bold text-emerald-600">Enabled</span>
-                    </div>
-                    <div className="flex items-center justify-between p-2.5 sm:p-3 rounded-xl border border-slate-100 bg-slate-50">
+                    <div className="flex items-center justify-between p-2 rounded-xl border border-slate-100 bg-slate-50">
                       <span className="font-semibold text-slate-700">Share Raw Daily Notes</span>
                       <span className="font-bold text-slate-400">Locked / Never</span>
                     </div>

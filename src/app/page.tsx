@@ -4,6 +4,7 @@ import HeroSection from "@/components/HeroSection";
 import EvidenceProof from "@/components/EvidenceProof";
 import HowItWorks from "@/components/HowItWorks";
 import FeatureShowcase from "@/components/FeatureShowcase";
+import ClinicalCareSection from "@/components/ClinicalCareSection";
 import StoryComparison from "@/components/StoryComparison";
 import PricingSection from "@/components/PricingSection";
 import FaqSection from "@/components/FaqSection";
@@ -28,6 +29,9 @@ export default function HomePage() {
 
         {/* Feature Deep Dive (Snapshot, Nutrition, Movement, CPS) */}
         <FeatureShowcase />
+
+        {/* Clinical Standards & Doctor-Ready Care (Inspired by Newson Health & Elektra) */}
+        <ClinicalCareSection />
 
         {/* Maria's Real Story vs Traditional Confusion */}
         <StoryComparison />
