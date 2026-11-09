@@ -92,26 +92,21 @@ export default function HeroSection() {
           <div className="lg:col-span-7 flex flex-col items-start text-left">
             
             {/* Top Pill Tag */}
-            <div className="inline-flex items-center gap-2 rounded-full border border-violet-200/90 bg-white/90 px-3.5 py-1.5 text-xs font-semibold text-violet-700 shadow-xs mb-5 backdrop-blur-sm">
-              <span className="flex h-2 w-2 rounded-full bg-violet-600 animate-pulse" />
-              <span>Relationship Intelligence</span>
+            <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-emerald-800 shadow-xs mb-5">
+              <span>UNDERSTANDING MENOPAUSE. TOGETHER.</span>
             </div>
 
             {/* Main Headline */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 leading-[1.12]">
-              Feel Like Yourself Again.{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600">
-                Navigate Menopause Together.
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900 leading-[1.15]">
+              Menopause Is a Journey. You Don&apos;t Have to Navigate It Alone.{" "}
+              <span className="block mt-2 text-transparent bg-clip-text bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600">
+                Understand More. Connect Better. Navigate It Together.
               </span>
             </h1>
 
             {/* Sub-headline */}
-            <p className="mt-5 text-base sm:text-lg lg:text-xl text-slate-600 leading-relaxed max-w-2xl font-normal">
-              A relationship intelligence platform that translates daily hormone signals into{" "}
-              <span className="font-semibold text-slate-800">
-                restorative sleep, cooling routines, and member-controlled partner digests
-              </span>
-              . Grounded in science. Backed by specialists. Designed for real couples.
+            <p className="mt-5 text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl font-normal">
+              HerCompassAI helps women understand what they&apos;re experiencing, helps men learn what their partners may be going through, and gives couples practical ways to communicate and support each other.
             </p>
 
             {/* Interactive Symptom Focus Selector (Inspired by Evernow) */}
@@ -183,14 +178,14 @@ export default function HeroSection() {
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-violet-500/25 transition-all hover:shadow-xl hover:shadow-violet-500/35 hover:-translate-y-0.5 active:translate-y-0"
               >
                 <Sparkles className="h-4 w-4 text-violet-200" />
-                <span>Take Free Assessment</span>
+                <span>Start Your Free Personal Snapshot</span>
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
-                href="/features"
+                href="/how-it-works"
                 className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-3.5 text-sm font-semibold text-slate-700 shadow-xs hover:border-violet-300 hover:bg-violet-50/40 hover:text-violet-900 transition-all"
               >
-                <span>Explore Science &amp; Features</span>
+                <span>Explore How HerCompassAI Works →</span>
               </Link>
             </div>
 
@@ -200,195 +195,69 @@ export default function HeroSection() {
               <span>✓ Strict Member Consent</span>
             </div>
 
-            {/* Social Proof with Real Avatars (Inspired by Balance & Evernow) */}
-            <div className="mt-8 flex flex-wrap items-center gap-3 pt-6 border-t border-slate-200/70 w-full">
-              <div className="flex -space-x-2 overflow-hidden">
-                <img
-                  src="/images/landing/hero-woman.webp"
-                  alt="Member Maria"
-                  className="inline-block h-9 w-9 rounded-full ring-2 ring-white object-cover"
-                />
-                <img
-                  src="/images/landing/care-plan.webp"
-                  alt="Member Sarah"
-                  className="inline-block h-9 w-9 rounded-full ring-2 ring-white object-cover"
-                />
-                <img
-                  src="/images/landing/specialist-nurse.jpg"
-                  alt="Clinician specialist"
-                  className="inline-block h-9 w-9 rounded-full ring-2 ring-white object-cover"
-                />
-                <img
-                  src="/images/landing/consultation-smiling.jpg"
-                  alt="Member Elena"
-                  className="inline-block h-9 w-9 rounded-full ring-2 ring-white object-cover"
-                />
-              </div>
-              <div className="flex flex-col">
-                <div className="flex items-center gap-1 text-amber-500">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                  ))}
-                  <span className="font-bold text-slate-900 ml-1 text-xs">4.9/5 Rating</span>
-                </div>
-                <span className="text-[11px] text-slate-600">
-                  Empowering over <strong className="text-slate-800">12,500+ women &amp; partners</strong> across midlife
-                </span>
-              </div>
-            </div>
+
 
           </div>
 
-          {/* RIGHT COLUMN: Elevated Photographic Showcase with Floating Telemetry Cards */}
+          {/* RIGHT COLUMN: Dual Journey Showcase (For Her & For Him) */}
           <div className="lg:col-span-5 relative">
             {/* Atmospheric Outer Glow */}
-            <div className="absolute -inset-2 rounded-3xl bg-gradient-to-tr from-violet-400/25 via-purple-300/20 to-amber-200/25 blur-2xl opacity-75" />
+            <div className="absolute -inset-2 rounded-3xl bg-gradient-to-tr from-violet-400/20 via-purple-300/15 to-amber-200/20 blur-2xl opacity-70" />
 
             {/* Main Visual Container */}
-            <div className="relative rounded-3xl border border-slate-200/90 bg-white p-3 sm:p-4 shadow-2xl shadow-slate-300/40 overflow-hidden">
-              
-              {/* Cinematic Woman & Warmth Photography Frame */}
-              <div className="relative h-[480px] sm:h-[530px] w-full rounded-2xl overflow-hidden bg-slate-900">
-                <img
-                  src="/images/landing/hero-woman.webp"
-                  alt="Confident, healthy midlife woman smiling in sunlight"
-                  className="h-full w-full object-cover object-top opacity-95 transition-transform duration-700 hover:scale-105"
-                />
-
-                {/* Subtle dark gradient overlay at top & bottom for card readability */}
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-slate-950/40 pointer-events-none" />
-
-                {/* FLOATING GLASS CARD 1: Restorative Sleep (Top Left) */}
-                <div className="absolute top-4 left-4 rounded-2xl bg-white/90 backdrop-blur-md p-3 shadow-xl border border-white/60 max-w-[210px] animate-in fade-in slide-in-from-top-4 duration-500">
-                  <div className="flex items-center gap-2.5">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600 flex-shrink-0 shadow-xs">
-                      <Moon className="h-4.5 w-4.5 stroke-[2.2]" />
-                    </div>
-                    <div>
-                      <div className="text-[11px] font-bold text-slate-900">Sleep Score: 90%</div>
-                      <div className="text-[10px] text-emerald-600 font-semibold">+28% Deep REM Rest</div>
-                    </div>
+            <div className="relative rounded-3xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-xl shadow-slate-200/50">
+              {/* Dual Cards Grid: For Her & For Him */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                {/* Card 1: For Her */}
+                <div className="flex flex-col">
+                  <div className="relative h-48 sm:h-44 w-full rounded-2xl overflow-hidden bg-slate-100 shadow-xs">
+                    <img
+                      src="/images/landing/for-her.jpg"
+                      alt="Midlife woman smiling in kitchen"
+                      className="h-full w-full object-cover object-center transition-transform duration-500 hover:scale-105"
+                    />
                   </div>
-                  <div className="mt-2 pt-2 border-t border-slate-100 text-[9px] text-slate-500 flex items-center justify-between">
-                    <span>Average 7.6 hrs</span>
-                    <span className="text-emerald-700 font-semibold">Restorative</span>
-                  </div>
-                </div>
-
-                {/* FLOATING GLASS CARD 2: Clinical Guideline Badge (Top Right) */}
-                <div className="absolute top-4 right-4 rounded-xl bg-slate-900/80 backdrop-blur-md px-3 py-1.5 text-white border border-white/20 shadow-lg flex items-center gap-1.5">
-                  <ShieldCheck className="h-3.5 w-3.5 text-violet-400" />
-                  <span className="text-[10px] font-semibold">ACOG &amp; NAMS Verified</span>
-                </div>
-
-                {/* FLOATING GLASS CARD 3: Hot Flash Risk Mitigation (Center Right) */}
-                <div className="absolute top-1/2 -translate-y-1/2 right-4 rounded-2xl bg-white/90 backdrop-blur-md p-3 shadow-xl border border-white/60 max-w-[190px] hidden sm:block animate-in fade-in duration-700">
-                  <div className="flex items-center gap-2">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-100 text-rose-600 flex-shrink-0">
-                      <Flame className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <span className="text-[11px] font-bold text-slate-900">Hot Flash Risk: 6%</span>
-                      <p className="text-[9px] text-rose-700 font-semibold">Down 18% with cooling walks</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* FLOATING GLASS CARD 4: Partner Support & Consented Digest (Bottom) */}
-                <div className="absolute bottom-4 left-4 right-4 rounded-2xl bg-slate-900/90 text-white backdrop-blur-md p-3.5 shadow-2xl border border-white/15 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <div className="flex items-center justify-between gap-2 mb-1.5">
-                    <div className="flex items-center gap-2">
-                      <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-violet-600 text-white shadow-xs">
-                        <HeartHandshake className="h-4 w-4" />
-                      </div>
-                      <span className="text-xs font-bold text-violet-200">
-                        Consented Partner Digest
-                      </span>
-                    </div>
-                    <span className="rounded-full bg-emerald-500/20 text-emerald-300 px-2 py-0.5 text-[9px] font-bold border border-emerald-500/30">
-                      Zero Raw Logs Shared
-                    </span>
-                  </div>
-
-                  <p className="text-[11px] text-slate-200 leading-snug">
-                    {"\"Partner received actionable Monday guide: Prepare tonight's magnesium dinner together & take a 15-min calm cooling walk.\""}
+                  <h3 className="mt-3.5 text-base font-bold text-slate-900">
+                    For Her
+                  </h3>
+                  <p className="mt-1 text-xs text-slate-600 leading-relaxed">
+                    Understand your experiences. Discover possible patterns. Choose what you share.
                   </p>
-
-                  <div className="mt-2.5 pt-2 border-t border-white/10 flex items-center justify-between text-[10px] text-slate-400">
-                    <span>Maria, 47 &amp; Mark, 50 • Perimenopause Track</span>
-                    <span className="text-violet-300 font-semibold flex items-center gap-1">
-                      Co-Regulation Active <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    </span>
-                  </div>
                 </div>
 
+                {/* Card 2: For Him */}
+                <div className="flex flex-col">
+                  <div className="relative h-48 sm:h-44 w-full rounded-2xl overflow-hidden bg-slate-100 shadow-xs">
+                    <img
+                      src="/images/landing/for-him.jpg"
+                      alt="Couple sitting together on couch having a conversation"
+                      className="h-full w-full object-cover object-center transition-transform duration-500 hover:scale-105"
+                    />
+                  </div>
+                  <h3 className="mt-3.5 text-base font-bold text-slate-900">
+                    For Him
+                  </h3>
+                  <p className="mt-1 text-xs text-slate-600 leading-relaxed">
+                    Learn what she may be experiencing. Discover how to offer meaningful support.
+                  </p>
+                </div>
+              </div>
+
+              {/* Bottom Tagline & Narrative */}
+              <div className="mt-6 pt-5 border-t border-slate-100 text-center">
+                <h4 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
+                  Better Understanding. Stronger Connection.
+                </h4>
+                <p className="mt-1.5 text-xs text-slate-500 leading-relaxed">
+                  A shared journey, with her privacy and choices at the center.
+                </p>
               </div>
             </div>
-
-            {/* Micro Trust Indicator beneath Visual */}
-            <div className="mt-3 flex items-center justify-center gap-6 text-[11px] font-semibold text-slate-500">
-              <span className="flex items-center gap-1">
-                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /> CQC Standard Benchmarked
-              </span>
-              <span className="flex items-center gap-1">
-                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /> ORCHA Digital Health Level
-              </span>
-            </div>
-
           </div>
 
         </div>
 
-        {/* BOTTOM METRICS IMPACT BAR (Across full width) */}
-        <div className="mt-14 sm:mt-18 pt-8 border-t border-slate-200/80 grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 text-center sm:text-left">
-          <div className="flex flex-col">
-            <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-              -18%
-            </span>
-            <span className="text-xs font-semibold text-violet-700 mt-0.5">
-              Vasomotor Severity
-            </span>
-            <p className="text-[11px] text-slate-500 mt-1">
-              Average reduction in hot flash frequency in first 14 days
-            </p>
-          </div>
 
-          <div className="flex flex-col">
-            <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-              90%
-            </span>
-            <span className="text-xs font-semibold text-emerald-600 mt-0.5">
-              Restorative Sleep Index
-            </span>
-            <p className="text-[11px] text-slate-500 mt-1">
-              Fall asleep 25 min faster with adaptive wind-down protocols
-            </p>
-          </div>
-
-          <div className="flex flex-col">
-            <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-              12,500+
-            </span>
-            <span className="text-xs font-semibold text-indigo-600 mt-0.5">
-              Women &amp; Partners
-            </span>
-            <p className="text-[11px] text-slate-500 mt-1">
-              Navigating perimenopause and menopause with mutual confidence
-            </p>
-          </div>
-
-          <div className="flex flex-col">
-            <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-              100%
-            </span>
-            <span className="text-xs font-semibold text-amber-600 mt-0.5">
-              Member-Controlled Privacy
-            </span>
-            <p className="text-[11px] text-slate-500 mt-1">
-              Partners receive high-level empathy digests, never raw private diaries
-            </p>
-          </div>
-        </div>
 
       </div>
     </section>
