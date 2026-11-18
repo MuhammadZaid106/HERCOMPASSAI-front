@@ -114,10 +114,10 @@ export default function EvidenceProof() {
                 </p>
                 <div className="pt-2 flex flex-wrap items-center gap-2 text-[11px] font-semibold text-slate-700">
                   <span className="inline-flex items-center gap-1 bg-white border border-slate-200 px-2 py-0.5 rounded-lg">
-                    ✓ CQC Standard Alignment
+                    ✓ Clinical Evidence Grounded
                   </span>
                   <span className="inline-flex items-center gap-1 bg-white border border-slate-200 px-2 py-0.5 rounded-lg">
-                    ✓ ORCHA Health Certified
+                    ✓ Peer-Reviewed Research Base
                   </span>
                 </div>
               </div>
